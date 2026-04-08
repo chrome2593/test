@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>장비 가동 일보 분석 시스템</title>
+    <title>장비 가동 일보 통합 분석 시스템</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
@@ -91,9 +91,9 @@ const CONFIG = {
             right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "고산", "신매", "사월", "정평", "임당", "영남대"] }
         }
     },
-    L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
+    L1_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
     ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
-    ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1" }
+    ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1", "대곡":"type2", "월촌":"type2", "송현":"type2", "교대":"type2", "명덕":"type2", "동구청":"type2", "방촌":"type2", "용계":"type2", "율하":"type2", "신기":"type2" }
 };
 
 let currentLine = '', isCooling = false, ventSeason = '', isChillerSeason = false;
@@ -106,20 +106,16 @@ function toggleDetail(btn, id, lbl) {
     btn.innerHTML = act ? `[${lbl}] 상세보기 ▾` : `[${lbl}] 닫기 ▴`;
 }
 
-// [핵심 교정] 엑셀 화면에 표시되는 값(w) 또는 값(v)을 일관되게 파싱
+// [교정] 시간 파싱 로직 강화
 function parseH(v) { 
     if(!v || v === "N/A" || v === "-" || v === "0") return 0;
     let s = String(v).trim();
-    if(s.includes(':')) { // "05:24" 형식
+    if(s.includes(':')) {
         const p = s.split(':');
-        let h = parseInt(p[0])||0;
-        let m = parseInt(p[1])||0;
-        let sec = parseInt(p[2])||0;
-        return h + (m/60) + (sec/3600);
+        return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
     }
     const n = parseFloat(s);
     if(isNaN(n)) return 0;
-    // 엑셀 내부 데이터가 0.225(시간 시리얼)일 경우 24를 곱하고, 5.4(이미 시간단위)일 경우 그대로 둠.
     return (n > 0 && n < 1.0) ? n * 24 : n;
 }
 
@@ -127,7 +123,6 @@ function getCV(s, r, c) {
     if(!s) return ""; 
     const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
     if(!cell) return "";
-    // cell.w (Formatted text) 우선, 없으면 cell.v (Raw value)
     return cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : ""); 
 }
 
@@ -135,6 +130,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
     const file = e.target.files[0]; if(!file) return;
     const fn = file.name;
     currentLine = (fn.includes("2호선") || fn.includes("L2") || fn.includes("일보")) ? 'line2' : 'line1';
+    
     const reader = new FileReader();
     reader.onload = (evt) => {
         try {
@@ -145,7 +141,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
             runAnalysis(wb, m, d);
             document.getElementById('upload-container').classList.add('minimized');
-        } catch(e) { alert("파일 로드 중 오류 발생"); }
+        } catch(e) { alert("분석 실패: 파일을 확인해주세요."); }
     };
     reader.readAsBinaryString(file);
 });
@@ -158,14 +154,10 @@ function runAnalysis(wb, m, d) {
     banner.style.display = 'block';
     banner.innerHTML = `공조 기준: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기 기준: <strong>${ventSeason}</strong> (${m}월 ${d}일)`;
 
-    // [중요] 2호선은 명시하신 대로 "장비" 시트만 타겟팅
-    const findS = (kw) => {
-        let matched = wb.SheetNames.find(n => kw.some(k => n.includes(k)));
-        return matched ? wb.Sheets[matched] : wb.Sheets[wb.SheetNames[0]];
-    };
-
-    const hSheet = (currentLine === 'line2') ? findS(["장비"]) : findS(["가동", "현황", "공조"]);
-    const aSheet = findS(["청정기", "공기"]);
+    // [수정] 지시하신 시트 고정 로직
+    const hSheet = (currentLine === 'line1') ? wb.Sheets["가동시간"] : wb.Sheets["장비"];
+    const aSheetName = wb.SheetNames.find(n => n.includes("청정기") || n.includes("공기"));
+    const aSheet = wb.Sheets[aSheetName] || hSheet;
 
     const hData = (currentLine === 'line1') ? getL1H(hSheet) : getL2H(hSheet);
     const aData = getAP(aSheet);
@@ -209,7 +201,7 @@ function analyzeVent(val, isR, st, unit = "") {
         return (h >= limit) ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' };
     }
     if (ventSeason === '하절기') {
-        if (isR && ["명덕", "연호", "임당", "영대"].includes(st)) target = 17.8;
+        if (isR && ["명덕", "연호", "임당", "영대", "영남대"].includes(st)) target = 17.8;
         if (st === "고산" && isR) target = 6.5;
         if (st === "신매" && !isR) target = 5.5;
         if (st === "정평" && isR) target = 5.5;
@@ -315,7 +307,7 @@ function getL1H(s) {
     [4, 5].forEach(c => { const n = (c===4)?"설화명곡":"화원"; const r = [getCV(s,80,c),getCV(s,81,c),getCV(s,88,c),getCV(s,89,c)];
         d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
+    CONFIG.L1_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
         d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
     }); return d;
 }
@@ -325,19 +317,18 @@ function getL1V(s) {
         const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
+    CONFIG.L1_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
         const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     }); return d;
 }
 function getL1C(s) {
     const d = []; if(!s) return d;
-    // 정렬: 설화명곡, 화원 먼저
     [{n:"설화명곡",c:5},{n:"화원",c:4}].forEach(st => { 
         const v1 = parseH(getCV(s,154,st.c)); const v2 = parseH(getCV(s,155,st.c));
         const sumV = v1 + v2; d.push({name:st.n, raw:[sumV], res:[analyzeChiller(sumV, st.n)], isCri:analyzeChiller(sumV, st.n).s==='critical'});
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { 
+    CONFIG.L1_LIST.forEach((n, i) => { 
         const v = parseH(getCV(s,56,4+i)); d.push({name:n, raw:[v], res:[analyzeChiller(v,n)], isCri:analyzeChiller(v,n).s==='critical'}); 
     }); return d;
 }
@@ -391,7 +382,6 @@ function getL2V(s) {
 function getL2C(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
     CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(st => {
-        if(st === "문양" || (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기"))) return;
         const mn = CONFIG.L2_MAP[st] || st; let tot = 0, found = false;
         for (let r=0; r<=rg.e.r; r++) {
             let txt = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
@@ -417,7 +407,6 @@ function getAP(s) {
     } else {
         const rg = XLSX.utils.decode_range(s['!ref']);
         CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(st => {
-            if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("공기청정기")) return;
             let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(CONFIG.L2_MAP[st]||st)) { fR=r; break; } }
             if (fR !== -1) { const obj = {name:st, units:[]};
                 for (let i=5; i<=35; i++) { [4, 9].forEach(c => {
