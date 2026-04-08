@@ -24,10 +24,10 @@
         .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
         .summary-card { background: white; border: 1px solid #fda4af; border-left: 12px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.06); }
         .summary-card.ok { border-color: #dcfce7; border-left-color: var(--success); background: #f0fdf4; }
-        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .summary-group-label { font-weight: 800; font-size: 1.05rem; color: #475569; margin: 15px 0 8px 0; display: block; }
 
-        .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+        .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
         .badge { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; text-align: center; }
         .badge-danger { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; }
         .badge-checked { background: #f1f5f9 !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; text-decoration: line-through; opacity: 0.7; }
@@ -36,8 +36,8 @@
         .branch-column { display: flex; flex-direction: column; width: 100%; }
         .branch-name-header { background: var(--dark); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 25px; align-self: flex-start; }
 
-        .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
-        .toggle-detail-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
+        .toggle-detail-btn.active { background: var(--primary); color: white; }
         .detail-content { display: none; margin-bottom: 40px; }
         .detail-content.active { display: block; }
         .section-title { font-weight: 800; font-size: 1.25rem; color: var(--primary); margin: 0 0 10px 5px; padding-left: 12px; border-left: 5px solid var(--primary); }
@@ -45,8 +45,9 @@
         .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td { padding: 12px 4px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 90px; border-right: 1px solid #f1f5f9; }
+        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 95px; border-right: 1px solid #f1f5f9; }
         .critical-val { background: #ef4444 !important; color: white !important; font-weight: 800; }
+        .bad-val { background: #fffbeb; color: #b45309; }
         .season-info { padding: 15px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 12px; text-align: center; font-weight: 700; color: #0369a1; margin-bottom: 20px; }
     </style>
 </head>
@@ -79,7 +80,6 @@
             COOLING_DATE: { sm: 7, sd: 1, em: 9, ed: 20 },
             VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
             NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
-            COOLING_TARGETS: { "type1": 12, "type2": 9, "type3": 9 },
             L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
             NO_EQUIPMENT: { 
                 "문양": ["공조기", "송풍기", "냉동기"],
@@ -102,9 +102,8 @@
                 }
             },
             L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
-            L2_ST_LIST: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕", "반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "고산", "신매", "사월", "정평", "임당", "영남대"],
             ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
-            ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1", "대곡":"type2", "월촌":"type2", "송현":"type2", "교대":"type2", "명덕":"type2", "동구청":"type2", "방촌":"type2", "용계":"type2", "율하":"type2", "신기":"type2" }
+            ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1" }
         };
 
         let currentLine = '', isCooling = false, ventSeason = '', isChillerSeason = false;
@@ -119,11 +118,12 @@
 
         document.getElementById('excelFile').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
-            currentLine = (file.name.includes("일보") || file.name.includes("2호선")) ? 'line2' : 'line1';
+            const fn = file.name;
+            currentLine = (fn.includes("일보") || fn.includes("2호선")) ? 'line2' : 'line1';
             const reader = new FileReader();
             reader.onload = (evt) => {
                 const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
-                let m = 0, d = 0; const dm = file.name.match(/\d{8}/);
+                let m = 0, d = 0; const dm = fn.match(/\d{8}/);
                 if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
                 else { const ts = wb.Sheets[wb.SheetNames[0]]; const dv = ts['C2']?ts['C2'].v:null; if(dv instanceof Date){ m=dv.getMonth()+1; d=dv.getDate(); } }
                 document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
@@ -275,7 +275,7 @@
         }
         function buildAT(data) {
             if (!data || data.length === 0) return "<p style='padding:20px; color:#94a3b8; text-align:center;'>데이터 없음</p>";
-            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:90px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
+            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:95px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
             data.forEach(d => { h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
                 d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
                 h += `</div></td></tr>`;
@@ -398,20 +398,25 @@
         function formatToHMS(v) { if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; let ts; if(typeof v==='number') ts=Math.round(v*24*3600); else if(typeof v==='string'&&v.includes(':')){ const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); } else { const n=parseFloat(v); if(isNaN(n)) return "0:00:00"; ts=Math.round(n*3600); } const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=ts%60; return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
         function getCV(s, r, c) { if(!s) return ""; const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; return cell ? (cell.w ? cell.w : cell.v) : ""; }
         
-        // [핵심 수정] 시간 파싱 로직 개선 (숫자 1.0 이상은 이미 시간으로 간주)
+        // [강화된 파싱 로직] 24시간 일보의 특성을 고려하여 절대 24를 넘지 않도록 처리
         function parseH(v) { 
             if(!v||v==="N/A"||v==="-") return 0; 
             if(typeof v === 'number') {
-                // 1.0 이하는 엑셀 시간 시리얼(0.25=6시간), 1.0 이상은 이미 입력된 시간(6.0=6시간)
-                return (v > 1) ? v : v * 24; 
+                // 1.0보다 크면 이미 시간 단위 숫자임 (6.0 = 6시간). 
+                // 1.0 이하면 엑셀 시간 시리얼임 (0.25 = 6시간).
+                return (v > 1.0) ? v : v * 24; 
             } 
-            if(typeof v === 'string' && v.includes(':')) { 
-                const p = v.split(':'); return parseInt(p[0]) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600; 
-            } 
-            const n = parseFloat(v);
-            return isNaN(n) ? 0 : n;
+            if(typeof v === 'string') {
+                if(v.includes(':')) {
+                    const p = v.split(':'); 
+                    return parseInt(p[0]) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600; 
+                }
+                const n = parseFloat(v);
+                if(!isNaN(n)) return (n > 1.0) ? n : n * 24;
+            }
+            return 0;
         }
-        function cleanText(s) { return String(s || "").replace(/\s+/g, "").replace("(2)",""); }
+        function cleanText(s) { return String(s || "").replace(/\s+/g, "").replace(/\(\d\)/g, ""); }
     </script>
 </body>
 </html>
