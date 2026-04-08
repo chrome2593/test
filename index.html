@@ -69,16 +69,14 @@
 
 <script>
 const CONFIG = {
-    COOLING_DATE: { sm: 7, sd: 1, em: 9, ed: 20 },
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
     NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
-    L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
-    NO_EQUIPMENT: { 
+    L2_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
+    NO_EQUIP: { 
         "문양": ["공조기", "송풍기", "냉동기", "공기청정기"],
         "다사": ["상부배기", "하부배기"],
         "대실": ["상부배기", "하부배기"]
     },
-    VENT_19H: ["중앙로", "칠성시장", "방촌", "수성알파", "수성구청", "송현", "연호", "반월당"],
     CHILLER_VALS: {
         "설화명곡":6.0, "화원":6.0, "대곡":6.0, "진천":5.5, "월배":5.5, "상인":11.5, "월촌":5.5, "송현":5.5, "서부정류장":10.0, "대명":5.5, "안지랑":5.5, "현충로":5.5, "영대병원":6.0, "교대":7.0, "명덕":6.0, "반월당":11.5, "중앙로":14.5, "대구역":6.0, "칠성시장":5.5, "신천":5.5, "동대구":11.5, "동구청":5.5, "아양교":6.0, "동촌":5.5, "해안":5.5, "방촌":6.0, "용계":5.5, "율하":6.0, "신기":5.5, "반야월":5.5, "각산":6.0, "안심":11.5,
         "다사":4.0, "대실":4.5, "강창":4.5, "계명대":4.5, "성서산단":4.5, "성서산업단지":4.5, "이곡":4.5, "용산":6.0, "죽전":6.0, "감삼":6.0, "두류":6.0, "내당":6.5, "반고개":6.0, "청라언덕":6.5, "반월당(2호선)":12.0, "경대병원":6.0, "대구은행":6.0, "범어":5.5, "수성구청":5.0, "만촌":4.5, "담티":5.0, "연호":5.0, "수성알파":5.0, "고산": 6.5, "신매": 5.5, "사월": 6.0, "정평": 5.5, "임당": 4.5, "영남대": 4.5
@@ -90,10 +88,10 @@ const CONFIG = {
         },
         line2: {
             left: { name: "문양기지기계분소", stations: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕"] },
-            right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "수성알파시티", "고산", "신매", "사월", "정평", "임당", "영남대", "영대"] }
+            right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "고산", "신매", "사월", "정평", "임당", "영남대"] }
         }
     },
-    L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
+    L1_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
     ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
     ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1" }
 };
@@ -108,7 +106,6 @@ function toggleDetail(btn, id, lbl) {
     btn.innerHTML = act ? `[${lbl}] 상세보기 ▾` : `[${lbl}] 닫기 ▴`;
 }
 
-// [교정된 파싱 로직] 눈에 보이는 그대로의 텍스트를 최우선하여 파싱
 function parseH(v) { 
     if(!v || v === "N/A" || v === "-" || v === "0") return 0;
     let s = String(v).trim();
@@ -118,7 +115,6 @@ function parseH(v) {
     }
     const n = parseFloat(s);
     if(isNaN(n)) return 0;
-    // 하루 24시간 일보의 특성상 1.0 이하는 시간 일련번호(0.25일 등), 1.0 초과는 가동시간 숫자.
     return (n > 0 && n <= 1.0) ? n * 24 : n;
 }
 
@@ -132,17 +128,23 @@ function getCV(s, r, c) {
 document.getElementById('excelFile').addEventListener('change', function(e) {
     const file = e.target.files[0]; if(!file) return;
     const fn = file.name;
-    // 2호선 인식 기준 강화
-    currentLine = (fn.includes("2호선") || fn.includes("L2") || fn.includes("일보")) ? 'line2' : 'line1';
+    // 2호선 인식 조건 강화
+    currentLine = (fn.includes("2호선") || fn.includes("L2") || fn.includes("문양") || fn.includes("사월")) ? 'line2' : 'line1';
+    
     const reader = new FileReader();
     reader.onload = (evt) => {
-        const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
-        let m = 0, d = 0; const dm = fn.match(/\d{8}/);
-        if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
-        else { m=1; d=1; }
-        document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
-        runAnalysis(wb, m, d);
-        document.getElementById('upload-container').classList.add('minimized');
+        try {
+            const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
+            let m = 0, d = 0; const dm = fn.match(/\d{8}/);
+            if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
+            else { m=1; d=1; }
+            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
+            runAnalysis(wb, m, d);
+            document.getElementById('upload-container').classList.add('minimized');
+        } catch(err) {
+            console.error(err);
+            alert("파일 분석 중 오류가 발생했습니다.");
+        }
     };
     reader.readAsBinaryString(file);
 });
@@ -155,13 +157,12 @@ function runAnalysis(wb, m, d) {
     banner.style.display = 'block';
     banner.innerHTML = `공조 기준: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기 기준: <strong>${ventSeason}</strong> (${m}월 ${d}일)`;
 
-    // 2호선 시트 검색 로직 강화: 모든 시트를 순회하며 유효한 데이터가 있는 시트 선택
     const findS = (kw) => {
-        let matched = wb.SheetNames.find(n => kw.some(k => n.includes(k)));
-        return matched ? wb.Sheets[matched] : wb.Sheets[wb.SheetNames[0]];
+        let sheetName = wb.SheetNames.find(n => kw.some(k => n.includes(k)));
+        return sheetName ? wb.Sheets[sheetName] : wb.Sheets[wb.SheetNames[0]];
     };
 
-    const hSheet = findS(["가동", "현황", "공조", "장비"]);
+    const hSheet = findS(["가동", "현황", "공조", "장비", "2호선"]);
     const aSheet = findS(["청정기", "공기", "공기청정기"]);
 
     const hData = (currentLine === 'line1') ? getL1H(hSheet) : getL2H(hSheet);
@@ -173,7 +174,7 @@ function runAnalysis(wb, m, d) {
 }
 
 function analyzeHVAC(val, st, type) {
-    if (CONFIG.NO_EQUIPMENT[st] && (CONFIG.NO_EQUIPMENT[st].includes("공조기") || CONFIG.NO_EQUIPMENT[st].includes(type))) return { s: 'none', c: '' };
+    if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: '' };
     if (val === "N/A" || val === "" || val === undefined) return { s: 'none', c: '' };
     const h = parseH(val);
     if (!isCooling) {
@@ -197,7 +198,7 @@ function analyzeHVAC(val, st, type) {
 }
 
 function analyzeVent(val, isR, st, unit = "") {
-    if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("송풍기")) return { s: 'none', c: '' };
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: '' };
     if (val === "N/A" || val === "") return { s: 'none', c: '' };
     const h = parseH(val);
     let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
@@ -213,7 +214,7 @@ function analyzeVent(val, isR, st, unit = "") {
         if (st === "이곡") target = 4.5;
     }
     const cleanSt = st.replace(/\s+/g,"").replace("(2)","");
-    if (CONFIG.VENT_19H.some(s => cleanSt.includes(s))) {
+    if (["중앙로", "칠성시장", "방촌", "수성알파", "수성구청", "송현", "연호", "반월당"].some(s => cleanSt.includes(s))) {
         if (cleanSt === "중앙로" && !isR) {} 
         else if (cleanSt === "수성구청" && !(isR && unit.includes("배기"))) {}
         else target = 19;
@@ -223,7 +224,7 @@ function analyzeVent(val, isR, st, unit = "") {
 }
 
 function analyzeChiller(val, st) {
-    if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("냉동기")) return { s: 'none', c: '' };
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기")) return { s: 'none', c: '' };
     if (val === "N/A" || val === "" || val === undefined) return { s: 'none', c: '' };
     const h = val; 
     const stationKey = (st === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : st;
@@ -299,7 +300,7 @@ function buildAT(data) {
     if (!data || data.length === 0) return "<p style='padding:20px; color:var(--na); text-align:center;'>데이터 없음</p>";
     let h = `<div class="table-wrapper"><table><thead><tr><th style="width:90px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
     data.forEach(d => { 
-        const isNA = CONFIG.NO_EQUIPMENT[d.name] && CONFIG.NO_EQUIPMENT[d.name].includes("공기청정기");
+        const isNA = CONFIG.NO_EQUIP[d.name] && CONFIG.NO_EQUIP[d.name].includes("공기청정기");
         h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
         d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
         if(isNA) h += `<div style="color:var(--na); font-style:italic; padding:10px;">해당없음</div>`;
@@ -313,7 +314,7 @@ function getL1H(s) {
         const rs = r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust'));
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
+    CONFIG.L1_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
         const rs = r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust'));
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     }); return d;
@@ -324,53 +325,65 @@ function getL1V(s) {
         const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
+    CONFIG.L1_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
         const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
         d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
     }); return d;
 }
 function getL1C(s) {
     const d = []; if(!s) return d;
+    // 정렬 수정: 설화명곡, 화원 먼저
     [{n:"설화명곡",c:5},{n:"화원",c:4}].forEach(st => { 
         const v1 = parseH(getCV(s,154,st.c)); const v2 = parseH(getCV(s,155,st.c));
         const sumV = v1 + v2; d.push({name:st.n, raw:[sumV], res:[analyzeChiller(sumV, st.n)], isCri:analyzeChiller(sumV, st.n).s==='critical'});
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { 
-        const v = parseH(getCV(s,56,4+i)); d.push({name:n, raw:[v], res:[analyzeChiller(v,n)], isCri:analyzeChiller(v,n).s==='critical'}); 
+    CONFIG.L1_LIST.forEach((n, i) => { 
+        const v = parseH(getCV(s,56,4+i)); const rs = [analyzeChiller(v,n)]; 
+        d.push({name:n, raw:[v], res:rs, isCri:rs.some(x=>x.s==='critical')}); 
     }); return d;
 }
 
 function getL2H(s) {
-    const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']); let cur = null;
-    for (let r=0; r<=rg.e.r; r++) {
-        let rT = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
-        let val = getCV(s,r,4);
-        const f = CONFIG.L2_LIST.find(st => rT.includes(st) && (rT.includes("가동") || rT.length < 15));
-        if (f) { if(cur) d.push(fmtL2H(cur)); cur = {name:f, ls:null, lue:null, lle:null, rs:null, rue:null, rle:null}; continue; }
-        if (cur && rT.includes("승강장")) {
-            const isL = rT.includes("좌") || rT.includes("시점") || rT.includes("시하");
-            if (rT.includes("급기")) { if(isL) cur.ls=val; else cur.rs=val; }
-            else if (rT.includes("배기")) { if (rT.includes("하부")) { if(isL) cur.lle=val; else cur.rle=val; } else { if(isL) cur.lue=val; else cur.rue=val; } }
+    const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
+    CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(stName => {
+        if(stName === "문양") { d.push({name:"문양", raw:["N/A","N/A","N/A","N/A","N/A","N/A"], res:[{s:'none'},{s:'none'},{s:'none'},{s:'none'},{s:'none'},{s:'none'}], isCri:false}); return; }
+        const mn = CONFIG.L2_MAP[stName] || stName;
+        let foundRow = -1;
+        for (let r=0; r<=rg.e.r; r++) {
+            let t = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
+            if (t.includes(mn) && (t.includes("가동") || t.length < 15)) { foundRow = r; break; }
         }
-    } if(cur) d.push(fmtL2H(cur)); return d;
+        if (foundRow !== -1) {
+            let cur = {name:stName, ls:null, lue:null, lle:null, rs:null, rue:null, rle:null};
+            for (let r=foundRow; r<foundRow+30 && r<=rg.e.r; r++) {
+                let rawT = getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2);
+                if (rawT.includes("승강장")) {
+                    let val = getCV(s,r,4); let isL = rawT.includes("좌") || rawT.includes("시점") || rawT.includes("시하");
+                    if (rawT.includes("급기")) { if(isL) cur.ls=val; else cur.rs=val; }
+                    else if (rawT.includes("배기")) { if (rawT.includes("하부")) { if(isL) cur.lle=val; else cur.rle=val; } else { if(isL) cur.lue=val; else cur.rue=val; } }
+                }
+            } d.push(fmtL2H(cur));
+        }
+    }); return d;
 }
 function fmtL2H(c) {
     const r = [c.ls, c.lue, c.lle, c.rs, c.rue, c.rle];
     const tps = ["급기", "상부배기", "하부배기", "급기", "상부배기", "하부배기"];
     const rs = r.map((v, i) => {
-        let val = v; if (CONFIG.NO_EQUIPMENT[c.name] && CONFIG.NO_EQUIPMENT[c.name].includes(tps[i])) val = "N/A";
+        let val = v; if (CONFIG.NO_EQUIP[c.name] && CONFIG.NO_EQUIP[c.name].includes(tps[i])) val = "N/A";
         return analyzeHVAC(val, c.name, (i===0||i===3?'supply':'exhaust'));
-    }); return { name:c.name, raw:r.map((v,i)=>(CONFIG.NO_EQUIPMENT[c.name]&&CONFIG.NO_EQUIPMENT[c.name].includes(tps[i]))?"N/A":v), res:rs, isCri: rs.some(x=>x.s==='critical') };
+    }); return { name:c.name, raw:r.map((v,i)=>(CONFIG.NO_EQUIP[c.name]&&CONFIG.NO_EQUIP[c.name].includes(tps[i]))?"N/A":v), res:rs, isCri: rs.some(x=>x.s==='critical') };
 }
 function getL2V(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
-    CONFIG.L2_LIST.forEach(st => {
-        const mn = CONFIG.L2_NAME_MAP[st] || st; let fR = -1;
+    CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(st => {
+        if(st === "문양") { d.push({name:"문양", raw:["N/A","N/A","N/A","N/A"], res:[{s:'none'},{s:'none'},{s:'none'},{s:'none'}], isCri:false}); return; }
+        const mn = CONFIG.L2_MAP[st] || st; let fR = -1;
         for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(mn)) { fR=r; break; } }
         if (fR !== -1) { let unts = [];
             for (let r=fR; r<fR+40 && r<=rg.e.r; r++) { [1, 6, 11].forEach(col => {
                 let nm = getCV(s,r,col); if(nm.includes("환기실")) {
-                    let v = getCV(s,r,col+3); if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("송풍기")) v = "N/A";
+                    let v = getCV(s,r,col+3); if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) v = "N/A";
                     unts.push({ l: nm.replace("환기실","").trim(), v: v, r: analyzeVent(v, (nm.includes("우")||nm.includes("종점")), st, nm) });
                 }
             }); }
@@ -380,9 +393,9 @@ function getL2V(s) {
 }
 function getL2C(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
-    CONFIG.L2_LIST.forEach(st => {
-        if(CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("냉동기")) return;
-        const mn = CONFIG.L2_NAME_MAP[st] || st; let tot = 0, found = false;
+    CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(st => {
+        if(st === "문양" || (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기"))) return;
+        const mn = CONFIG.L2_MAP[st] || st; let tot = 0, found = false;
         for (let r=0; r<=rg.e.r; r++) {
             let txt = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
             if (txt.includes(mn)) {
@@ -406,9 +419,9 @@ function getAP(s) {
         });
     } else {
         const rg = XLSX.utils.decode_range(s['!ref']);
-        CONFIG.L2_LIST.forEach(st => {
-            if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("공기청정기")) return;
-            let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(CONFIG.L2_NAME_MAP[st]||st)) { fR=r; break; } }
+        CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations).forEach(st => {
+            if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("공기청정기")) return;
+            let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(CONFIG.L2_MAP[st]||st)) { fR=r; break; } }
             if (fR !== -1) { const obj = {name:st, units:[]};
                 for (let i=5; i<=35; i++) { [4, 9].forEach(c => {
                     let v = getCV(s,fR+i,c); let uN = getCV(s,fR+i,c-3).replace(/\s+/g,"").replace(/\(.*\)/g,"");
