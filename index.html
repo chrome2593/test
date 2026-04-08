@@ -15,20 +15,19 @@
 
         .app-header { background: white; border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
+        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
 
         .upload-box { background: white; padding: 60px; border: 2.5px dashed #cbd5e0; border-radius: 24px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
-        .upload-box:hover { border-color: var(--primary); background: #f0f7ff; }
         .upload-box.minimized { padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-style: solid; border-width: 1px; }
 
         .summary-section-main-title { font-weight: 900; font-size: 1.6rem; color: var(--danger); margin: 30px 0 20px; }
         .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
         .summary-card { background: white; border: 1px solid #fda4af; border-left: 12px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.06); }
         .summary-card.ok { border-color: #dcfce7; border-left-color: var(--success); background: #f0fdf4; }
-        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
         .summary-group-label { font-weight: 800; font-size: 1.05rem; color: #475569; margin: 15px 0 8px 0; display: block; }
 
-        .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+        .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
         .badge { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.2s; border: 1.5px solid transparent; text-align: center; }
         .badge-danger { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; }
         .badge-checked { background: #f1f5f9 !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; text-decoration: line-through; opacity: 0.7; }
@@ -38,7 +37,7 @@
         .branch-name-header { background: var(--dark); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 25px; align-self: flex-start; }
 
         .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
-        .toggle-detail-btn.active { background: var(--primary); color: white; }
+        .toggle-detail-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .detail-content { display: none; margin-bottom: 40px; }
         .detail-content.active { display: block; }
         .section-title { font-weight: 800; font-size: 1.25rem; color: var(--primary); margin: 0 0 10px 5px; padding-left: 12px; border-left: 5px solid var(--primary); }
@@ -81,15 +80,13 @@
             COOLING_DATE: { sm: 7, sd: 1, em: 9, ed: 20 },
             VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
             NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
+            COOLING_TARGETS: { "type1": 12, "type2": 9, "type3": 9 },
             L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
-            
-            // [장비 부재 예외 데이터]
             NO_EQUIPMENT: { 
                 "문양": ["공조기", "송풍기", "냉동기", "공기청정기"],
                 "다사": ["상부배기", "하부배기"],
                 "대실": ["상부배기", "하부배기"]
             },
-
             VENT_19H: ["중앙로", "칠성시장", "방촌", "수성알파", "수성구청", "송현", "연호", "반월당"],
             CHILLER_VALS: {
                 "설화명곡":6.0, "화원":6.0, "대곡":6.0, "진천":5.5, "월배":5.5, "상인":11.5, "월촌":5.5, "송현":5.5, "서부정류장":10.0, "대명":5.5, "안지랑":5.5, "현충로":5.5, "영대병원":6.0, "교대":7.0, "명덕":6.0, "반월당":11.5, "중앙로":14.5, "대구역":6.0, "칠성시장":5.5, "신천":5.5, "동대구":11.5, "동구청":5.5, "아양교":6.0, "동촌":5.5, "해안":5.5, "방촌":6.0, "용계":5.5, "율하":6.0, "신기":5.5, "반야월":5.5, "각산":6.0, "안심":11.5,
@@ -102,13 +99,13 @@
                 },
                 line2: {
                     left: { name: "문양기지기계분소", stations: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕"] },
-                    right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "고산", "신매", "사월", "정평", "임당", "영남대"] }
+                    right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "수성알파시티", "고산", "신매", "사월", "정평", "임당", "영남대", "영대"] }
                 }
             },
             L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
             L2_ST_LIST: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕", "반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "수성알파시티", "고산", "신매", "사월", "정평", "임당", "영남대", "영대"],
             ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
-            ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1" }
+            ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1", "대곡":"type2", "월촌":"type2", "송현":"type2", "교대":"type2", "명덕":"type2", "동구청":"type2", "방촌":"type2", "용계":"type2", "율하":"type2", "신기":"type2" }
         };
 
         let currentLine = '', isCooling = false, ventSeason = '', isChillerSeason = false;
@@ -121,22 +118,28 @@
             btn.innerHTML = act ? `[${lbl}] 상세보기 ▾` : `[${lbl}] 닫기 ▴`;
         }
 
-        // [핵심] 화면에 보이는 그대로 시간을 파싱하는 로직
+        // [핵심 교정] 파싱 로직을 문자열 우선 방식으로 변경
         function parseH(v) { 
-            if(!v || v === "N/A" || v === "-") return 0;
-            if(typeof v === 'string') {
-                if(v.includes(':')) { // HH:MM:SS 형식
-                    const p = v.split(':');
-                    return parseInt(p[0]||0) + (parseInt(p[1]||0)/60) + (parseInt(p[2]||0)/3600);
-                }
-                const n = parseFloat(v);
-                return isNaN(n) ? 0 : n; // "6.0" 형식
+            if(!v || v === "N/A" || v === "-" || v === "0") return 0;
+            
+            // HH:MM:SS 형식이 문자열로 들어온 경우 (대곡 5:24 등)
+            if(typeof v === 'string' && v.includes(':')) {
+                const p = v.split(':');
+                const hour = parseInt(p[0]||0);
+                const min = parseInt(p[1]||0);
+                const sec = parseInt(p[2]||0);
+                return hour + (min/60) + (sec/3600);
             }
+            
+            // 만약 엑셀의 시간 시리얼 넘버가 숫자로 들어온 경우 (0.25 = 6시간)
             if(typeof v === 'number') {
-                // 1.0 이하는 엑셀 시간 일련번호(예: 0.25 = 6시간), 1.0 초과는 가동시간 숫자
+                // 가동일보는 24시간을 넘을 수 없으므로, 1.0 이하면 무조건 시간 시리얼로 판단하여 24를 곱함.
+                // 단, 이미 가동시간으로 입력된 숫자(예: 6.0)를 위해 1.0 초과면 그대로 사용.
                 return (v <= 1.0) ? v * 24 : v;
             }
-            return 0;
+
+            const n = parseFloat(v);
+            return isNaN(n) ? 0 : n;
         }
 
         document.getElementById('excelFile').addEventListener('change', function(e) {
@@ -144,10 +147,11 @@
             currentLine = (file.name.includes("일보") || file.name.includes("2호선")) ? 'line2' : 'line1';
             const reader = new FileReader();
             reader.onload = (evt) => {
-                const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
+                // cellDates: false로 설정하여 라이브러리가 임의로 날짜 변환하는 것을 방지
+                const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
                 let m = 0, d = 0; const dm = file.name.match(/\d{8}/);
                 if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
-                else { const ts = wb.Sheets[wb.SheetNames[0]]; const dv = ts['C2']?ts['C2'].v:null; if(dv instanceof Date){ m=dv.getMonth()+1; d=dv.getDate(); } }
+                else { const ts = wb.Sheets[wb.SheetNames[0]]; m=1; d=1; } 
                 document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
                 runAnalysis(wb, m, d);
                 document.getElementById('upload-container').classList.add('minimized');
@@ -404,7 +408,7 @@
                 });
             } else {
                 const rg = XLSX.utils.decode_range(s['!ref']);
-                CONFIG.L2_ST_LIST.forEach(st => {
+                CONFIG.L2_LIST.forEach(st => {
                     if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("공기청정기")) return;
                     let fR = -1; for (let r=0; r<=rg.e.r; r++) { if(cleanText(getCV(s,r,0)+getCV(s,r,1)).includes(CONFIG.L2_NAME_MAP[st]||st)) { fR=r; break; } }
                     if (fR !== -1) { const obj = {name:st, units:[]};
@@ -418,8 +422,15 @@
             } return d;
         }
 
-        function formatToHMS(v) { if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; let ts; if(typeof v==='number') ts=Math.round(v*24*3600); else if(typeof v==='string'&&v.includes(':')){ const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); } else { const n=parseFloat(v); if(isNaN(n)) return "0:00:00"; ts=Math.round(n*3600); } const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=ts%60; return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-        function getCV(s, r, c) { if(!s) return ""; const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; return cell ? (cell.w ? cell.w : cell.v) : ""; }
+        function formatToHMS(v) { if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; let ts; if(typeof v==='number') ts=Math.round(v*3600); else if(typeof v==='string'&&v.includes(':')){ const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); } else { const n=parseFloat(v); if(isNaN(n)) return "0:00:00"; ts=Math.round(n*3600); } const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=Math.floor(ts%60); return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
+        
+        function getCV(s, r, c) { 
+            if(!s) return ""; 
+            const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
+            if(!cell) return "";
+            // cell.w는 엑셀의 포맷된 텍스트입니다. "05:24" 형식을 그대로 읽어옵니다.
+            return cell.w ? cell.w : (cell.v !== undefined ? cell.v : ""); 
+        }
         function cleanText(s) { return String(s || "").replace(/\s+/g, "").replace(/\(\d\)/g, ""); }
     </script>
 </body>
