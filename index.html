@@ -18,6 +18,7 @@
         .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
 
         .upload-box { background: white; padding: 60px; border: 2.5px dashed #cbd5e0; border-radius: 24px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
+        .upload-box:hover { border-color: var(--primary); background: #f0f7ff; }
         .upload-box.minimized { padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-style: solid; border-width: 1px; }
 
         .summary-section-main-title { font-weight: 900; font-size: 1.6rem; color: var(--danger); margin: 30px 0 20px; }
@@ -82,7 +83,7 @@
             NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
             L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
             NO_EQUIPMENT: { 
-                "문양": ["공조기", "송풍기", "냉동기"],
+                "문양": ["공조기", "송풍기", "냉동기", "공기청정기"],
                 "다사": ["상부배기", "하부배기"],
                 "대실": ["상부배기", "하부배기"]
             },
@@ -102,6 +103,7 @@
                 }
             },
             L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
+            L2_ST_LIST: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕", "반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "수성알파시티", "고산", "신매", "사월", "정평", "임당", "영남대", "영대"],
             ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
             ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1" }
         };
@@ -118,12 +120,11 @@
 
         document.getElementById('excelFile').addEventListener('change', function(e) {
             const file = e.target.files[0]; if(!file) return;
-            const fn = file.name;
-            currentLine = (fn.includes("일보") || fn.includes("2호선")) ? 'line2' : 'line1';
+            currentLine = (file.name.includes("일보") || file.name.includes("2호선")) ? 'line2' : 'line1';
             const reader = new FileReader();
             reader.onload = (evt) => {
                 const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
-                let m = 0, d = 0; const dm = fn.match(/\d{8}/);
+                let m = 0, d = 0; const dm = file.name.match(/\d{8}/);
                 if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
                 else { const ts = wb.Sheets[wb.SheetNames[0]]; const dv = ts['C2']?ts['C2'].v:null; if(dv instanceof Date){ m=dv.getMonth()+1; d=dv.getDate(); } }
                 document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
@@ -145,12 +146,36 @@
             const hSheet = wb.Sheets[findS(["장비", "현황", "공조"])];
             const aSheet = wb.Sheets[findS(["공기청정기", "청정기"])];
 
-            const hData = (currentLine === 'line1') ? getL1H(hSheet) : getL2H(hSheet);
-            const aData = getAP(aSheet);
-            const vData = (currentLine === 'line1') ? getL1V(hSheet) : getL2V(hSheet);
-            const cData = isChillerSeason ? ((currentLine === 'line1') ? getL1C(hSheet) : getL2C(hSheet)) : [];
+            const hvacData = (currentLine === 'line1') ? getL1H(hSheet) : getL2H(hSheet);
+            const airData = getAP(aSheet);
+            const ventData = (currentLine === 'line1') ? getL1V(hSheet) : getL2V(hSheet);
+            const chillerData = isChillerSeason ? ((currentLine === 'line1') ? getL1C(hSheet) : getL2C(hSheet)) : [];
 
-            renderAll(hData, aData, vData, cData);
+            renderAll(hvacData, airData, ventData, chillerData);
+        }
+
+        // [핵심] 화면에 보이는 값 그대로 파싱하는 로직
+        function parseH(v) { 
+            if(!v || v === "N/A" || v === "-" || v === "0") return 0;
+            
+            // 1. 문자열인 경우 (예: "06:22:30" 또는 "6.0")
+            if(typeof v === 'string') {
+                if(v.includes(':')) {
+                    const p = v.split(':');
+                    return parseInt(p[0]) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
+                }
+                const n = parseFloat(v);
+                return isNaN(n) ? 0 : n;
+            }
+            
+            // 2. 숫자인 경우
+            if(typeof v === 'number') {
+                // 엑셀에서 '시간' 형식은 1보다 작은 소수점으로 저장됨 (예: 0.25 = 6시간)
+                // 만약 엑셀에 그냥 "6"이라고 적혀있으면 6.0으로 들어옴.
+                // 1.0 이하면 시간 형식(24 곱함), 1.0 초과면 이미 시간 단위임.
+                return (v <= 1.0) ? v * 24 : v;
+            }
+            return 0;
         }
 
         function analyzeHVAC(val, st, type) {
@@ -275,7 +300,7 @@
         }
         function buildAT(data) {
             if (!data || data.length === 0) return "<p style='padding:20px; color:#94a3b8; text-align:center;'>데이터 없음</p>";
-            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:95px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
+            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:90px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
             data.forEach(d => { h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
                 d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
                 h += `</div></td></tr>`;
@@ -357,7 +382,7 @@
         function getL2C(s) {
             const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
             CONFIG.L2_ST_LIST.forEach(st => {
-                if(st==="문양") return;
+                if(CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("냉동기")) return;
                 const mn = CONFIG.L2_NAME_MAP[st] || st; let tot = 0, found = false;
                 for (let r=0; r<=rg.e.r; r++) {
                     let txt = cleanText(getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2));
@@ -383,6 +408,7 @@
             } else {
                 const rg = XLSX.utils.decode_range(s['!ref']);
                 CONFIG.L2_ST_LIST.forEach(st => {
+                    if (CONFIG.NO_EQUIPMENT[st] && CONFIG.NO_EQUIPMENT[st].includes("공기청정기")) return;
                     let fR = -1; for (let r=0; r<=rg.e.r; r++) { if(cleanText(getCV(s,r,0)+getCV(s,r,1)).includes(CONFIG.L2_NAME_MAP[st]||st)) { fR=r; break; } }
                     if (fR !== -1) { const obj = {name:st, units:[]};
                         for (let i=5; i<=35; i++) { [4, 9].forEach(c => {
@@ -396,26 +422,16 @@
         }
 
         function formatToHMS(v) { if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; let ts; if(typeof v==='number') ts=Math.round(v*24*3600); else if(typeof v==='string'&&v.includes(':')){ const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); } else { const n=parseFloat(v); if(isNaN(n)) return "0:00:00"; ts=Math.round(n*3600); } const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=ts%60; return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-        function getCV(s, r, c) { if(!s) return ""; const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; return cell ? (cell.w ? cell.w : cell.v) : ""; }
         
-        // [강화된 파싱 로직] 24시간 일보의 특성을 고려하여 절대 24를 넘지 않도록 처리
-        function parseH(v) { 
-            if(!v||v==="N/A"||v==="-") return 0; 
-            if(typeof v === 'number') {
-                // 1.0보다 크면 이미 시간 단위 숫자임 (6.0 = 6시간). 
-                // 1.0 이하면 엑셀 시간 시리얼임 (0.25 = 6시간).
-                return (v > 1.0) ? v : v * 24; 
-            } 
-            if(typeof v === 'string') {
-                if(v.includes(':')) {
-                    const p = v.split(':'); 
-                    return parseInt(p[0]) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600; 
-                }
-                const n = parseFloat(v);
-                if(!isNaN(n)) return (n > 1.0) ? n : n * 24;
-            }
-            return 0;
+        // [수정] 엑셀에 보이는 서식 그대로 가져오기 위한 헬퍼
+        function getCV(s, r, c) { 
+            if(!s) return ""; 
+            const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
+            if(!cell) return "";
+            // cell.w는 엑셀 화면에 보이는 포맷된 문자열입니다.
+            return cell.w ? cell.w : (cell.v !== undefined ? cell.v : ""); 
         }
+        
         function cleanText(s) { return String(s || "").replace(/\s+/g, "").replace(/\(\d\)/g, ""); }
     </script>
 </body>
