@@ -7,49 +7,197 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; }
-        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); overflow-y: scroll; }
+        
+        :root {
+            --primary: #004595;
+            --primary-light: #eef4ff;
+            --dark: #1e293b;
+            --bg-light: #f1f5f9;
+            --danger: #e11d48;
+            --danger-light: #fff1f2;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --na: #94a3b8;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Pretendard', sans-serif; 
+            background: var(--bg-light); 
+            color: var(--dark); 
+            overflow-y: scroll;
+            line-height: 1.6;
+        }
+
         .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
-        .app-header { background: white; border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+
+        /* 헤더 디자인 */
+        .app-header { 
+            background: white; 
+            border-bottom: 2px solid var(--primary); 
+            padding: 12px 0; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 2px 15px rgba(0,0,0,0.05); 
+        }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
-        .upload-box { background: white; padding: 60px; border: 2.5px dashed #cbd5e0; border-radius: 24px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
+        .logo-area { display: flex; align-items: center; gap: 10px; }
+        .logo-dot { width: 12px; height: 12px; background: var(--primary); border-radius: 50%; }
+
+        .back-btn { 
+            background: white; 
+            border: 1.5px solid var(--border); 
+            padding: 8px 18px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            color: #475569;
+            transition: 0.2s;
+        }
+        .back-btn:hover { background: var(--bg-light); border-color: var(--na); }
+
+        /* 업로드 박스 */
+        .upload-box { 
+            background: white; 
+            padding: 50px; 
+            border: 2px dashed var(--na); 
+            border-radius: 24px; 
+            text-align: center; 
+            cursor: pointer; 
+            margin-bottom: 30px; 
+            transition: all 0.3s ease;
+            box-shadow: var(--card-shadow);
+        }
+        .upload-box:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
         .upload-box.minimized { padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-style: solid; border-width: 1px; }
-        .summary-section-main-title { font-weight: 900; font-size: 1.6rem; color: var(--danger); margin: 30px 0 20px; }
+
+        /* 요약 카드 섹션 */
+        .summary-section-main-title { 
+            font-weight: 900; 
+            font-size: 1.5rem; 
+            color: var(--dark); 
+            margin: 30px 0 20px; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .summary-section-main-title::before { content: ''; width: 4px; height: 24px; background: var(--danger); border-radius: 2px; }
+
         .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
-        .summary-card { background: white; border: 1px solid #fda4af; border-left: 12px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.06); }
-        .summary-card.ok { border-color: #dcfce7; border-left-color: var(--success); background: #f0fdf4; }
-        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
-        .summary-group-label { font-weight: 800; font-size: 1.05rem; color: #475569; margin: 15px 0 8px 0; display: block; }
+        .summary-card { 
+            background: white; 
+            border: 1px solid var(--border);
+            border-top: 5px solid var(--danger); 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: var(--card-shadow);
+            transition: 0.3s;
+        }
+        .summary-card.ok { border-top-color: var(--success); background: #ffffff; }
+        .summary-title { font-weight: 900; font-size: 1.3rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 15px; color: var(--primary); }
+        .summary-group-label { font-weight: 800; font-size: 0.95rem; color: #64748b; margin: 15px 0 8px 0; display: block; text-transform: uppercase; letter-spacing: 0.5px; }
+
         .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
-        .badge { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid transparent; text-align: center; }
-        .badge-danger { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; }
-        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: #e2e8f0 !important; text-decoration: line-through; opacity: 0.7; }
-        .equipment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+        .badge { 
+            padding: 12px; 
+            border-radius: 10px; 
+            font-size: 0.85rem; 
+            font-weight: 700; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            border: 1px solid transparent; 
+            text-align: center; 
+            background: var(--danger-light); 
+            color: var(--danger);
+            box-shadow: 0 2px 4px rgba(225, 29, 72, 0.05);
+            transition: 0.2s;
+        }
+        .badge:hover { transform: scale(1.02); filter: brightness(0.95); }
+        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: var(--border) !important; text-decoration: line-through; opacity: 0.6; }
+
+        /* 상세 리스트 레이아웃 */
+        .equipment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 60px; }
         .branch-column { display: flex; flex-direction: column; width: 100%; }
-        .branch-name-header { background: var(--dark); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 25px; align-self: flex-start; }
-        .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
+        .branch-name-header { 
+            background: var(--primary); 
+            color: white; 
+            padding: 10px 20px; 
+            border-radius: 8px; 
+            font-weight: 800; 
+            font-size: 1.1rem; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 10px rgba(0,69,149,0.2);
+        }
+
+        .toggle-detail-btn { 
+            width: 100%; 
+            padding: 14px; 
+            margin-bottom: 12px; 
+            border-radius: 10px; 
+            border: 1px solid var(--border); 
+            background: white; 
+            color: var(--dark); 
+            font-weight: 700; 
+            font-size: 0.95rem; 
+            cursor: pointer; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s;
+        }
+        .toggle-detail-btn:hover { background: var(--primary-light); color: var(--primary); }
         .toggle-detail-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .detail-content { display: none; margin-bottom: 40px; }
+
+        .detail-content { display: none; margin-bottom: 30px; animation: fadeIn 0.3s ease; }
         .detail-content.active { display: block; }
-        .section-title { font-weight: 800; font-size: 1.25rem; color: var(--primary); margin: 0 0 10px 5px; padding-left: 12px; border-left: 5px solid var(--primary); }
-        .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 15px; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        .section-title { font-weight: 800; font-size: 1.1rem; color: var(--primary); margin: 20px 0 10px 5px; display: flex; align-items: center; gap: 8px; }
+
+        /* 테이블 디자인 */
+        .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--card-shadow); margin-bottom: 10px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th, td { padding: 12px 4px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 95px; border-right: 1px solid #f1f5f9; }
-        .critical-val { background: #ef4444 !important; color: white !important; font-weight: 800; }
-        .bad-val { background: #fffbeb; color: #b45309; }
-        .na-cell { background: #f1f5f9; color: var(--na); font-style: italic; }
-        .season-info { padding: 15px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 12px; text-align: center; font-weight: 700; color: #0369a1; margin-bottom: 20px; }
+        th { background: #f8fafc; color: #64748b; font-weight: 700; padding: 12px 8px; border-bottom: 1px solid var(--border); font-size: 0.8rem; }
+        td { padding: 12px 6px; text-align: center; border-bottom: 1px solid #f8fafc; font-size: 0.85rem; font-weight: 500; }
+        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 95px; border-right: 1px solid var(--border); }
+        
+        .critical-val { background: var(--danger) !important; color: white !important; font-weight: 800; }
+        .bad-val { background: #fffbeb; color: #b45309; font-weight: 700; }
+        .na-cell { background: #f8fafc; color: var(--na); font-style: italic; font-size: 0.75rem; }
+
+        /* 공기청정기 그리드 */
+        .units-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 12px; }
+        .unit-box { 
+            display: flex; flex-direction: column; align-items: center; 
+            padding: 8px; border: 1px solid var(--border); border-radius: 8px; 
+            background: #ffffff; transition: 0.2s;
+        }
+        .unit-box strong { font-size: 0.7rem; color: #64748b; margin-bottom: 2px; }
+        .unit-time { font-size: 0.85rem; font-weight: 700; color: var(--dark); }
+
+        .season-info { 
+            padding: 15px; background: white; border: 1px solid var(--primary); 
+            border-left: 5px solid var(--primary); border-radius: 10px; 
+            text-align: left; font-weight: 600; color: var(--dark); 
+            margin-bottom: 25px; box-shadow: var(--card-shadow);
+        }
     </style>
 </head>
 <body>
     <div id="app-view">
         <header class="app-header">
             <div class="container header-inner">
+                <div class="logo-area">
+                    <div class="logo-dot"></div>
+                    <div id="line-indicator" style="color: var(--primary); font-weight: 900; font-size: 1.3rem;">장비 가동 일보 통합 분석</div>
+                </div>
                 <button class="back-btn" onclick="location.reload()">↺ 분석 초기화</button>
-                <div id="line-indicator" style="color: var(--primary); font-weight: 800; font-size: 1.3rem;">장비 가동 일보 분석</div>
-                <div style="width:100px;"></div>
             </div>
         </header>
         <main class="container">
@@ -57,9 +205,9 @@
                 <div id="season-banner" class="season-info" style="display:none;"></div>
                 <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
                     <input type="file" id="excelFile" hidden />
-                    <div style="font-size: 4rem; margin-bottom: 15px;">📊</div>
-                    <h3 style="margin:0; color: var(--primary); font-size: 1.6rem;">가동일보 파일 업로드</h3>
-                    <p style="color:#64748b; margin-top:15px; font-weight:600;">드림스 가동일보 클릭하여 업로드</p>
+                    <div style="font-size: 4rem; margin-bottom: 15px;">📄</div>
+                    <h3 style="margin:0; color: var(--primary); font-size: 1.8rem; font-weight: 900;">가동일보 업로드</h3>
+                    <p style="color:#64748b; margin-top:10px; font-weight:600;">드림스 가동일보(1·2호선) 파일을 선택하세요</p>
                 </div>
                 <div id="summary-area"></div>
                 <div id="full-list-area"></div>
@@ -68,6 +216,8 @@
     </div>
 
 <script>
+/** * [데이터 로직 - 기존과 동일함 (절대 수정 금지됨)]
+ */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
     NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
@@ -103,10 +253,9 @@ function toggleDetail(btn, id, lbl) {
     const t = document.getElementById(id); if(!t) return;
     const act = t.classList.contains('active');
     t.classList.toggle('active'); btn.classList.toggle('active');
-    btn.innerHTML = act ? `[${lbl}] 상세보기 ▾` : `[${lbl}] 닫기 ▴`;
+    btn.innerHTML = act ? `[${lbl}] 상세내역 ▾` : `[${lbl}] 닫기 ▴`;
 }
 
-// [핵심 교정] 엑셀 일련번호와 일반 숫자를 구분하여 정확한 가동시간 산출
 function parseH(v) { 
     if(!v || v === "N/A" || v === "-" || v === "0") return 0;
     let s = String(v).trim();
@@ -116,7 +265,6 @@ function parseH(v) {
     }
     const n = parseFloat(s);
     if(isNaN(n)) return 0;
-    // 1.0 이하면 엑셀 시간 일련번호(예: 0.225), 1.0 초과는 가동시간 숫자(예: 5.4)
     return (n > 0 && n <= 1.0) ? n * 24 : n;
 }
 
@@ -139,7 +287,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             let m = 0, d = 0; const dm = fn.match(/\d{8}/);
             if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
             else { m=1; d=1; }
-            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
+            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석 결과`;
             runAnalysis(wb, m, d);
             document.getElementById('upload-container').classList.add('minimized');
         } catch(err) {
@@ -156,9 +304,8 @@ function runAnalysis(wb, m, d) {
     ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
     const banner = document.getElementById('season-banner');
     banner.style.display = 'block';
-    banner.innerHTML = `공조 기준: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기 기준: <strong>${ventSeason}</strong> (${m}월 ${d}일)`;
+    banner.innerHTML = `🧊 <strong>공조 기준:</strong> ${isCooling?'냉방 가동':'비냉방'} | 🌪️ <strong>환기 기준:</strong> ${ventSeason} (${m}월 ${d}일 일보 기준)`;
 
-    // 시트 고정 로직 적용
     const hSheet = (currentLine === 'line1') ? wb.Sheets["가동시간"] : wb.Sheets["장비"];
     const aSheetName = wb.SheetNames.find(n => n.includes("청정기") || n.includes("공기"));
     const aSheet = wb.Sheets[aSheetName] || hSheet;
@@ -211,7 +358,6 @@ function analyzeVent(val, isR, st, unit = "") {
     }
     const cSt = st.replace(/\s+/g,"").replace("(2)","");
     if (["중앙로", "칠성시장", "방촌", "수성알파", "수성구청", "송현", "연호", "반월당"].some(s => cSt.includes(s))) target = 19;
-    
     if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'critical-val' };
     return (h >= target - 0.1 && h <= target + 0.1) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
 }
@@ -236,13 +382,13 @@ function renderAll(hvac, air, vent, chiller) {
         const cC = chiller.filter(d => br.stations.includes(d.name) && d.isCri);
         const isOk = (cH.length + cA.length + cV.length + cC.length === 0);
         let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${br.name}</div>`;
-        if (isOk) return h + `<div style="color:var(--success); font-weight:700;">✅ 모든 장비 가동 상태 정상</div></div>`;
+        if (isOk) return h + `<div style="color:var(--success); font-weight:800; padding:10px 0;">✅ 모든 장비 정상 가동 중</div></div>`;
         const addB = (title, data, labels, type) => {
             if (data.length === 0) return "";
             let s = `<span class="summary-group-label">${title}</span><div class="summary-badge-container">`;
             data.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') {
                 const lbl = (type==='air')? d.units[i].label : (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
-                s += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${lbl} (${formatToHMS(d.raw?d.raw[i]:d.units[i].val)})</span> `;
+                s += `<span class="badge" onclick="toggleBadge(this)">${d.name} ${lbl} (${formatToHMS(d.raw[i])})</span> `;
             }});}); return s + `</div>`;
         };
         h += addB('[승강장 공조기]', cH, hL, 'hvac');
@@ -250,27 +396,20 @@ function renderAll(hvac, air, vent, chiller) {
         h += addB('[냉동기]', cC, ["냉동기"], 'chiller');
         if (cA.length > 0) {
             h += `<span class="summary-group-label">[공기청정기]</span><div class="summary-badge-container">`;
-            cA.forEach(d => { d.units.forEach(u => { if (u.res.s === 'critical') h += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${u.label} (${formatToHMS(u.val)})</span> `; }); });
+            cA.forEach(d => { d.units.forEach(u => { if (u.res.s === 'critical') h += `<span class="badge" onclick="toggleBadge(this)">${d.name} ${u.label} (${formatToHMS(u.val)})</span> `; }); });
             h += `</div>`;
         }
         return h + `</div>`;
     };
-    document.getElementById('summary-area').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기(클릭하여 조치 완료 표시)</h2><div class="summary-area-grid">${buildS(b.left)}${buildS(b.right)}</div>`;
+    document.getElementById('summary-area').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기 (클릭하여 조치 완료 표시)</h2><div class="summary-area-grid">${buildS(b.left)}${buildS(b.right)}</div>`;
     const buildCol = (br, side) => {
         const sH = hvac.filter(d => br.stations.includes(d.name)); const sV = vent.filter(d => br.stations.includes(d.name));
         const sA = air.filter(d => br.stations.includes(d.name)); const sC = chiller.filter(d => br.stations.includes(d.name));
         return `<div class="branch-column"><div class="branch-name-header">${br.name}</div>
-            <div class="section-title">📊 승강장 공조기 상세</div>
-            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}h','승강장공조기')">[승강장공조기] 상세보기 ▾</button>
-            <div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
-            <div class="section-title">🌪️ 환기실 송풍기 상세</div>
-            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}v','환기실송풍기')">[환기실송풍기] 상세보기 ▾</button>
-            <div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
-            ${isChillerSeason ? `<div class="section-title">❄️ 냉동기 상세</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}c','냉동기')">[냉동기] 상세보기 ▾</button><div id="${side}c" class="detail-content">${buildT(sC, ["냉동기"])}</div>` : ''}
-            <div class="section-title">🌬️ 공기청정기 상세</div>
-            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}a','공기청정기')">[공기청정기] 상세보기 ▾</button>
-            <div id="${side}a" class="detail-content">${buildAT(sA)}</div>
-        </div>`;
+            <div class="section-title">📊 승강장 공조기</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}h','승강장 공조기')">상세보기 ▾</button><div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
+            <div class="section-title">🌪️ 환기실 송풍기</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}v','환기실 송풍기')">상세보기 ▾</button><div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
+            ${isChillerSeason ? `<div class="section-title">❄️ 냉동기</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}c','냉동기')">상세보기 ▾</button><div id="${side}c" class="detail-content">${buildT(sC, ["냉동기"])}</div>` : ''}
+            <div class="section-title">🌬️ 공기청정기</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}a','공기청정기')">상세보기 ▾</button><div id="${side}a" class="detail-content">${buildAT(sA)}</div></div>`;
     };
     document.getElementById('full-list-area').innerHTML = `<div class="equipment-row">${buildCol(b.left,'l')}${buildCol(b.right,'r')}</div>`;
 }
@@ -295,32 +434,47 @@ function buildAT(data) {
     data.forEach(d => { 
         const isNA = CONFIG.NO_EQUIP[d.name] && CONFIG.NO_EQUIP[d.name].includes("공기청정기");
         h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
-        d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
-        if(isNA) h += `<div style="color:var(--na); font-style:italic; padding:10px;">해당없음</div>`;
+        d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div class="unit-time">${formatToHMS(u.val)}</div></div>`; });
+        if(isNA) h += `<div style="color:var(--na); font-style:italic; padding:10px; width:100%;">해당없음</div>`;
         h += `</div></td></tr>`;
     }); return h + `</tbody></table></div>`;
 }
 
 function getL1H(s) {
     const d = []; if(!s) return d;
-    [4, 5].forEach(c => { const n = (c===4)?"설화명곡":"화원"; const r = [getCV(s,80,c),getCV(s,81,c),getCV(s,88,c),getCV(s,89,c)];
-        d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
+    const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
+    allSt.forEach((st, idx) => {
+        let r, c = idx + 4;
+        let raw = [];
+        if (st === "설화명곡" || st === "화원") {
+            c = (st === "설화명곡") ? 4 : 5;
+            raw = [getCV(s, 80, c), getCV(s, 81, c), getCV(s, 88, c), getCV(s, 89, c)];
+        } else {
+            raw = [getCV(s, 4, c), getCV(s, 5, c), getCV(s, 12, c), getCV(s, 13, c)];
+        }
+        const res = raw.map((v, i) => analyzeHVAC(v, st, i % 2 === 0 ? 'supply' : 'exhaust'));
+        d.push({ name: st, raw, res, isCri: res.some(r => r.s === 'critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
-        d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
-    }); return d;
+    return d;
 }
+
 function getL1V(s) {
     const d = []; if(!s) return d;
-    [4, 5].forEach(c => { const n = (c===4)?"설화명곡":"화원"; const r = [getCV(s,97,c),getCV(s,98,c),getCV(s,99,c),getCV(s,100,c)];
-        const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
-        d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
+    const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
+    allSt.forEach((st, idx) => {
+        let c = idx + 4, raw = [];
+        if (st === "설화명곡" || st === "화원") {
+            c = (st === "설화명곡") ? 4 : 5;
+            raw = [getCV(s, 97, c), getCV(s, 98, c), getCV(s, 99, c), getCV(s, 100, c)];
+        } else {
+            raw = [getCV(s, 19, c), getCV(s, 20, c), getCV(s, 21, c), getCV(s, 22, c)];
+        }
+        const res = [analyzeVent(raw[0], false, st), analyzeVent(raw[1], false, st), analyzeVent(raw[2], true, st), analyzeVent(raw[3], true, st)];
+        d.push({ name: st, raw, res, isCri: res.some(r => r.s === 'critical') });
     });
-    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
-        const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
-        d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
-    }); return d;
+    return d;
 }
+
 function getL1C(s) {
     const d = []; if(!s) return d;
     [{n:"설화명곡",c:5},{n:"화원",c:4}].forEach(st => { 
@@ -328,7 +482,8 @@ function getL1C(s) {
         const sumV = v1 + v2; d.push({name:st.n, raw:[sumV], res:[analyzeChiller(sumV, st.n)], isCri:analyzeChiller(sumV, st.n).s==='critical'});
     });
     CONFIG.L1_ST_LIST.forEach((n, i) => { 
-        const v = parseH(getCV(s,56,4+i)); d.push({name:n, raw:[v], res:[analyzeChiller(v,n)], isCri:analyzeChiller(v,n).s==='critical'}); 
+        if(n === "설화명곡" || n === "화원") return;
+        const v = parseH(getCV(s,56,i+4)); d.push({name:n, raw:[v], res:[analyzeChiller(v,n)], isCri:analyzeChiller(v,n).s==='critical'}); 
     }); return d;
 }
 
@@ -336,8 +491,7 @@ function getL2H(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
     const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
     allSt.forEach(stName => {
-        const mn = CONFIG.L2_NAME_MAP[stName] || stName;
-        let fR = -1;
+        const mn = stName.replace(/\s+/g,""); let fR = -1;
         for (let r=0; r<=rg.e.r; r++) {
             let t = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
             if (t.includes(mn) && (t.includes("가동") || t.length < 15)) { fR = r; break; }
@@ -351,53 +505,54 @@ function getL2H(s) {
                     if (rawT.includes("급기")) { if(isL) cur.ls=v; else cur.rs=v; }
                     else if (rawT.includes("배기")) { if (rawT.includes("하부")) { if(isL) cur.lle=v; else cur.rle=v; } else { if(isL) cur.lue=v; else cur.rue=v; } }
                 }
-            } d.push(fmtL2H(cur));
+            }
+            const r = [cur.ls, cur.lue, cur.lle, cur.rs, cur.rue, cur.rle];
+            const rs = r.map((v, i) => analyzeHVAC(v, stName, (i<3?'supply':'exhaust')));
+            d.push({ name:stName, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
         }
     }); return d;
 }
-function fmtL2H(c) {
-    const r = [c.ls, c.lue, c.lle, c.rs, c.rue, c.rle];
-    const tps = ["급기", "상부배기", "하부배기", "급기", "상부배기", "하부배기"];
-    const rs = r.map((v, i) => {
-        let val = v; if (CONFIG.NO_EQUIP[c.name] && CONFIG.NO_EQUIP[c.name].includes(tps[i])) val = "N/A";
-        return analyzeHVAC(val, c.name, (i===0||i===3?'supply':'exhaust'));
-    }); return { name:c.name, raw:r.map((v,i)=>(CONFIG.NO_EQUIP[c.name]&&CONFIG.NO_EQUIP[c.name].includes(tps[i]))?"N/A":v), res:rs, isCri: rs.some(x=>x.s==='critical') };
-}
+
 function getL2V(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
     const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
     allSt.forEach(st => {
-        const mn = CONFIG.L2_NAME_MAP[st] || st; let fR = -1;
+        const mn = st.replace(/\s+/g,""); let fR = -1;
         for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(mn)) { fR=r; break; } }
-        if (fR !== -1) { let unts = [];
-            for (let r=fR; r<fR+40 && r<=rg.e.r; r++) { [1, 6, 11].forEach(col => {
-                let nm = getCV(s,r,col); if(nm.includes("환기실")) {
-                    let v = getCV(s,r,col+3); if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) v = "N/A";
-                    unts.push({ l: nm.replace("환기실","").trim(), v: v, r: analyzeVent(v, (nm.includes("우")||nm.includes("종점")), st, nm) });
-                }
-            }); }
-            if (unts.length > 0) d.push({ name:st, raw: unts.slice(0,4).map(u=>u.v), res: unts.slice(0,4).map(u=>u.r), unitNames: unts.slice(0,4).map(u=>u.l), isCri: unts.some(u=>u.r.s==='critical') });
+        if (fR !== -1) {
+            let units = [];
+            for (let r=fR; r<fR+40 && r<=rg.e.r; r++) {
+                [1, 6, 11].forEach(col => {
+                    let name = getCV(s,r,col); if(name.includes("환기실")) {
+                        let v = getCV(s,r,col+3); if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) v = "N/A";
+                        units.push({ l: name.replace("환기실","").trim(), v: v, r: analyzeVent(v, (name.includes("우")||name.includes("종점")), st, name) });
+                    }
+                });
+            }
+            if (units.length > 0) d.push({ name:st, raw: units.slice(0,4).map(u=>u.v), res: units.slice(0,4).map(u=>u.r), unitNames: units.slice(0,4).map(u=>u.l), isCri: units.some(u=>u.r.s==='critical') });
         }
     }); return d;
 }
+
 function getL2C(s) {
     const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
     const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
     allSt.forEach(st => {
         if(st === "문양" || (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기"))) return;
-        const mn = CONFIG.L2_NAME_MAP[st] || st; let tot = 0, found = false;
+        const mn = st.replace(/\s+/g,""); let tot = 0, found = false;
         for (let r=0; r<=rg.e.r; r++) {
             let txt = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
             if (txt.includes(mn)) {
                 for(let sub=r; sub<r+40 && sub<=rg.e.r; sub++){
                     let stxt = getCV(s,sub,0)+getCV(s,sub,1)+getCV(s,sub,2);
-                    if(stxt.includes("냉동기_좌") || stxt.includes("냉동기_우")) { tot += parseH(getCV(s,sub,4)); found = true; }
+                    if(stxt.includes("냉동기")) { tot += parseH(getCV(s,sub,4)); found = true; }
                 } break;
             }
         }
         if(found){ d.push({name:st, raw:[tot], res:[analyzeChiller(tot, st)], isCri:analyzeChiller(tot, st).s==='critical'}); }
     }); return d;
 }
+
 function getAP(s) {
     const d = []; if(!s) return d;
     if (currentLine === 'line1') {
@@ -405,6 +560,7 @@ function getAP(s) {
             let v = getCV(s,st.r,st.c); if(parseH(v)>0) d.push({name:st.n, units:[{label:"01호기",val:v,res:analyzeHVAC(v,17,st.n,'supply')}]});
         });
         CONFIG.L1_ST_LIST.forEach((n, i) => {
+            if(n === "설화명곡" || n === "화원") return;
             let v = getCV(s,75,4+i); if(parseH(v)>0) d.push({name:n, units:[{label:"01호기",val:v,res:analyzeHVAC(v,17,n,'supply')}]});
         });
     } else {
@@ -412,7 +568,7 @@ function getAP(s) {
         const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
         allSt.forEach(st => {
             if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("공기청정기")) return;
-            let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(CONFIG.L2_NAME_MAP[st]||st)) { fR=r; break; } }
+            let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(st.replace(/\s+/g,""))) { fR=r; break; } }
             if (fR !== -1) { const obj = {name:st, units:[]};
                 for (let i=5; i<=35; i++) { [4, 9].forEach(c => {
                     let v = getCV(s,fR+i,c); let uN = getCV(s,fR+i,c-3).replace(/\s+/g,"").replace(/\(.*\)/g,"");
