@@ -5,75 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>1·2호선 가동일보 통합 분석 시스템</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; }
-        
+        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; }
         body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); overflow-y: scroll; }
-        .container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
-
+        .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
         .app-header { background: white; border-bottom: 1px solid var(--border); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
-
-        .upload-box { background: white; padding: 50px; border: 2px dashed #cbd5e0; border-radius: 20px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
+        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
+        .upload-box { background: white; padding: 60px; border: 2.5px dashed #cbd5e0; border-radius: 24px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; }
         .upload-box.minimized { padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-style: solid; border-width: 1px; }
-
         .summary-section-main-title { font-weight: 900; font-size: 1.6rem; color: var(--danger); margin: 30px 0 20px; }
-        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px; }
-        .summary-card { background: white; border: 1px solid #fda4af; border-left: 12px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.08); }
-        .summary-card.ok { border-color: #dcfce7; border-left-color: var(--success); background: #f0fdf4; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.05); }
-        .summary-title { font-weight: 900; font-size: 1.5rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; }
+        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
+        .summary-card { background: white; border: 1px solid #fda4af; border-left: 12px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(225, 29, 72, 0.06); }
+        .summary-card.ok { border-color: #dcfce7; border-left-color: var(--success); background: #f0fdf4; }
+        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
         .summary-group-label { font-weight: 800; font-size: 1.05rem; color: #475569; margin: 15px 0 8px 0; display: block; }
-
-        /* [수정 2-3] 배지 행렬 일치 및 배경색 연하게 변경 */
-        .summary-badge-container { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 일정한 너비로 행렬 맞춤 */
-            gap: 10px; 
-            line-height: 1.4; 
-        }
-        .badge { 
-            padding: 10px 12px; 
-            border-radius: 8px; 
-            font-size: 0.85rem; 
-            font-weight: 800; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; /* 텍스트 중앙 정렬 */
-            cursor: pointer; 
-            transition: all 0.2s; 
-            border: 1.5px solid transparent; 
-            user-select: none;
-            text-align: center;
-        }
-        /* 빨간색 배경을 더 연하게 수정 */
+        .summary-badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+        .badge { padding: 10px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 1.5px solid transparent; text-align: center; }
         .badge-danger { background: #fff1f2; color: #e11d48; border-color: #ffe4e6; }
-        .badge-danger:hover { background: #ffe4e6; transform: translateY(-1px); }
-        
-        .badge-checked { background: #f1f5f9 !important; color: #94a3b8 !important; border-color: #e2e8f0 !important; text-decoration: line-through; opacity: 0.7; transform: none !important; }
-
-        .equipment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; align-items: stretch; margin-bottom: 50px; }
+        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: #e2e8f0 !important; text-decoration: line-through; opacity: 0.7; }
+        .equipment-row { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
         .branch-column { display: flex; flex-direction: column; width: 100%; }
         .branch-name-header { background: var(--dark); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 25px; align-self: flex-start; }
-
-        .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; transition: 0.2s; }
+        .toggle-detail-btn { width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 12px; border: 1.5px solid #cbd5e0; background: #f1f5f9; color: #334155; font-weight: 800; font-size: 0.95rem; cursor: pointer; }
         .toggle-detail-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .detail-content { display: none; margin-bottom: 35px; }
+        .detail-content { display: none; margin-bottom: 40px; }
         .detail-content.active { display: block; }
         .section-title { font-weight: 800; font-size: 1.25rem; color: var(--primary); margin: 0 0 10px 5px; padding-left: 12px; border-left: 5px solid var(--primary); }
-
-        .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
+        .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.02); margin-bottom: 15px; }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td { padding: 12px 4px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 85px; border-right: 1px solid #f1f5f9; }
+        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 95px; border-right: 1px solid #f1f5f9; }
         .critical-val { background: #ef4444 !important; color: white !important; font-weight: 800; }
         .bad-val { background: #fffbeb; color: #b45309; }
-
-        .units-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(95px, 1fr)); gap: 8px; padding: 12px; }
-        .unit-box { display: flex; flex-direction: column; align-items: center; padding: 10px; border: 1px solid #eee; border-radius: 8px; background: white; font-weight: 700; }
-        .unit-box strong { font-size: 0.65rem; color: #94a3b8; margin-bottom: 4px; }
+        .na-cell { background: #f1f5f9; color: var(--na); font-style: italic; }
+        .season-info { padding: 15px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 12px; text-align: center; font-weight: 700; color: #0369a1; margin-bottom: 20px; }
     </style>
 </head>
 <body>
@@ -81,17 +48,17 @@
         <header class="app-header">
             <div class="container header-inner">
                 <button class="back-btn" onclick="location.reload()">↺ 분석 초기화</button>
-                <div id="line-indicator" class="line-badge" style="color: var(--primary); font-weight: 800; font-size: 1.3rem;">장비 가동 일보 분석</div>
+                <div id="line-indicator" style="color: var(--primary); font-weight: 800; font-size: 1.3rem;">장비 가동 일보 분석</div>
                 <div style="width:100px;"></div>
             </div>
         </header>
         <main class="container">
             <section id="main-content" style="margin-top: 30px;">
-                <div id="season-banner" class="season-info" style="display:none; padding:15px; background:#e0f2fe; border:1px solid #bae6fd; border-radius:12px; text-align:center; font-weight:700; color:#0369a1; margin-bottom:20px;"></div>
+                <div id="season-banner" class="season-info" style="display:none;"></div>
                 <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
                     <input type="file" id="excelFile" hidden />
-                    <div class="upload-icon" style="font-size: 3.5rem; margin-bottom: 15px;">📄</div>
-                    <h3 style="margin:0; color: var(--primary); font-size: 1.5rem;">가동일보 파일 업로드</h3>
+                    <div style="font-size: 4rem; margin-bottom: 15px;">📊</div>
+                    <h3 style="margin:0; color: var(--primary); font-size: 1.6rem;">가동일보 파일 업로드</h3>
                     <p style="color:#64748b; margin-top:15px; font-weight:600;">드림스 가동일보 클릭하여 업로드</p>
                 </div>
                 <div id="summary-area"></div>
@@ -100,360 +67,375 @@
         </main>
     </div>
 
-    <script>
-        const CONFIG = {
-            SEASON: { COOLING_START: { month: 7, day: 1 }, COOLING_END: { month: 9, day: 20 } },
-            VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
-            NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
-            COOLING_TARGETS: { "type1": 12, "type2": 9, "type3": 9 },
-            AIR_PURIFIER_STD: 17, TOLERANCE: 40 / 60,
-            L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
-            NO_EQUIPMENT: { "다사": ["시하", "종하", "시점하부", "종점하부", "하부배기"], "대실": ["시하", "종하", "시점하부", "종점하부", "하부배기"] },
-            VENT_EXC_19H: ["중앙로", "칠성시장", "방촌", "수성알파시티", "수성알파", "송현", "연호", "반월당"],
-            VENT_EXC_17_8H: ["명덕", "연호", "임당", "영남대"],
-            BRANCHES: {
-                line1: {
-                    left: { name: "송현기계분소", stations: ["설화명곡", "화원", "대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로"] },
-                    right: { name: "동대구기계분소", stations: ["대구역", "칠성시장", "신천", "동대구역", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"] }
-                },
-                line2: {
-                    left: { name: "문양기지기계분소", stations: ["문양", "다사", "대실", "강창", "계명대", "성서산업단지", "성서산단", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕"] },
-                    right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "대공원", "고산", "신매", "사월", "정평", "임당", "영남대", "영대", "수성알파"] }
-                }
-            },
-            STATION_MAP_NORMAL: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2", "반월당(1호선)": "type3" },
-            STATION_MAP_COOLING: { "화원": "type1", "반야월": "type1", "각산": "type1", "대곡": "type2", "월촌": "type2", "송현": "type2", "교대": "type2", "명덕": "type2", "동구청": "type2", "방촌": "type2", "용계": "type2", "율하": "type2", "신기": "type2" },
-            LINE2_STATIONS: ["문양", "다사", "대실", "강창", "계명대", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕", "반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "대공원", "고산", "신매", "사월", "정평", "임당", "영남대"],
-            L1_STATIONS_PURIFIER: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구역", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"]
+<script>
+const CONFIG = {
+    VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
+    NORMAL_TARGETS: { "type1": 17, "type2": 15, "type3": 15.5, "type4": 16.5 },
+    L2_NAME_MAP: { "수성알파시티": "수성알파", "영남대": "영대", "성서산업단지": "성서산단" },
+    NO_EQUIP: { 
+        "문양": ["공조기", "송풍기", "냉동기", "공기청정기"],
+        "다사": ["상부배기", "하부배기"],
+        "대실": ["상부배기", "하부배기"]
+    },
+    CHILLER_VALS: {
+        "설화명곡":6.0, "화원":6.0, "대곡":6.0, "진천":5.5, "월배":5.5, "상인":11.5, "월촌":5.5, "송현":5.5, "서부정류장":10.0, "대명":5.5, "안지랑":5.5, "현충로":5.5, "영대병원":6.0, "교대":7.0, "명덕":6.0, "반월당":11.5, "중앙로":14.5, "대구역":6.0, "칠성시장":5.5, "신천":5.5, "동대구":11.5, "동구청":5.5, "아양교":6.0, "동촌":5.5, "해안":5.5, "방촌":6.0, "용계":5.5, "율하":6.0, "신기":5.5, "반야월":5.5, "각산":6.0, "안심":11.5,
+        "다사":4.0, "대실":4.5, "강창":4.5, "계명대":4.5, "성서산단":4.5, "성서산업단지":4.5, "이곡":4.5, "용산":6.0, "죽전":6.0, "감삼":6.0, "두류":6.0, "내당":6.5, "반고개":6.0, "청라언덕":6.5, "반월당(2호선)":12.0, "경대병원":6.0, "대구은행":6.0, "범어":5.5, "수성구청":5.0, "만촌":4.5, "담티":5.0, "연호":5.0, "수성알파":5.0, "고산": 6.5, "신매": 5.5, "사월": 6.0, "정평": 5.5, "임당": 4.5, "영남대": 4.5
+    },
+    BRANCHES: {
+        line1: {
+            left: { name: "송현기계분소", stations: ["설화명곡", "화원", "대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로"] },
+            right: { name: "동대구기계분소", stations: ["대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"] }
+        },
+        line2: {
+            left: { name: "문양기지기계분소", stations: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕"] },
+            right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "고산", "신매", "사월", "정평", "임당", "영남대"] }
+        }
+    },
+    L1_ST_LIST: ["대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로", "대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"],
+    ST_NOR: { "명덕": "type1", "청라언덕": "type1", "반월당": "type1", "현충로": "type2", "중앙로": "type2", "안심": "type2", "다사": "type2", "두류": "type2", "담티": "type2", "영남대": "type2" },
+    ST_COOL: { "화원": "type1", "반야월": "type1", "각산": "type1", "대곡":"type2", "월촌":"type2", "송현":"type2", "교대":"type2", "명덕":"type2", "동구청":"type2", "방촌":"type2", "용계":"type2", "율하":"type2", "신기":"type2" }
+};
+
+let currentLine = '', isCooling = false, ventSeason = '', isChillerSeason = false;
+
+function toggleBadge(el) { el.classList.toggle('badge-checked'); }
+function toggleDetail(btn, id, lbl) {
+    const t = document.getElementById(id); if(!t) return;
+    const act = t.classList.contains('active');
+    t.classList.toggle('active'); btn.classList.toggle('active');
+    btn.innerHTML = act ? `[${lbl}] 상세보기 ▾` : `[${lbl}] 닫기 ▴`;
+}
+
+// [핵심 교정] 엑셀 일련번호와 일반 숫자를 구분하여 정확한 가동시간 산출
+function parseH(v) { 
+    if(!v || v === "N/A" || v === "-" || v === "0") return 0;
+    let s = String(v).trim();
+    if(s.includes(':')) {
+        const p = s.split(':');
+        return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
+    }
+    const n = parseFloat(s);
+    if(isNaN(n)) return 0;
+    // 1.0 이하면 엑셀 시간 일련번호(예: 0.225), 1.0 초과는 가동시간 숫자(예: 5.4)
+    return (n > 0 && n <= 1.0) ? n * 24 : n;
+}
+
+function getCV(s, r, c) { 
+    if(!s) return ""; 
+    const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
+    if(!cell) return "";
+    return cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : ""); 
+}
+
+document.getElementById('excelFile').addEventListener('change', function(e) {
+    const file = e.target.files[0]; if(!file) return;
+    const fn = file.name;
+    currentLine = (fn.includes("2호선") || fn.includes("L2") || fn.includes("일보")) ? 'line2' : 'line1';
+    
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+        try {
+            const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
+            let m = 0, d = 0; const dm = fn.match(/\d{8}/);
+            if (dm) { m = parseInt(dm[0].substring(4, 6)); d = parseInt(dm[0].substring(6, 8)); }
+            else { m=1; d=1; }
+            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
+            runAnalysis(wb, m, d);
+            document.getElementById('upload-container').classList.add('minimized');
+        } catch(err) {
+            console.error(err);
+            alert("파일 분석 중 오류가 발생했습니다. (파일 형식을 확인해주세요)");
+        }
+    };
+    reader.readAsBinaryString(file);
+});
+
+function runAnalysis(wb, m, d) {
+    isCooling = (m === 7) || (m === 8) || (m === 9 && d <= 20);
+    isChillerSeason = isCooling;
+    ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
+    const banner = document.getElementById('season-banner');
+    banner.style.display = 'block';
+    banner.innerHTML = `공조 기준: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기 기준: <strong>${ventSeason}</strong> (${m}월 ${d}일)`;
+
+    // 시트 고정 로직 적용
+    const hSheet = (currentLine === 'line1') ? wb.Sheets["가동시간"] : wb.Sheets["장비"];
+    const aSheetName = wb.SheetNames.find(n => n.includes("청정기") || n.includes("공기"));
+    const aSheet = wb.Sheets[aSheetName] || hSheet;
+
+    if(!hSheet) {
+        alert(`${currentLine==='line1'?'가동시간':'장비'} 시트를 찾을 수 없습니다.`);
+        return;
+    }
+
+    const hData = (currentLine === 'line1') ? getL1H(hSheet) : getL2H(hSheet);
+    const aData = getAP(aSheet);
+    const vData = (currentLine === 'line1') ? getL1V(hSheet) : getL2V(hSheet);
+    const cData = isChillerSeason ? ((currentLine === 'line1') ? getL1C(hSheet) : getL2C(hSheet)) : [];
+
+    renderAll(hData, aData, vData, cData);
+}
+
+function analyzeHVAC(val, st, type) {
+    if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: '' };
+    if (val === "N/A" || val === "" || val === undefined) return { s: 'none', c: '' };
+    const h = parseH(val);
+    if (!isCooling) {
+        const target = (st === "반월당" && currentLine === 'line1') ? 15.5 : (CONFIG.NORMAL_TARGETS[CONFIG.ST_NOR[st] || "type4"]);
+        if (type === 'supply') {
+            if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'critical-val' };
+            return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+        } else {
+            if (h <= (10/60)) return { s: 'critical', c: 'critical-val' };
+            return (h <= 0.5) ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' };
+        }
+    } else {
+        const ty = CONFIG.ST_COOL[st] || "type3";
+        const target = (ty === "type1") ? 12 : 9;
+        if (type === 'supply') {
+            if (Math.abs(h - target) >= 4) return { s: 'critical', c: 'critical-val' };
+            const range = (ty === "type1") ? (h >= 10 && h <= 13) : (h >= 7.5 && h <= 10.5);
+            return range ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+        } else { return (h <= (10/60)) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' }; }
+    }
+}
+
+function analyzeVent(val, isR, st, unit = "") {
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: '' };
+    if (val === "N/A" || val === "") return { s: 'none', c: '' };
+    const h = parseH(val);
+    let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
+    if (st === "대실" || st === "범어") {
+        const limit = (ventSeason === '하절기') ? 20 : 5;
+        return (h >= limit) ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' };
+    }
+    const cSt = st.replace(/\s+/g,"").replace("(2)","");
+    if (["중앙로", "칠성시장", "방촌", "수성알파", "수성구청", "송현", "연호", "반월당"].some(s => cSt.includes(s))) target = 19;
+    
+    if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'critical-val' };
+    return (h >= target - 0.1 && h <= target + 0.1) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+}
+
+function analyzeChiller(val, st) {
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기")) return { s: 'none', c: '' };
+    if (val === "N/A" || val === "" || val === undefined) return { s: 'none', c: '' };
+    const h = val; 
+    const stationKey = (st === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : st;
+    const target = CONFIG.CHILLER_VALS[stationKey] || 6.0;
+    if (h === 0 || Math.abs(h - target) >= 3) return { s: 'critical', c: 'critical-val' };
+    return (h >= target - 1 && h <= target + 1) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+}
+
+function renderAll(hvac, air, vent, chiller) {
+    const b = CONFIG.BRANCHES[currentLine];
+    const hL = currentLine === 'line1' ? ["시급", "시배", "종급", "종배"] : ["시급", "시상", "시하", "종급", "종상", "종하"];
+    const buildS = (br) => {
+        const cH = hvac.filter(d => br.stations.includes(d.name) && d.isCri);
+        const cA = air.filter(d => br.stations.includes(d.name) && d.isCri);
+        const cV = vent.filter(d => br.stations.includes(d.name) && d.isCri);
+        const cC = chiller.filter(d => br.stations.includes(d.name) && d.isCri);
+        const isOk = (cH.length + cA.length + cV.length + cC.length === 0);
+        let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${br.name}</div>`;
+        if (isOk) return h + `<div style="color:var(--success); font-weight:700;">✅ 모든 장비 가동 상태 정상</div></div>`;
+        const addB = (title, data, labels, type) => {
+            if (data.length === 0) return "";
+            let s = `<span class="summary-group-label">${title}</span><div class="summary-badge-container">`;
+            data.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') {
+                const lbl = (type==='air')? d.units[i].label : (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
+                s += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${lbl} (${formatToHMS(d.raw?d.raw[i]:d.units[i].val)})</span> `;
+            }});}); return s + `</div>`;
         };
-
-        let currentLine = '', isCooling = false, currentWorkbook = null, currentFileName = '', ventSeason = '';
-
-        function toggleBadge(el) {
-            el.classList.toggle('badge-checked');
+        h += addB('[승강장 공조기]', cH, hL, 'hvac');
+        h += addB('[환기실 송풍기]', cV, ["시급","시배","종급","종배"], 'vent');
+        h += addB('[냉동기]', cC, ["냉동기"], 'chiller');
+        if (cA.length > 0) {
+            h += `<span class="summary-group-label">[공기청정기]</span><div class="summary-badge-container">`;
+            cA.forEach(d => { d.units.forEach(u => { if (u.res.s === 'critical') h += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${u.label} (${formatToHMS(u.val)})</span> `; }); });
+            h += `</div>`;
         }
+        return h + `</div>`;
+    };
+    document.getElementById('summary-area').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기(클릭하여 조치 완료 표시)</h2><div class="summary-area-grid">${buildS(b.left)}${buildS(b.right)}</div>`;
+    const buildCol = (br, side) => {
+        const sH = hvac.filter(d => br.stations.includes(d.name)); const sV = vent.filter(d => br.stations.includes(d.name));
+        const sA = air.filter(d => br.stations.includes(d.name)); const sC = chiller.filter(d => br.stations.includes(d.name));
+        return `<div class="branch-column"><div class="branch-name-header">${br.name}</div>
+            <div class="section-title">📊 승강장 공조기 상세</div>
+            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}h','승강장공조기')">[승강장공조기] 상세보기 ▾</button>
+            <div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
+            <div class="section-title">🌪️ 환기실 송풍기 상세</div>
+            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}v','환기실송풍기')">[환기실송풍기] 상세보기 ▾</button>
+            <div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
+            ${isChillerSeason ? `<div class="section-title">❄️ 냉동기 상세</div><button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}c','냉동기')">[냉동기] 상세보기 ▾</button><div id="${side}c" class="detail-content">${buildT(sC, ["냉동기"])}</div>` : ''}
+            <div class="section-title">🌬️ 공기청정기 상세</div>
+            <button class="toggle-detail-btn" onclick="toggleDetail(this,'${side}a','공기청정기')">[공기청정기] 상세보기 ▾</button>
+            <div id="${side}a" class="detail-content">${buildAT(sA)}</div>
+        </div>`;
+    };
+    document.getElementById('full-list-area').innerHTML = `<div class="equipment-row">${buildCol(b.left,'l')}${buildCol(b.right,'r')}</div>`;
+}
 
-        function toggleDetail(btn, targetId, labelName) {
-            const target = document.getElementById(targetId);
-            if (!target) return;
-            const isActive = target.classList.contains('active');
-            target.classList.toggle('active');
-            btn.classList.toggle('active');
-            btn.innerHTML = isActive ? `[${labelName}] 상세보기 ▾` : `[${labelName}] 닫기 ▴`;
+function buildT(data, L) {
+    if (!data || data.length === 0) return "<p style='padding:20px; color:var(--na); text-align:center;'>데이터 없음</p>";
+    let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th>${L.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
+    data.forEach(d => { 
+        const isNA = d.res.every(r => r.s === 'none');
+        h += `<tr><td class="st-name">${d.name}</td>`;
+        for (let i=0; i<L.length; i++) { 
+            const v = d.raw[i], r = d.res[i] || {c:''};
+            h += `<td class="${r.s==='none'?'na-cell':r.c}">${(v==="N/A"||v===undefined)?"-":formatToHMS(v)}</td>`; 
         }
+        h += `<td><span style="font-weight:800; color:${isNA?'var(--na)':(d.isCri?'var(--danger)':'var(--success)')}">${isNA?'해당없음':(d.isCri?'이상':'정상')}</span></td></tr>`;
+    }); return h + `</tbody></table></div>`;
+}
 
-        document.getElementById('excelFile').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if(!file) return;
-            currentFileName = file.name;
-            currentLine = (currentFileName.includes("일보") || currentFileName.includes("2호선")) ? 'line2' : 'line1';
-            
-            const reader = new FileReader();
-            reader.onload = (evt) => {
-                currentWorkbook = XLSX.read(evt.target.result, { type: 'binary', cellDates: true });
-                
-                // [수정 2-1] 날짜 추출하여 헤더 문구 업데이트
-                let m = 0, d = 0;
-                const dateMatch = currentFileName.match(/\d{8}/);
-                if (dateMatch) {
-                    m = parseInt(dateMatch[0].substring(4, 6));
-                    d = parseInt(dateMatch[0].substring(6, 8));
-                } else {
-                    const ts = currentWorkbook.Sheets[currentWorkbook.SheetNames[0]];
-                    const dv = ts['C2'] ? ts['C2'].v : null;
-                    if(dv instanceof Date) { m = dv.getMonth()+1; d = dv.getDate(); }
+function buildAT(data) {
+    if (!data || data.length === 0) return "<p style='padding:20px; color:var(--na); text-align:center;'>데이터 없음</p>";
+    let h = `<div class="table-wrapper"><table><thead><tr><th style="width:90px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
+    data.forEach(d => { 
+        const isNA = CONFIG.NO_EQUIP[d.name] && CONFIG.NO_EQUIP[d.name].includes("공기청정기");
+        h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
+        d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
+        if(isNA) h += `<div style="color:var(--na); font-style:italic; padding:10px;">해당없음</div>`;
+        h += `</div></td></tr>`;
+    }); return h + `</tbody></table></div>`;
+}
+
+function getL1H(s) {
+    const d = []; if(!s) return d;
+    [4, 5].forEach(c => { const n = (c===4)?"설화명곡":"화원"; const r = [getCV(s,80,c),getCV(s,81,c),getCV(s,88,c),getCV(s,89,c)];
+        d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
+    });
+    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,4,c),getCV(s,5,c),getCV(s,12,c),getCV(s,13,c)];
+        d.push({ name:n, raw:r, res:r.map((v, i) => analyzeHVAC(v, n, i===0||i===2?'supply':'exhaust')), isCri: r.some((v,i)=>analyzeHVAC(v,n,i===0||i===2?'supply':'exhaust').s==='critical') });
+    }); return d;
+}
+function getL1V(s) {
+    const d = []; if(!s) return d;
+    [4, 5].forEach(c => { const n = (c===4)?"설화명곡":"화원"; const r = [getCV(s,97,c),getCV(s,98,c),getCV(s,99,c),getCV(s,100,c)];
+        const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
+        d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
+    });
+    CONFIG.L1_ST_LIST.forEach((n, i) => { const c = 4+i; const r = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
+        const rs = [analyzeVent(r[0],false,n),analyzeVent(r[1],false,n),analyzeVent(r[2],true,n),analyzeVent(r[3],true,n)];
+        d.push({ name:n, raw:r, res:rs, isCri: rs.some(x=>x.s==='critical') });
+    }); return d;
+}
+function getL1C(s) {
+    const d = []; if(!s) return d;
+    [{n:"설화명곡",c:5},{n:"화원",c:4}].forEach(st => { 
+        const v1 = parseH(getCV(s,154,st.c)); const v2 = parseH(getCV(s,155,st.c));
+        const sumV = v1 + v2; d.push({name:st.n, raw:[sumV], res:[analyzeChiller(sumV, st.n)], isCri:analyzeChiller(sumV, st.n).s==='critical'});
+    });
+    CONFIG.L1_ST_LIST.forEach((n, i) => { 
+        const v = parseH(getCV(s,56,4+i)); d.push({name:n, raw:[v], res:[analyzeChiller(v,n)], isCri:analyzeChiller(v,n).s==='critical'}); 
+    }); return d;
+}
+
+function getL2H(s) {
+    const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
+    const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
+    allSt.forEach(stName => {
+        const mn = CONFIG.L2_NAME_MAP[stName] || stName;
+        let fR = -1;
+        for (let r=0; r<=rg.e.r; r++) {
+            let t = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
+            if (t.includes(mn) && (t.includes("가동") || t.length < 15)) { fR = r; break; }
+        }
+        if (fR !== -1) {
+            let cur = {name:stName, ls:null, lue:null, lle:null, rs:null, rue:null, rle:null};
+            for (let r=fR; r<fR+40 && r<=rg.e.r; r++) {
+                let rawT = getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2);
+                if (rawT.includes("승강장") || rawT.includes("급기") || rawT.includes("배기")) {
+                    let v = getCV(s,r,4); let isL = rawT.includes("좌") || rawT.includes("시점") || rawT.includes("시하");
+                    if (rawT.includes("급기")) { if(isL) cur.ls=v; else cur.rs=v; }
+                    else if (rawT.includes("배기")) { if (rawT.includes("하부")) { if(isL) cur.lle=v; else cur.rle=v; } else { if(isL) cur.lue=v; else cur.rue=v; } }
                 }
-                
-                document.getElementById('line-indicator').innerText = `${m}월 ${d}일 가동일보 분석`;
-                
-                runIntegratedAnalysis(currentWorkbook, m, d);
-                document.getElementById('upload-container').classList.add('minimized');
-            };
-            reader.readAsBinaryString(file);
+            } d.push(fmtL2H(cur));
+        }
+    }); return d;
+}
+function fmtL2H(c) {
+    const r = [c.ls, c.lue, c.lle, c.rs, c.rue, c.rle];
+    const tps = ["급기", "상부배기", "하부배기", "급기", "상부배기", "하부배기"];
+    const rs = r.map((v, i) => {
+        let val = v; if (CONFIG.NO_EQUIP[c.name] && CONFIG.NO_EQUIP[c.name].includes(tps[i])) val = "N/A";
+        return analyzeHVAC(val, c.name, (i===0||i===3?'supply':'exhaust'));
+    }); return { name:c.name, raw:r.map((v,i)=>(CONFIG.NO_EQUIP[c.name]&&CONFIG.NO_EQUIP[c.name].includes(tps[i]))?"N/A":v), res:rs, isCri: rs.some(x=>x.s==='critical') };
+}
+function getL2V(s) {
+    const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
+    const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
+    allSt.forEach(st => {
+        const mn = CONFIG.L2_NAME_MAP[st] || st; let fR = -1;
+        for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(mn)) { fR=r; break; } }
+        if (fR !== -1) { let unts = [];
+            for (let r=fR; r<fR+40 && r<=rg.e.r; r++) { [1, 6, 11].forEach(col => {
+                let nm = getCV(s,r,col); if(nm.includes("환기실")) {
+                    let v = getCV(s,r,col+3); if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) v = "N/A";
+                    unts.push({ l: nm.replace("환기실","").trim(), v: v, r: analyzeVent(v, (nm.includes("우")||nm.includes("종점")), st, nm) });
+                }
+            }); }
+            if (unts.length > 0) d.push({ name:st, raw: unts.slice(0,4).map(u=>u.v), res: unts.slice(0,4).map(u=>u.r), unitNames: unts.slice(0,4).map(u=>u.l), isCri: unts.some(u=>u.r.s==='critical') });
+        }
+    }); return d;
+}
+function getL2C(s) {
+    const d = []; if(!s) return d; const rg = XLSX.utils.decode_range(s['!ref']);
+    const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
+    allSt.forEach(st => {
+        if(st === "문양" || (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("냉동기"))) return;
+        const mn = CONFIG.L2_NAME_MAP[st] || st; let tot = 0, found = false;
+        for (let r=0; r<=rg.e.r; r++) {
+            let txt = (getCV(s,r,0)+getCV(s,r,1)+getCV(s,r,2)).replace(/\s+/g,"").replace("(2)","");
+            if (txt.includes(mn)) {
+                for(let sub=r; sub<r+40 && sub<=rg.e.r; sub++){
+                    let stxt = getCV(s,sub,0)+getCV(s,sub,1)+getCV(s,sub,2);
+                    if(stxt.includes("냉동기_좌") || stxt.includes("냉동기_우")) { tot += parseH(getCV(s,sub,4)); found = true; }
+                } break;
+            }
+        }
+        if(found){ d.push({name:st, raw:[tot], res:[analyzeChiller(tot, st)], isCri:analyzeChiller(tot, st).s==='critical'}); }
+    }); return d;
+}
+function getAP(s) {
+    const d = []; if(!s) return d;
+    if (currentLine === 'line1') {
+        [{n:"설화명곡",r:179,c:5},{n:"화원",r:179,c:4}].forEach(st => {
+            let v = getCV(s,st.r,st.c); if(parseH(v)>0) d.push({name:st.n, units:[{label:"01호기",val:v,res:analyzeHVAC(v,17,st.n,'supply')}]});
         });
-
-        function runIntegratedAnalysis(wb, m, d) {
-            isCooling = (m === 7 || m === 8 || (m === 9 && d <= 20));
-            ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
-
-            const banner = document.getElementById('season-banner');
-            banner.style.display = 'block';
-            banner.innerHTML = `공조 기준: <strong>${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</strong> | 환기 기준: <strong>${ventSeason}</strong> (${m}월 ${d}일)`;
-
-            const findSheet = (keywords) => wb.SheetNames.find(n => keywords.some(k => n.includes(k))) || wb.SheetNames[0];
-            const hvacSheet = wb.Sheets[findSheet(["장비", "현황", "공조"])];
-            const airSheet = wb.Sheets[findSheet(["공기청정기", "청정기"])];
-            
-            const hvacData = (currentLine === 'line1') ? getL1HVAC(hvacSheet) : getL2HVAC(hvacSheet);
-            const airData = getAirPurifierData(airSheet);
-            const ventData = (currentLine === 'line1') ? getL1Vent(hvacSheet) : getL2Vent(hvacSheet);
-
-            renderAll(hvacData, airData, ventData);
-        }
-
-        function analyze(val, target, station, type, isAir = false) {
-            if (val === "N/A") return { s: 'none', c: '' };
-            if (station === "문양") return { s: 'ok', c: '' };
-            const h = parseH(val);
-            const diff = Math.abs(h - target);
-            if (isAir) {
-                if (h === 0) return { s: 'none', c: '' };
-                if (diff >= 5) return { s: 'critical', c: 'critical-val' };
-                return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+        CONFIG.L1_ST_LIST.forEach((n, i) => {
+            let v = getCV(s,75,4+i); if(parseH(v)>0) d.push({name:n, units:[{label:"01호기",val:v,res:analyzeHVAC(v,17,n,'supply')}]});
+        });
+    } else {
+        const rg = XLSX.utils.decode_range(s['!ref']);
+        const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
+        allSt.forEach(st => {
+            if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("공기청정기")) return;
+            let fR = -1; for (let r=0; r<=rg.e.r; r++) { if((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").replace("(2)","").includes(CONFIG.L2_NAME_MAP[st]||st)) { fR=r; break; } }
+            if (fR !== -1) { const obj = {name:st, units:[]};
+                for (let i=5; i<=35; i++) { [4, 9].forEach(c => {
+                    let v = getCV(s,fR+i,c); let uN = getCV(s,fR+i,c-3).replace(/\s+/g,"").replace(/\(.*\)/g,"");
+                    if (parseH(v)>0 && v!=='-') { obj.units.push({label:(uN||(i-4))+"호기",val:v,res:analyzeHVAC(v,17,st,'supply')}); }
+                }); }
+                if (obj.units.length > 0) d.push(obj);
             }
-            if (!isCooling) {
-                if (type === 'supply') {
-                    if (diff >= 5) return { s: 'critical', c: 'critical-val' };
-                    return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
-                } else {
-                    if (h <= (10/60)) return { s: 'critical', c: 'critical-val' };
-                    return (h <= 0.5) ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' };
-                }
-            } else {
-                const tNum = CONFIG.STATION_MAP_COOLING[station] === "type1" ? 1 : 2;
-                if (type === 'supply') {
-                    if (diff >= 4) return { s: 'critical', c: 'critical-val' };
-                    const isNorm = (tNum === 1) ? (h >= 10 && h <= 13) : (h >= 7.5 && h <= 10.5);
-                    return isNorm ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
-                } else { return (h <= (10/60)) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' }; }
-            }
-        }
+        });
+    } return d;
+}
 
-        function analyzeVent(val, isRight, station, unitName = "") {
-            if (val === "N/A") return { s: 'none', c: '' };
-            const h = parseH(val);
-            let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isRight ? 10.8 : 9.8) : 2);
-            if (station === "대실" || station === "범어") {
-                const limit = (ventSeason === '하절기') ? 20 : 5;
-                return (h >= limit) ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' };
-            }
-            if (ventSeason === '하절기') {
-                if (isRight && CONFIG.VENT_EXC_17_8H.some(s => station.includes(s))) target = 17.8;
-                if (station.includes("고산") && isRight) target = 6.5;
-                if (station.includes("신매") && !isRight) target = 5.5;
-                if (station.includes("정평") && isRight) target = 5.5;
-                if (station.includes("이곡")) target = 4.5;
-            }
-            if (CONFIG.VENT_EXC_19H.some(s => station.includes(s))) {
-                if (station.includes("중앙로") && !isRight) {}
-                else if (station.includes("수성구청") && !(isRight && unitName.includes("배기"))) {}
-                else target = 19;
-            }
-            const diff = Math.abs(h - target);
-            if (h === 0 || diff >= 2) return { s: 'critical', c: 'critical-val' };
-            return (h >= target - 0.1 && h <= target + 0.1) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
-        }
-
-        function renderAll(hvac, air, vent) {
-            const b = CONFIG.BRANCHES[currentLine];
-            const hLabels = currentLine === 'line1' ? ["시급", "시배", "종급", "종배"] : ["시급", "시상", "시하", "종급", "종상", "종하"];
-            const vLabels = ["시급", "시배", "종급", "종배"];
-
-            const buildSummary = (br) => {
-                const cH = hvac.filter(d => br.stations.includes(d.name) && d.isCri);
-                const cA = air.filter(d => br.stations.includes(d.name) && d.isCri);
-                const cV = vent.filter(d => br.stations.includes(d.name) && d.isCri);
-                const isOk = (cH.length === 0 && cA.length === 0 && cV.length === 0);
-
-                let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${br.name}</div>`;
-                if (isOk) return h + `<div style="color:var(--success); font-weight:700;">✅ 모든 장비 정상 가동 중</div></div>`;
-                
-                if (cH.length > 0) {
-                    h += `<span class="summary-group-label">[승강장 공조기]</span><div class="summary-badge-container">`;
-                    cH.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') h += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${hLabels[i]} (${formatToHMS(d.raw[i])})</span> `; }); });
-                    h += `</div>`;
-                }
-                if (cV.length > 0) {
-                    h += `<span class="summary-group-label">[환기실 송풍기]</span><div class="summary-badge-container">`;
-                    cV.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') {
-                        const lbl = (currentLine==='line1'||!d.unitNames) ? vLabels[i] : (d.unitNames[i] || '장비');
-                        h += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${lbl} (${formatToHMS(d.raw[i])})</span> `;
-                    } }); });
-                    h += `</div>`;
-                }
-                if (cA.length > 0) {
-                    h += `<span class="summary-group-label">[공기청정기]</span><div class="summary-badge-container">`;
-                    cA.forEach(d => { d.units.forEach(u => { if (u.res.s === 'critical') h += `<span class="badge badge-danger" onclick="toggleBadge(this)">${d.name} ${u.label} (${formatToHMS(u.val)})</span> `; }); });
-                    h += `</div>`;
-                }
-                return h + `</div>`;
-            };
-
-            // [수정 2-2] 요약 섹션 제목 변경
-            document.getElementById('summary-area').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기(클릭하여 조치 완료 표시)</h2><div class="summary-area-grid">${buildSummary(b.left)}${buildSummary(b.right)}</div>`;
-
-            const buildColHtml = (br, side) => {
-                const sideH = hvac.filter(d => br.stations.includes(d.name));
-                const sideV = vent.filter(d => br.stations.includes(d.name));
-                const sideA = air.filter(d => br.stations.includes(d.name));
-                return `
-                <div class="branch-column">
-                    <div class="branch-name-header">${br.name}</div>
-                    <div class="section-title">📊 승강장 공조기 상세</div>
-                    <button class="toggle-detail-btn" onclick="toggleDetail(this, '${side}-hvac', '승강장공조기')">[승강장공조기] 상세보기 ▾</button>
-                    <div id="${side}-hvac" class="detail-content">${buildTable(sideH, hLabels)}</div>
-                    <div class="section-title">🌪️ 환기실 송풍기 상세</div>
-                    <button class="toggle-detail-btn" onclick="toggleDetail(this, '${side}-vent', '환기실송풍기')">[환기실송풍기] 상세보기 ▾</button>
-                    <div id="${side}-vent" class="detail-content">${buildTable(sideV, vLabels)}</div>
-                    <div class="section-title">🌬️ 공기청정기 상세</div>
-                    <button class="toggle-detail-btn" onclick="toggleDetail(this, '${side}-air', '공기청정기')">[공기청정기] 상세보기 ▾</button>
-                    <div id="${side}-air" class="detail-content">${buildAirTable(sideA)}</div>
-                </div>`;
-            };
-            document.getElementById('full-list-area').innerHTML = `<div class="equipment-row">${buildColHtml(b.left, 'l')}${buildColHtml(b.right, 'r')}</div>`;
-        }
-
-        function buildTable(data, labels) {
-            if (data.length === 0) return "<p style='padding:20px; text-align:center; color:#94a3b8;'>데이터 없음</p>";
-            let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
-            data.forEach(d => {
-                h += `<tr><td class="st-name">${d.name}</td>`;
-                for (let i = 0; i < labels.length; i++) {
-                    const val = d.raw[i], res = d.res[i] || { c: '' };
-                    h += `<td class="${res.c}">${(val === "N/A" || val === undefined) ? "-" : formatToHMS(val)}</td>`;
-                }
-                h += `<td><span style="font-size:0.75rem; font-weight:800; color:${d.isCri?'#e11d48':'#059669'}">${d.isCri?'이상':'정상'}</span></td></tr>`;
-            });
-            return h + `</tbody></table></div>`;
-        }
-        function buildAirTable(data) {
-            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:85px;">역사</th><th>장비 상세 현황</th></tr></thead><tbody>`;
-            data.forEach(d => {
-                h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid">`;
-                d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}"><strong>${u.label}</strong><div class="unit-time">${formatToHMS(u.val)}</div></div>`; });
-                h += `</div></td></tr>`;
-            });
-            return h + `</tbody></table></div>`;
-        }
-
-        function formatToHMS(v) { if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; let ts; if(typeof v==='number') ts=Math.round(v*24*3600); else if(typeof v==='string'&&v.includes(':')){ const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); } else { const n=parseFloat(v); if(isNaN(n)) return "0:00:00"; ts=Math.round(n*3600); } const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=ts%60; return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; }
-        function getCV(s, r, c) { if(!s) return ""; const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; return cell ? cell.w || cell.v : ""; }
-        function parseH(v) { if(!v||v==="N/A") return 0; if(typeof v === 'number') return v * 24; const p = String(v).split(':'); if(p.length < 2) return parseFloat(v)||0; return parseInt(p[0]) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600; }
-        function cleanText(s) { return String(s || "").replace(/\s+/g, ""); }
-
-        function getL1HVAC(sheet) {
-            const data = []; const rules = isCooling ? CONFIG.COOLING_TARGETS : CONFIG.NORMAL_TARGETS;
-            [4, 5].forEach(col => { let n = (col === 4) ? "설화명곡" : "화원"; data.push(getL1HVAC_Obj(sheet, n, col, 81, 82, 89, 90, rules)); });
-            const range = XLSX.utils.decode_range(sheet['!ref']);
-            for (let c = 4; c <= range.e.c; c++) {
-                let n = cleanText(getCV(sheet, 0, c)); if(!n || ["합계","명곡","화원"].includes(n)) continue;
-                data.push(getL1HVAC_Obj(sheet, n, c, 5, 6, 13, 14, rules));
-            }
-            return data;
-        }
-        function getL1HVAC_Obj(sheet, n, c, ls, le, rs, re, rules) {
-            let sk = (n === "반월당" && currentLine === 'line1') ? "반월당(1호선)" : n;
-            const ty = CONFIG.STATION_MAP_NORMAL[sk] || "type4"; const tg = isCooling ? (CONFIG.COOLING_TARGETS[CONFIG.STATION_MAP_COOLING[n]] || rules["type3"]) : rules[ty];
-            const raw = [getCV(sheet, ls, c), getCV(sheet, le, c), getCV(sheet, rs, c), getCV(sheet, re, c)];
-            const res = [analyze(raw[0], tg, n, 'supply'), analyze(raw[1], 1, n, 'exhaust'), analyze(raw[2], tg, n, 'supply'), analyze(raw[3], 1, n, 'exhaust')];
-            return { name:n, raw, res, isCri: res.some(r=>r.s==='critical'), isAb: res.some(r=>r.s!=='ok') };
-        }
-        function getL1Vent(sheet) {
-            const data = []; if(!sheet) return data; const range = XLSX.utils.decode_range(sheet['!ref']);
-            for (let c = 4; c <= range.e.c; c++) {
-                let n = cleanText(getCV(sheet, 0, c)); if(!n || ["합계","명곡","화원"].includes(n)) continue;
-                const r = [getCV(sheet, 20, c), getCV(sheet, 21, c), getCV(sheet, 22, c), getCV(sheet, 23, c)];
-                const rs = [analyzeVent(r[0], false, n), analyzeVent(r[1], false, n), analyzeVent(r[2], true, n), analyzeVent(r[3], true, n)];
-                data.push({ name: n, raw: r, res: rs, isCri: rs.some(x=>x.s==='critical') });
-            }
-            return data;
-        }
-        function getL2HVAC(sheet) {
-            if(!sheet) return [];
-            const range = XLSX.utils.decode_range(sheet['!ref']); const data = []; let cur = null;
-            for (let r = 0; r <= range.e.r; r++) {
-                let label = cleanText(getCV(sheet, r, 0) + getCV(sheet, r, 1) + getCV(sheet, r, 2));
-                let val = getCV(sheet, r, 4);
-                const found = CONFIG.LINE2_STATIONS.find(st => label.includes(st) && (label.includes("가동") || label.length < 15));
-                if (found) { if (cur) data.push(formatL2HVAC(cur)); cur = { name: found, ls:null, lue:null, lle:null, rs:null, rue:null, rle:null }; continue; }
-                if (cur && label.includes("승강")) {
-                    const isL = (label.includes("좌") || label.includes("시점"));
-                    if (label.includes("급기")) { if(isL) cur.ls = val; else cur.rs = val; }
-                    else if (label.includes("배기")) {
-                        if (label.includes("상부") || (!label.includes("상부") && !label.includes("하부"))) { if(isL) cur.lue = val; else cur.rue = val; }
-                        else if (label.includes("하부")) { if(isL) cur.lle = val; else cur.rle = val; }
-                    }
-                }
-            }
-            if (cur) data.push(formatL2HVAC(cur));
-            return data;
-        }
-        function formatL2HVAC(d) {
-            const ty = CONFIG.STATION_MAP_NORMAL[d.name] || "type4"; 
-            const tg = isCooling ? (CONFIG.COOLING_TARGETS[CONFIG.STATION_MAP_COOLING[d.name]] || CONFIG.COOLING_TARGETS["type3"]) : CONFIG.NORMAL_TARGETS[ty];
-            const raw = [d.ls, d.lue, d.lle, d.rs, d.rue, d.rle];
-            const res = raw.map((v, i) => {
-                let type = (i === 0 || i === 3) ? 'supply' : 'exhaust';
-                let val = v; if (CONFIG.NO_EQUIPMENT[d.name] && (i === 2 || i === 5)) val = "N/A";
-                return analyze(val, tg, d.name, type);
-            });
-            return { name: d.name, raw: raw.map((v,i)=>(CONFIG.NO_EQUIPMENT[d.name]&&(i===2||i===5))?"N/A":v), res, isCri: res.some(r=>r.s==='critical'), isAb: res.some(r=>r.s!=='ok') };
-        }
-        function getL2Vent(sheet) {
-            if(!sheet) return [];
-            const data = []; const range = XLSX.utils.decode_range(sheet['!ref']);
-            CONFIG.LINE2_STATIONS.forEach(stName => {
-                const matchName = CONFIG.L2_NAME_MAP[stName] || stName;
-                if (stName === "반월당") {
-                    const r = [getCV(sheet, 439, 19), getCV(sheet, 440, 19), getCV(sheet, 441, 19), getCV(sheet, 442, 19)];
-                    const rs = [analyzeVent(r[0], false, stName), analyzeVent(r[1], false, stName), analyzeVent(r[2], true, stName), analyzeVent(r[3], true, stName)];
-                    data.push({ name: stName, raw: r, res: rs, isCri: rs.some(r=>r.s==='critical') });
-                    return;
-                }
-                let fRow = -1;
-                for (let r = 0; r <= range.e.r; r++) { if (cleanText(getCV(sheet, r, 0) + getCV(sheet, r, 1)).includes(matchName)) { fRow = r; break; } }
-                if (fRow !== -1) {
-                    let units = [];
-                    for (let r = fRow; r < fRow + 40 && r <= range.e.r; r++) {
-                        [1, 6, 11].forEach(col => {
-                            let name = cleanText(getCV(sheet, r, col));
-                            if (name.includes("환기실")) {
-                                let val = getCV(sheet, r, col + 3);
-                                if ((CONFIG.NO_EQUIPMENT[stName] || []).some(ex => name.includes(ex))) val = "N/A";
-                                units.push({ l: name.replace("환기실", "").trim(), v: val, r: analyzeVent(val, (name.includes("우")||name.includes("종점")), stName, name) });
-                            }
-                        });
-                    }
-                    if (units.length > 0) data.push({ name: stName, raw: units.slice(0,4).map(u=>u.v), res: units.slice(0,4).map(u=>u.r), unitNames: units.slice(0,4).map(u=>u.l), isCri: units.some(u=>u.r.s==='critical') });
-                }
-            });
-            return data;
-        }
-
-        function getAirPurifierData(sheet) {
-            if(!sheet) return [];
-            const data = []; const target = CONFIG.AIR_PURIFIER_STD;
-            if (currentLine === 'line1') {
-                [{n: "화원", r: 179, c: 4}, {n: "설화명곡", r: 179, c: 5}].forEach(st => {
-                    let v = getCV(sheet, st.r, st.c); let res = analyze(v, target, st.n, 'supply', true);
-                    if (parseH(v) > 0) data.push({ name: st.n, units: [{ label: "01호기", val: v || "0", res }], isAb: res.s !== 'ok', isCri: res.s === 'critical' });
-                });
-                CONFIG.L1_STATIONS_PURIFIER.forEach((name, idx) => {
-                    let v = getCV(sheet, 75, 4+idx); let res = analyze(v, target, name, 'supply', true);
-                    if (parseH(v) > 0) data.push({ name: name, units: [{ label: "01호기", val: v || "0", res }], isAb: res.s !== 'ok', isCri: res.s === 'critical' });
-                });
-            } else {
-                const range = XLSX.utils.decode_range(sheet['!ref']);
-                CONFIG.LINE2_STATIONS.forEach(stName => {
-                    let fRow = -1; for (let r = 0; r <= range.e.r; r++) { if (cleanText(getCV(sheet, r, 0) + getCV(sheet, r, 1)).includes(CONFIG.L2_NAME_MAP[stName]||stName)) { fRow = r; break; } }
-                    if (fRow !== -1) {
-                        const stObj = { name: stName, units: [], isAb: false, isCri: false };
-                        for (let i = 5; i <= 35; i++) {
-                            [4, 9].forEach(colIdx => {
-                                let v = getCV(sheet, fRow + i, colIdx); let uN = cleanText(getCV(sheet, fRow + i, colIdx - 3)).replace(/\(.*\)/g, "");
-                                if (parseH(v) > 0 && v !== '-') {
-                                    let res = analyze(v, target, stName, 'supply', true);
-                                    stObj.units.push({ label: (uN || (i-4)) + "호기", val:v, res });
-                                    if (res.s !== 'ok') stObj.isAb = true; if (res.s === 'critical') stObj.isCri = true;
-                                }
-                            });
-                        }
-                        if (stObj.units.length > 0) data.push(stObj);
-                    }
-                });
-            }
-            return data;
-        }
-    </script>
+function formatToHMS(v) { 
+    if(!v||v==='0'||v===0||v==='-'||v==="N/A") return "0:00:00"; 
+    let ts; 
+    if(typeof v==='number') ts=Math.round(v*3600); 
+    else if(typeof v==='string'&&v.includes(':')){ 
+        const p=v.split(':'); ts=(parseInt(p[0])||0)*3600+(parseInt(p[1])||0)*60+(parseInt(p[2])||0); 
+    } else { 
+        const n=parseFloat(v); ts=Math.round(n*3600); 
+    } 
+    const h=Math.floor(ts/3600), m=Math.floor((ts%3600)/60), s=Math.floor(ts%60); 
+    return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`; 
+}
+</script>
 </body>
 </html>
