@@ -3,44 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2호선 가동일보 통합 분석 시스템</title>
+    <title>2호선 가동일보 분석 (다사역 E37 기준)</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #009223; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; }
-        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); overflow-y: scroll; }
-        .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
-        .app-header { background: white; border-bottom: 3px solid var(--primary); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        :root { --primary: #009223; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --success: #10b981; --border: #cbd5e0; }
+        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); }
+        .container { max-width: 1600px; margin: 0 auto; padding: 0 20px; }
+        .app-header { background: white; border-bottom: 4px solid var(--primary); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 8px 20px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
-        
-        /* 업로드 박스 */
-        .upload-box { background: white; padding: 40px; border: 2.5px dashed var(--primary); border-radius: 20px; text-align: center; cursor: pointer; margin-top: 30px; transition: 0.3s; }
-        .upload-box.minimized { padding: 12px; margin-top: 15px; border-style: solid; border-width: 1px; display: flex; align-items: center; justify-content: center; gap: 20px; }
-        
-        /* 공기청정기 카드 디자인 */
-        .air-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; padding: 10px; background: #f1f5f9; border-radius: 8px; }
-        .air-card { background: white; border: 1px solid var(--border); padding: 8px; border-radius: 6px; text-align: center; font-size: 0.75rem; }
-        .air-card strong { display: block; color: var(--primary); margin-bottom: 2px; }
-        .air-card.warning { border-color: var(--danger); background: #fff1f2; color: var(--danger); }
+        .upload-box { background: white; padding: 30px; border: 3px dashed var(--primary); border-radius: 16px; text-align: center; cursor: pointer; margin-top: 20px; transition: 0.2s; }
+        .upload-box.minimized { padding: 10px; border-style: solid; border-width: 1px; display: flex; align-items: center; justify-content: center; gap: 20px; }
 
-        /* 테이블 스타일 */
+        .branch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 30px; }
+        .branch-title { background: var(--dark); color: white; padding: 10px 20px; border-radius: 8px; font-weight: 800; margin-bottom: 15px; }
+
         .table-wrapper { background: white; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 30px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; padding: 12px; font-size: 0.85rem; border-bottom: 2px solid var(--border); }
-        td { padding: 10px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; }
-        .st-name { font-weight: 800; color: #fff; background: var(--primary); width: 110px; }
-        .branch-title { font-size: 1.2rem; font-weight: 900; margin: 20px 0 10px; color: var(--dark); border-left: 5px solid var(--primary); padding-left: 10px; }
-        
-        .badge { padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; font-weight: 800; cursor: pointer; border: 1px solid #ffe4e6; background: #fff1f2; color: #e11d48; margin: 5px; display: inline-block; }
-        .badge-checked { background: #f1f5f9; color: var(--na); text-decoration: line-through; border-color: #e2e8f0; }
+        td { padding: 10px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; overflow: hidden; }
+        .st-name { font-weight: 900; color: white; background: var(--primary); width: 110px; }
+
+        /* 공기청정기 그리드 디자인 수정 */
+        .air-status-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 6px; padding: 5px; }
+        .air-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 2px; text-align: center; font-size: 0.7rem; }
+        .air-box strong { display: block; color: #64748b; margin-bottom: 2px; }
+        .air-box span { font-weight: 800; color: var(--dark); }
+        .air-box.low { background: #fff1f2; border-color: #fecaca; }
+        .air-box.low span { color: var(--danger); }
     </style>
 </head>
 <body>
     <header class="app-header">
         <div class="container header-inner">
-            <button class="back-btn" onclick="location.reload()">↺ 리셋</button>
-            <div id="line-indicator" style="color: var(--primary); font-weight: 900; font-size: 1.4rem;">2호선 기계설비 가동일보 분석</div>
+            <button onclick="location.reload()" style="padding:8px 15px; cursor:pointer;">↺ 분석 초기화</button>
+            <div style="color: var(--primary); font-weight: 900; font-size: 1.4rem;">2호선 장비 가동일보 통합 분석</div>
             <div style="width:100px;"></div>
         </div>
     </header>
@@ -48,13 +45,11 @@
     <main class="container">
         <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
             <input type="file" id="excelFile" hidden />
-            <div style="font-size: 2.5rem;">📊</div>
-            <h3 style="margin:10px 0; color: var(--primary);">2호선 엑셀 파일 업로드</h3>
-            <p style="color:#64748b; font-weight: 600;">파일을 클릭하거나 드래그하세요.</p>
+            <div style="font-size: 2.5rem;">📁</div>
+            <h3 style="margin:10px 0; color: var(--primary);">2호선 가동일보 업로드</h3>
+            <p style="color:#64748b; font-weight: 600;">드림스 가동일보 파일을 선택하세요.</p>
         </div>
-
-        <div id="summary-area" style="margin-top:20px;"></div>
-        <div id="detail-area"></div>
+        <div id="detail-area" class="branch-grid"></div>
     </main>
 
 <script>
@@ -72,7 +67,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
     reader.onload = (evt) => {
         const wb = XLSX.read(evt.target.result, { type: 'binary' });
         const sheet = wb.Sheets["장비"] || wb.Sheets[wb.SheetNames[0]];
-        const results = analyze2Line(sheet);
+        const results = analyze2LineStrict(sheet);
         renderResults(results);
         document.getElementById('upload-container').classList.add('minimized');
     };
@@ -90,42 +85,48 @@ function parseH(v) {
     return (n > 0 && n <= 1.0) ? n * 24 : n;
 }
 
-function analyze2Line(s) {
+function analyze2LineStrict(s) {
     const rg = XLSX.utils.decode_range(s['!ref']);
     const allData = [];
-
     const stationList = [...CONFIG.STATIONS.left.list, ...CONFIG.STATIONS.right.list];
 
     stationList.forEach(st => {
         const searchName = CONFIG.NAME_MAP[st] || st;
-        let foundRow = -1;
+        let startRow = -1;
         
-        // [수정] 밀림 방지: 정확한 역사 매칭 로직
+        // 1. 역사명의 시작 위치를 찾음 (B열 혹은 A열)
         for (let r=0; r<=rg.e.r; r++) {
-            const cellVal = String(s[XLSX.utils.encode_cell({r:r, c:0})]?.v || "").replace(/\s/g,"");
-            // 역사 이름이 포함되어 있고, 해당 행이 데이터 시작점(가동시간 혹은 빈칸이 아닌 경우)인지 확인
-            if (cellVal === searchName || cellVal === searchName + "(2)") { 
-                foundRow = r; 
-                break; 
+            const valA = String(s[XLSX.utils.encode_cell({r:r, c:0})]?.v || "");
+            const valB = String(s[XLSX.utils.encode_cell({r:r, c:1})]?.v || "");
+            if (valA.includes(searchName) || valB.includes(searchName)) {
+                startRow = r;
+                break;
             }
         }
 
-        if (foundRow !== -1) {
-            const stObj = { name: st, hvac: [], air: [], vent: [] };
-            // 해당 역사 섹션 내부 탐색 (다음 역사가 나오기 전까지 약 40행)
-            for (let r=foundRow; r<foundRow+45 && r<=rg.e.r; r++) {
-                const typeCell = String(s[XLSX.utils.encode_cell({r:r, c:1})]?.v || "");
-                const nameCell = String(s[XLSX.utils.encode_cell({r:r, c:0})]?.v || "");
-                const val = s[XLSX.utils.encode_cell({r:r, c:4})]?.v;
+        if (startRow !== -1) {
+            const stObj = { name: st, hvac: [], air: [] };
+            
+            // 2. 해당 역사 구역 내에서 장비명 매칭 (다음 역사가 나오기 전까지 최대 50행)
+            for (let r = startRow; r < startRow + 50 && r <= rg.e.r; r++) {
+                const colA = String(s[XLSX.utils.encode_cell({r:r, c:0})]?.v || "");
+                const colB = String(s[XLSX.utils.encode_cell({r:r, c:1})]?.v || "");
+                const fullTxt = colA + colB;
+                
+                // 만약 현재 행이 다른 역사의 이름이라면 중단 (밀림 방지 핵심)
+                if (r > startRow && stationList.some(otherSt => fullTxt.includes(otherSt) && otherSt !== st)) break;
+
+                const val = s[XLSX.utils.encode_cell({r:r, c:4})]?.v; // E열 데이터
                 const h = parseH(val);
 
-                // 장비 구분
-                if (typeCell.includes("승강장") || nameCell.includes("승강장")) {
-                    stObj.hvac.push({ label: typeCell.includes("급기")?"급기":"배기", val: h });
-                } else if (typeCell.includes("청정기") || nameCell.includes("청정기")) {
-                    stObj.air.push({ label: typeCell.split(' ').pop() || "청정기", val: h });
-                } else if (typeCell.includes("환기실") || nameCell.includes("환기실")) {
-                    stObj.vent.push({ label: "송풍기", val: h });
+                if (fullTxt.includes("승강장") && (fullTxt.includes("급기") || fullTxt.includes("배기"))) {
+                    let label = fullTxt.includes("시점") ? "시점" : "종점";
+                    label += fullTxt.includes("급기") ? "급" : "배";
+                    stObj.hvac.push({ label, val: h });
+                } else if (fullTxt.includes("청정기")) {
+                    let uName = fullTxt.split(' ').pop().replace("청정기", "");
+                    if(uName.length > 5) uName = uName.substring(0,4);
+                    stObj.air.push({ label: uName || "기기", val: h });
                 }
             }
             allData.push(stObj);
@@ -136,38 +137,30 @@ function analyze2Line(s) {
 
 function renderResults(data) {
     const detArea = document.getElementById('detail-area');
-    const sumArea = document.getElementById('summary-area');
-    let sumHtml = `<div class="badge-container"><h3 style="margin:0 0 10px 5px; color:var(--danger)">⚠️ 점검 필요 항목</h3>`;
-    let errCount = 0;
-
-    const buildSection = (side) => {
-        let h = `<div class="branch-title">📍 ${side.name}</div>`;
-        h += `<div class="table-wrapper"><table><thead><tr><th>역사</th><th>승강장 공조기 가동</th><th>공기청정기 현황 (호기별)</th></tr></thead><tbody>`;
+    
+    const buildSide = (side) => {
+        let h = `<div><div class="branch-title">📍 ${side.name}</div>`;
+        h += `<div class="table-wrapper"><table><thead><tr><th style="width:110px;">역사</th><th style="width:130px;">승강장 공조</th><th>공기청정기 가동현황</th></tr></thead><tbody>`;
         
         data.filter(d => side.list.includes(d.name)).forEach(d => {
             h += `<tr><td class="st-name">${d.name}</td>`;
             
-            // 공조기 셀
-            h += `<td>${d.hvac.map(hv => {
-                const isErr = hv.val < 5; // 예시 기준: 5시간 미만 시 이상
-                if(isErr && hv.val > 0) { errCount++; sumHtml += `<span class="badge" onclick="this.classList.toggle('badge-checked')">${d.name} 공조 미달</span>`; }
-                return `<div style="color:${isErr?'var(--danger)':'inherit'}">${hv.label}: ${hv.val.toFixed(1)}h</div>`;
-            }).join('') || '-'}</td>`;
+            // 공조기 데이터
+            h += `<td>${d.hvac.map(hv => `<div style="font-size:0.75rem;">${hv.label}: <b>${hv.val.toFixed(1)}h</b></div>`).join('') || '-'}</td>`;
 
-            // 공기청정기 셀 (카드 디자인 적용)
-            h += `<td><div class="air-grid">`;
+            // 공기청정기 카드 레이아웃
+            h += `<td><div class="air-status-container">`;
             d.air.forEach(a => {
-                const isAirErr = a.val < 1;
-                h += `<div class="air-card ${isAirErr?'warning':''}"><strong>${a.label}</strong>${a.val.toFixed(1)}h</div>`;
+                const isLow = a.val < 0.1; // 가동 0인 경우 강조
+                h += `<div class="air-box ${isLow?'low':''}"><strong>${a.label}</strong><span>${a.val.toFixed(1)}h</span></div>`;
             });
             h += `</div></td></tr>`;
         });
-        h += `</tbody></table></div>`;
+        h += `</tbody></table></div></div>`;
         return h;
     };
 
-    detArea.innerHTML = buildSection(CONFIG.STATIONS.left) + buildSection(CONFIG.STATIONS.right);
-    sumArea.innerHTML = errCount > 0 ? sumHtml + `</div>` : `<div style="background:white; padding:20px; border-radius:15px; border-left:10px solid var(--success); font-weight:bold;">✅ 모든 장비 가동 상태 정상</div>`;
+    detArea.innerHTML = buildSide(CONFIG.STATIONS.left) + buildSide(CONFIG.STATIONS.right);
 }
 </script>
 </body>
