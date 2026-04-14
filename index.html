@@ -159,9 +159,7 @@ function analyzeVent(val, isR, st) {
         const limit = (ventSeason === '하절기') ? 20 : 5;
         return (h >= limit) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
     }
-    
     let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
-    
     if (currentLine === 'line1') {
         if (cSt === "중앙로" && isR) target = 19;
         if (cSt === "칠성시장" && !isR) target = 19;
@@ -173,7 +171,6 @@ function analyzeVent(val, isR, st) {
         if (cSt === "수성구청" && isR) target = 19;
         if (cSt === "연호" && isR) target = 19;
     }
-
     if (ventSeason === '하절기') {
         if (["명덕","연호","임당","영남대"].some(s => cSt.includes(s)) && isR) target = 17.8;
         if (cSt === "고산" && isR) target = 6.5;
@@ -181,17 +178,9 @@ function analyzeVent(val, isR, st) {
         if (cSt === "정평" && isR) target = 5.5;
         if (cSt === "이곡") target = 4.5;
     }
-
     if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'critical-val' };
     if (Math.abs(h - target) <= 1.5) return { s: 'ok', c: '' }; 
     return { s: 'warning', c: 'bad-val' };
-}
-
-function analyzeAir(val) {
-    const h = parseH(val);
-    if (h === 0) return { s: 'none', c: '' };
-    if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'critical-val' };
-    return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
 }
 
 const Extractor = {
@@ -218,7 +207,7 @@ const Extractor = {
             res.vent.push({ name: st, raw: vR, res: vR.map((v, i) => analyzeVent(v, i>=2, st)), isCri: false });
             res.vent[res.vent.length-1].isCri = res.vent[res.vent.length-1].res.some(r => r.s === 'critical');
             if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'), c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
-            if (parseH(aV) > 0) res.air.push({ name: st, units: [{ label: "01호기", val: aV, res: analyzeAir(aV) }], isCri: analyzeAir(aV).s === 'critical' });
+            if (parseH(aV) > 0) res.air.push({ name: st, units: [{ label: "01호기", val: aV, res: { s: (parseH(aV) < 15 || parseH(aV) > 18 ? 'critical' : 'ok'), c: (parseH(aV) < 15 || parseH(aV) > 18 ? 'critical-val' : '') } }], isCri: (parseH(aV) < 15 || parseH(aV) > 18) });
         });
         return res;
     },
@@ -230,12 +219,12 @@ const Extractor = {
             const mn = stName.replace(/\s+/g,""); let fR = -1;
             for (let r = 0; r <= rg.e.r; r++) { if ((getCV(s, r, 0) + getCV(s, r, 1)).replace(/\s+/g, "").includes(mn)) { fR = r; break; } }
             if (fR !== -1) {
-                // [특수 로직 적용] 정평, 임당, 영남대(영대)의 경우 종점 오프셋 변경
-                let isSpecial = ["정평", "임당", "영남대", "영대"].some(special => stName.includes(special));
+                // [교정] 특정 역사(정평, 임당, 영대) 오프셋 예외 처리
+                const isSpecial = ["정평", "임당", "영대", "영남대"].some(sp => stName.includes(sp));
                 let ls = getCV(s, fR + 5, 4);
                 let le = getCV(s, fR + 6, 4);
-                let rs = getCV(s, fR + (isSpecial ? 9 : 8), 4);
-                let re = getCV(s, fR + (isSpecial ? 10 : 9), 4);
+                let rs = getCV(s, fR + (isSpecial ? 9 : 8), 4); // 정평 등은 +9행
+                let re = getCV(s, fR + (isSpecial ? 10 : 9), 4); // 정평 등은 +10행
 
                 res.hvac.push({ name: stName, raw: [ls, le, rs, re], res: [analyzeHVAC(ls,stName,'supply'), analyzeHVAC(le,stName,'exhaust'), analyzeHVAC(rs,stName,'supply'), analyzeHVAC(re,stName,'exhaust')], isCri: false });
                 res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
@@ -245,7 +234,7 @@ const Extractor = {
                 for (let r = fR; r < fR + 55 && r <= rg.e.r; r++) {
                     let txt = (getCV(s, r, 0) + getCV(s, r, 1) + getCV(s, r, 2)).replace(/\s+/g, ""); let v = getCV(s, r, 4);
                     if (txt.includes("환기실")) unitsV.push({ l: txt.replace("환기실","").trim(), v: v, r: analyzeVent(v, (txt.includes("우")||txt.includes("종점")), stName) });
-                    if (txt.includes("청정기")) untsA.push({ label: (untsA.length+1)+"호기", val: v, res: analyzeAir(v) });
+                    if (txt.includes("청정기")) untsA.push({ label: (untsA.length+1)+"호기", val: v, res: { s: (parseH(v) < 15 || parseH(v) > 18 ? 'critical' : 'ok'), c: (parseH(v) < 15 || parseH(v) > 18 ? 'critical-val' : '') } });
                     if (txt.includes("냉동기") && stName !== "문양") { chSum += parseH(v); chFound = true; }
                     let v3 = getCV(s, r, 14), t3 = getCV(s, r, 11).replace(/\s+/g,"");
                     if (t3.includes("환기실")) unitsV.push({ l: t3.replace("환기실","").trim(), v: v3, r: analyzeVent(v3, (t3.includes("우")||t3.includes("종점")), stName) });
