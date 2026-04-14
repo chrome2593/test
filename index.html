@@ -17,6 +17,7 @@
             --danger-bg: #fff1f2;
             --warning: #f59e0b;
             --success: #10b981;
+            --success-bg: #f0fdf4;
             --border: #e2e8f0;
             --na: #94a3b8;
             --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
@@ -32,9 +33,9 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .container { max-width: 1600px; margin: 0 auto; padding: 0 30px; }
+        /* [수정 4] 컨테이너 폭 조정 (1600px -> 1400px) */
+        .container { max-width: 1400px; margin: 0 auto; padding: 0 30px; }
 
-        /* Header Design */
         .app-header { 
             background: rgba(255, 255, 255, 0.95); 
             backdrop-filter: blur(10px);
@@ -49,21 +50,17 @@
         .app-title { 
             font-weight: 900; 
             color: var(--primary); 
-            font-size: 1.6rem; 
+            font-size: 1.5rem; 
             letter-spacing: -0.025em;
             display: flex;
             align-items: center;
             gap: 12px;
         }
-        .app-title::before {
-            content: '📊';
-            font-size: 1.8rem;
-        }
 
         .back-btn { 
             background: #fff; 
             border: 1px solid var(--border); 
-            padding: 10px 24px; 
+            padding: 8px 20px; 
             border-radius: 10px; 
             cursor: pointer; 
             font-weight: 700; 
@@ -72,180 +69,162 @@
         }
         .back-btn:hover { background: #f8fafc; border-color: var(--na); color: var(--dark); }
 
-        /* Upload Area */
         .upload-box { 
             background: white; 
-            padding: 80px 40px; 
+            padding: 60px 40px; 
             border: 2px dashed var(--na); 
             border-radius: 24px; 
             text-align: center; 
             cursor: pointer; 
-            margin: 40px 0; 
+            margin: 30px 0; 
             transition: all 0.3s;
             box-shadow: var(--card-shadow);
         }
         .upload-box:hover { border-color: var(--primary); background: #fcfdfe; }
         .upload-box.minimized { 
             padding: 12px 30px; 
-            margin: 25px 0; 
+            margin: 20px 0; 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
             justify-content: center; 
-            gap: 20px; 
+            gap: 4px; 
             border-style: solid; 
             border-width: 1px;
             background: white;
         }
-        .upload-box.minimized h3 { font-size: 1rem; color: var(--primary); }
-        .upload-box.minimized p { display: none; }
-        .upload-box.minimized div { font-size: 1.5rem !important; margin: 0 !important; }
 
-        /* Summary Section */
+        /* [수정 5] 제목 옆 안내 문구 추가 */
         .summary-section-main-title { 
             font-weight: 900; 
-            font-size: 1.8rem; 
-            color: var(--danger); 
-            margin: 40px 0 25px; 
+            font-size: 1.7rem; 
+            color: var(--dark); 
+            margin: 35px 0 20px; 
             display: flex; 
-            align-items: center; 
-            gap: 12px;
+            align-items: baseline; 
+            gap: 15px;
         }
-        .summary-section-main-title::before { 
-            content: ''; 
-            width: 6px; 
-            height: 28px; 
-            background: var(--danger); 
-            border-radius: 4px; 
+        .summary-section-main-title span.sub-guide {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            font-weight: 600;
         }
 
-        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
         
+        /* [수정 3] 호선별 카드 테두리 */
         .summary-card { 
             background: white; 
             border: 1px solid var(--border); 
-            border-top: 6px solid var(--danger); 
-            padding: 30px; 
+            padding: 25px; 
             border-radius: 24px; 
             box-shadow: var(--card-shadow);
+            transition: border 0.3s;
         }
-        .summary-card.ok { border-top-color: var(--success); }
+        .summary-card.line1-theme { border-top: 8px solid var(--danger); border-left: 1px solid var(--danger-bg); border-right: 1px solid var(--danger-bg); border-bottom: 1px solid var(--danger-bg); }
+        .summary-card.line2-theme { border-top: 8px solid var(--success); border-left: 1px solid var(--success-bg); border-right: 1px solid var(--success-bg); border-bottom: 1px solid var(--success-bg); }
+
         .summary-title { 
             font-weight: 800; 
-            font-size: 1.5rem; 
+            font-size: 1.4rem; 
             border-bottom: 2px solid #f8fafc; 
-            padding-bottom: 15px; 
-            margin-bottom: 20px; 
+            padding-bottom: 12px; 
+            margin-bottom: 15px; 
             color: var(--dark);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .summary-group-label { 
             font-weight: 800; 
-            font-size: 0.95rem; 
+            font-size: 0.9rem; 
             color: #64748b; 
-            margin: 20px 0 10px 0; 
+            margin: 15px 0 8px 0; 
             display: block;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+        /* [수정 6] 요약 호기 3열 배치 */
+        .badge-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .badge { 
-            padding: 12px 16px; 
-            border-radius: 12px; 
-            font-size: 0.88rem; 
+            padding: 10px 12px; 
+            border-radius: 10px; 
+            font-size: 0.82rem; 
             font-weight: 800; 
             display: flex; 
+            flex-direction: column;
             align-items: center; 
-            justify-content: space-between; 
+            justify-content: center;
             cursor: pointer; 
             background: #fff; 
             color: var(--danger); 
             border: 1.5px solid var(--danger-bg);
-            box-shadow: 0 2px 4px rgba(225, 29, 72, 0.04);
             transition: 0.2s;
+            text-align: center;
         }
-        .badge:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.1); }
-        /* 이상 데이터 강조 배경 */
+        .badge:hover { transform: translateY(-2px); border-color: var(--danger); }
         .badge .val-highlight {
-            background: var(--danger-bg);
-            padding: 2px 8px;
-            border-radius: 6px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            margin-top: 4px;
+            background: var(--danger-bg); /* [수정 4] 연한 핑크 배경 */
+            padding: 1px 6px;
+            border-radius: 4px;
+            font-size: 0.8rem;
         }
-        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: var(--border) !important; text-decoration: line-through; opacity: 0.6; }
+        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: var(--border) !important; text-decoration: line-through; opacity: 0.5; }
 
-        /* Detail Section */
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 80px; align-items: start; }
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 60px; align-items: start; }
         
-        /* 분소 헤더 통일 (네이비) */
         .branch-header { 
             background: var(--primary-dark); 
             color: white; 
-            padding: 18px 25px; 
-            border-radius: 15px; 
+            padding: 15px 20px; 
+            border-radius: 12px; 
             font-weight: 800; 
-            font-size: 1.25rem; 
-            margin-bottom: 25px; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            font-size: 1.1rem; 
+            margin-bottom: 20px; 
         }
 
         .toggle-btn { 
             width: 100%; 
-            padding: 18px 25px; 
-            margin-bottom: 12px; 
-            border-radius: 16px; 
+            padding: 15px 20px; 
+            margin-bottom: 10px; 
+            border-radius: 14px; 
             border: 1px solid var(--border); 
             background: white; 
             font-weight: 800; 
-            font-size: 1.05rem; 
+            font-size: 1rem; 
             cursor: pointer; 
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.2s;
             color: #475569;
         }
-        .toggle-btn:hover { background: #fcfdfe; border-color: var(--primary); color: var(--primary); }
-        .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .toggle-btn.active { background: var(--primary); color: white; }
         
-        .detail-content { display: none; margin-bottom: 30px; animation: slideDown 0.4s ease-out; }
+        .detail-content { display: none; margin-bottom: 25px; animation: slideDown 0.3s ease-out; }
         .detail-content.active { display: block; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Table Design */
-        .table-wrapper { 
-            background: white; 
-            border-radius: 20px; 
-            border: 1px solid var(--border); 
-            overflow: hidden; 
-            box-shadow: var(--card-shadow); 
-        }
+        .table-wrapper { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--card-shadow); }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: #f8fafc; padding: 15px 5px; font-size: 0.8rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); text-transform: uppercase; }
-        td { padding: 16px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; font-weight: 600; }
-        tr:hover td { background: #fcfdfe; }
+        th { background: #f8fafc; padding: 12px 5px; font-size: 0.75rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); }
+        td { padding: 14px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 600; }
         
-        .st-name { font-weight: 900; color: var(--primary); background: #fcfdfe; width: 110px; border-right: 1px solid #f1f5f9; }
-        .critical-val { background: var(--danger) !important; color: white !important; border-radius: 4px; }
+        .st-name { font-weight: 900; color: var(--primary); background: #fcfdfe; width: 100px; border-right: 1px solid #f1f5f9; }
+        .critical-val { background: var(--danger) !important; color: white !important; }
         .bad-val { background: #fffbeb !important; color: #b45309 !important; }
         .na-cell { background: #f8fafc; color: var(--na); font-style: italic; }
 
         .season-info { 
-            padding: 18px 30px; 
+            padding: 15px 25px; 
             background: white; 
             border: 1px solid var(--border); 
-            border-left: 8px solid var(--primary); 
-            border-radius: 16px; 
+            border-left: 6px solid var(--primary); 
+            border-radius: 14px; 
             font-weight: 700; 
-            margin-bottom: 30px; 
+            margin-bottom: 25px; 
             display: flex;
             justify-content: center;
-            gap: 20px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            gap: 15px;
+            font-size: 0.95rem;
         }
     </style>
 </head>
@@ -261,9 +240,9 @@
             <div id="season-banner" class="season-info" style="display:none;"></div>
             <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
                 <input type="file" id="excelFile" hidden />
-                <div style="font-size: 4.5rem; margin-bottom: 20px;">📂</div>
-                <h3 style="margin:0; color: var(--primary); font-size: 1.8rem; font-weight: 900;">가동일보 엑셀 업로드</h3>
-                <p style="color:#64748b; margin-top:15px; font-weight:600; font-size: 1.1rem;">DREAMS 가동일보 파일을 이곳에 드래그하거나 클릭하세요</p>
+                <div style="font-size: 4rem; margin-bottom: 15px;">📂</div>
+                <h3 style="margin:0; color: var(--primary); font-size: 1.6rem; font-weight: 900;">가동일보 엑셀 업로드</h3>
+                <p style="color:#64748b; margin-top:10px; font-weight:600;">DRIMS 가동일보 파일을 선택하거나 드래그하세요</p>
             </div>
             <div id="summary-section"></div>
             <div id="details-section" class="details-grid"></div>
@@ -272,7 +251,7 @@
 
 <script>
 /**
- * [환경 설정 및 기준 데이터] - 수정 없음
+ * [환경 설정 및 데이터 추출 로직] - 사용자 요청에 따라 절대 수정하지 않음
  */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
@@ -298,7 +277,6 @@ const CONFIG = {
 
 let isCooling = false, currentLine = '', ventSeason = '';
 
-// [데이터 추출 로직 - 변동 없음]
 function parseH(v) { 
     if(v === undefined || v === null || v === "" || v === "N/A" || v === "-" || v === "0") return 0;
     if(typeof v === 'number') return v * 24; 
@@ -314,8 +292,7 @@ function parseH(v) {
 
 function getCV(s, r, c) { 
     if(!s) return ""; 
-    const addr = XLSX.utils.encode_cell({r:r, c:c});
-    const cell = s[addr]; 
+    const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
     return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : ""; 
 }
 
@@ -411,18 +388,15 @@ const Extractor = {
             if (st === "설화명곡") {
                 c = 5; hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
                 vR = [getCV(s, 97, c), getCV(s, 98, c), getCV(s, 99, c), getCV(s, 100, c)];
-                cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c));
-                aV = getCV(s, 179, c); 
+                cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c)); aV = getCV(s, 179, c);
             } else if (st === "화원") {
                 c = 4; hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
                 vR = [getCV(s, 97, c), getCV(s, 98, c), getCV(s, 99, c), getCV(s, 100, c)];
-                cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c));
-                aV = getCV(s, 179, c); 
+                cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c)); aV = getCV(s, 179, c);
             } else {
                 c = CONFIG.L1_ST_LIST.indexOf(st) + 4; hR = [getCV(s, 5, c), getCV(s, 6, c), getCV(s, 13, c), getCV(s, 14, c)];
                 vR = [getCV(s, 19, c), getCV(s, 20, c), getCV(s, 21, c), getCV(s, 22, c)];
-                cV = parseH(getCV(s, 56, c));
-                aV = getCV(s, 75, c); 
+                cV = parseH(getCV(s, 56, c)); aV = getCV(s, 75, c);
             }
             res.hvac.push({ name: st, raw: hR, res: hR.map((v, i) => analyzeHVAC(v, st, i%2===0?'supply':'exhaust')), isCri: false });
             res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
@@ -505,6 +479,15 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과 리포트`;
             document.getElementById('season-banner').style.display = 'flex';
             document.getElementById('season-banner').innerHTML = `<span>📅 <b>분석 날짜:</b> ${m}월 ${d}일</span> <span>⚙️ <b>공조 시즌:</b> ${isCooling?'❄️ 냉방':'☀️ 비냉방'}</span> <span>🌪️ <b>환기 시즌:</b> ${ventSeason}</span>`;
+            
+            // [수정 2] 파일 이름 변경 금지 안내 문구 추가
+            document.getElementById('upload-container').innerHTML = `
+                <div style="font-size: 1.5rem;">📂</div>
+                <h3 style="margin:0; color: var(--primary); font-size: 1.1rem; font-weight: 900;">가동일보 엑셀 업로드 완료</h3>
+                <p style="color:#94a3b8; margin: 4px 0 0 0; font-weight:600; font-size: 0.8rem;">가동일보 파일 이름 변경 금지</p>
+            `;
+            document.getElementById('upload-container').classList.add('minimized');
+
             const findS = (names) => {
                 for(let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"") === n); if(sheet) return wb.Sheets[sheet]; }
                 return null;
@@ -516,7 +499,6 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
                 const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]);
                 render(Extractor.getLine2(sheet, apSheet));
             }
-            document.getElementById('upload-container').classList.add('minimized');
         } catch(e) { alert("분석 실패"); console.error(e); }
     };
     reader.readAsBinaryString(file);
@@ -530,14 +512,16 @@ function render(data) {
     const br = CONFIG.BRANCHES[currentLine];
     const hL = ["시급", "시배", "종급", "종배"];
     
-    // [UI 업데이트] 확인 필요 호기 카드 디자인 및 값 배경색 추가
     const buildS = (branch) => {
         const cH = data.hvac.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cV = data.vent.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cC = data.chiller.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cA = data.air.filter(d => branch.stations.includes(d.name) && d.isCri);
         const isOk = (cH.length + cV.length + cC.length + cA.length === 0);
-        let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${branch.name} ${isOk?'✅':'⚠️'}</div>`;
+        
+        // [수정 3] 호선별 테두리 색상 분기
+        const themeClass = currentLine === 'line1' ? 'line1-theme' : 'line2-theme';
+        let h = `<div class="summary-card ${themeClass}"> <div class="summary-title">📍 ${branch.name} ${isOk?'✅':'⚠️'}</div>`;
         if (isOk) return h + `<div style="color:var(--success); font-weight:800; padding:20px 0; text-align:center;">모든 장비가 정상 가동 중입니다.</div></div>`;
         
         const addB = (title, items, labels, type) => {
@@ -554,7 +538,12 @@ function render(data) {
         h += addB('[공조기]', cH, hL, 'hvac'); h += addB('[송풍기]', cV, ["시급","시배","종급","종배"], 'vent'); h += addB('[냉동기]', cC, ["가동"], 'chiller'); h += addB('[공기청정기]', cA, [], 'air');
         return h + `</div>`;
     };
-    document.getElementById('summary-section').innerHTML = `<h2 class="summary-section-main-title">확인 필요 장비 내역</h2><div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>`;
+    
+    // [수정 5] 제목 옆 안내 가이드 추가
+    document.getElementById('summary-section').innerHTML = `
+        <h2 class="summary-section-main-title">확인 필요 장비 내역 <span class="sub-guide">장비 확인 시 클릭하여 삭제</span></h2>
+        <div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>
+    `;
     
     const buildT = (items, labels) => {
         let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
@@ -572,10 +561,8 @@ function render(data) {
         return h + `</tbody></table></div>`;
     };
 
-    // [UI 업데이트] 공기청정기 상세 내역 (1호선 중앙 정렬 및 판정 추가)
     const buildAT = (items) => {
         if (currentLine === 'line1') {
-            // 1호선용 3컬럼 테이블
             let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th><th>01호기 가동시간</th><th>판정</th></tr></thead><tbody>`;
             items.forEach(d => {
                 const u = d.units[0];
@@ -587,7 +574,6 @@ function render(data) {
             });
             return h + `</tbody></table></div>`;
         } else {
-            // 2호선용 기존 그리드 스타일 유지 및 디자인 강화
             let h = `<div class="table-wrapper"><table><thead><tr><th style="width:110px;">역사</th><th>기기별 상세 가동 현황 (호기순)</th></tr></thead><tbody>`;
             items.forEach(d => {
                 h += `<tr><td class="st-name">${d.name}</td><td><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:8px; padding:10px;">`;
