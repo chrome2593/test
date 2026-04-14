@@ -25,8 +25,8 @@
             --na: #94a3b8;
             --sidebar-w: 320px;
             --header-h: 58px;
-            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-            --shadow-md: 0 4px 16px rgba(0,52,153,0.08);
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,52,153,0.08), 0 1px 4px rgba(0,0,0,0.04);
             --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
         }
 
@@ -47,119 +47,342 @@
             height: var(--header-h);
             background: var(--primary-dark);
             display: flex; align-items: center;
-            padding: 0 24px; gap: 20px;
+            padding: 0 24px;
+            gap: 20px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.18);
         }
         .header-logo {
             display: flex; align-items: center; gap: 10px;
             color: white; font-size: 1rem; font-weight: 900;
-            white-space: nowrap;
+            white-space: nowrap; letter-spacing: -0.3px;
         }
-        .header-pills { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .header-logo .logo-icon {
+            width: 32px; height: 32px; background: rgba(255,255,255,0.15);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+        .header-pills {
+            flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
         .header-pill {
             background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
             color: white; padding: 4px 14px; border-radius: 20px;
             font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
         }
+        .header-pill.date-pill { background: rgba(255,255,255,0.2); }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
         .header-btn {
             background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
             color: white; padding: 6px 14px; border-radius: 20px;
             font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+            white-space: nowrap;
         }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
         .header-btn.upload-btn { background: white; color: var(--primary-dark); border-color: white; }
+        .header-btn.upload-btn:hover { background: #e8f0fe; }
 
-        .app-shell { display: flex; margin-top: var(--header-h); height: calc(100vh - var(--header-h)); }
+        /* ───── LAYOUT ───── */
+        .app-shell {
+            display: flex;
+            margin-top: var(--header-h);
+            height: calc(100vh - var(--header-h));
+        }
 
         /* ───── SIDEBAR ───── */
         .sidebar {
-            width: var(--sidebar-w); min-width: var(--sidebar-w);
-            background: white; border-right: 1px solid var(--border);
-            overflow-y: auto; display: flex; flex-direction: column;
+            width: var(--sidebar-w);
+            min-width: var(--sidebar-w);
+            background: white;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.04);
         }
         .sidebar-header {
-            padding: 16px 18px 12px; border-bottom: 1px solid var(--border);
-            background: white; position: sticky; top: 0; z-index: 10;
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+            position: sticky; top: 0; z-index: 10;
         }
-        .sidebar-title { font-size: 0.78rem; font-weight: 800; color: var(--na); text-transform: uppercase; }
-        .sidebar-branch-name { font-size: 1rem; font-weight: 900; color: var(--dark); margin-top: 2px; }
-        .progress-bar-wrap { margin-top: 10px; background: #f1f5f9; border-radius: 99px; height: 6px; overflow: hidden; }
-        .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa); transition: width 0.4s ease; }
-        
+        .sidebar-title {
+            font-size: 0.78rem; font-weight: 800; color: var(--na); letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .sidebar-branch-name {
+            font-size: 1rem; font-weight: 900; color: var(--dark); margin-top: 2px;
+        }
+        .progress-bar-wrap {
+            margin-top: 10px; background: #f1f5f9; border-radius: 99px; height: 6px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa);
+            border-radius: 99px; transition: width 0.4s ease;
+        }
+        .progress-label {
+            font-size: 0.73rem; color: var(--na); font-weight: 700; margin-top: 5px;
+            display: flex; justify-content: space-between;
+        }
+
         .sidebar-group { padding: 12px 14px 4px; }
-        .sidebar-group-title { font-size: 0.72rem; font-weight: 800; color: var(--na); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .sidebar-group-title::before { content: ''; width: 3px; height: 11px; background: var(--primary); border-radius: 2px; }
-        
-        .checklist-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
-            border: 1.5px solid #fbd0d9; background: #fff8f9; margin-bottom: 5px; cursor: pointer; transition: 0.2s;
+        .sidebar-group-title {
+            font-size: 0.72rem; font-weight: 800; color: var(--na);
+            letter-spacing: 0.06em; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 6px;
         }
-        .checklist-item.done { border-color: #d1fae5; background: #f0fdf4; opacity: 0.6; }
-        .checklist-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #fbb6c4; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.65rem; }
+        .sidebar-group-title::before {
+            content: ''; display: block; width: 3px; height: 11px;
+            background: var(--primary); border-radius: 2px;
+        }
+        .checklist-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 10px;
+            border: 1.5px solid #fbd0d9; background: #fff8f9;
+            margin-bottom: 5px; cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .checklist-item:hover { border-color: var(--danger); transform: translateX(2px); }
+        .checklist-item:active { transform: scale(0.98); }
+        .checklist-check {
+            width: 20px; height: 20px; border-radius: 6px;
+            border: 2px solid #fbb6c4; background: white;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; transition: 0.2s;
+        }
+        .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; line-height: 1.3; }
+        .checklist-val {
+            font-size: 0.72rem; font-weight: 700; color: var(--danger);
+            background: #fce7ec; padding: 2px 7px; border-radius: 6px; white-space: nowrap;
+        }
+
+        @keyframes slideOut {
+            0%   { opacity: 1; transform: translateX(0); max-height: 60px; margin-bottom: 5px; padding: 8px 10px; }
+            60%  { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 0; max-height: 0; margin-bottom: 0; padding: 0; border-width: 0; }
+        }
+        .checklist-item.removing { animation: slideOut 0.35s ease forwards; pointer-events: none; }
+        .checklist-item.done {
+            border-color: #d1fae5; background: #f0fdf4;
+            opacity: 0.55;
+        }
         .checklist-item.done .checklist-check { background: var(--success); border-color: var(--success); color: white; }
-        .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; }
         .checklist-item.done .checklist-label { color: var(--success); text-decoration: line-through; }
-        .checklist-val { font-size: 0.72rem; font-weight: 700; background: #fce7ec; padding: 2px 7px; border-radius: 6px; }
+        .checklist-item.done .checklist-val { background: #d1fae5; color: var(--success); }
+
+        .sidebar-all-clear {
+            margin: 12px 14px; padding: 14px 12px; border-radius: 12px;
+            background: var(--success-light); border: 1.5px solid #a7f3d0;
+            text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--success);
+        }
+        .sidebar-empty {
+            padding: 30px 18px; text-align: center;
+            color: var(--na); font-size: 0.85rem; font-weight: 700;
+        }
 
         /* ───── MAIN CONTENT ───── */
-        .main-content { flex: 1; overflow-y: auto; padding: 24px 28px 48px; }
-
-        /* ───── UPLOAD & MODAL ───── */
-        .upload-screen { display: flex; align-items: center; justify-content: center; height: 100%; }
-        .upload-card { background: white; border-radius: 24px; padding: 60px; box-shadow: var(--shadow-md); border: 2px dashed #c5d3e8; text-align: center; cursor: pointer; max-width: 500px; width: 100%; }
-        
-        .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(10, 20, 50, 0.6); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: white; border-radius: 24px; padding: 36px; width: 480px; box-shadow: var(--shadow-lg); }
-        .modal-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 25px; }
-        .modal-choice { border: 2px solid var(--border); border-radius: 16px; padding: 20px; cursor: pointer; text-align: center; transition: 0.2s; }
-        .modal-choice:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
-
-        /* ───── [중요] 요약 그리드 레이아웃 ───── */
-        .summary-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-            margin-bottom: 30px; 
+        .main-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding: 24px 28px 48px;
         }
-        .alert-card { background: white; border-radius: 20px; padding: 22px; border-left: 8px solid var(--danger); box-shadow: var(--shadow-sm); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-        .alert-card.ok { border-left-color: var(--success); }
-        .alert-card.full-width { grid-column: 1 / -1; }
-        .alert-title { font-weight: 900; font-size: 1rem; margin-bottom: 12px; color: var(--dark); display: flex; justify-content: space-between; align-items: center; }
-        
-        .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .badge-item { 
-            background: #fff1f2; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; 
-            font-weight: 800; display: flex; justify-content: space-between; align-items: center;
-            border: 1px solid #ffe4e6; transition: 0.2s; cursor: pointer;
+
+        /* ───── NEW: GRID LAYOUT ───── */
+        .detail-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 24px;
+            align-items: start;
         }
-        .badge-item:hover { background: #ffe4e6; }
-        .badge-item.checked { opacity: 0.4; text-decoration: line-through; background: #f1f5f9; color: var(--na); border-color: var(--border); }
-        .val-tag { background: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
+        @media (max-width: 1200px) {
+            .detail-grid { grid-template-columns: 1fr; }
+        }
 
-        /* 상세 테이블 */
-        .branch-tabs { display: flex; gap: 6px; margin-bottom: 20px; background: #eaeff7; padding: 4px; border-radius: 12px; width: fit-content; }
-        .branch-tab { padding: 8px 20px; border-radius: 9px; border: none; font-size: 0.85rem; font-weight: 800; cursor: pointer; color: var(--text-sub); transition: 0.2s; }
-        .branch-tab.active { background: white; color: var(--primary); box-shadow: var(--shadow-sm); }
+        /* ───── UPLOAD STATE ───── */
+        .upload-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; gap: 0;
+        }
+        .upload-card {
+            background: white; border-radius: 24px; padding: 56px 60px;
+            box-shadow: var(--shadow-md); border: 2px dashed #c5d3e8;
+            text-align: center; cursor: pointer; transition: 0.25s;
+            max-width: 500px; width: 100%;
+        }
+        .upload-card:hover { border-color: var(--primary); background: #f8faff; }
+        .upload-icon { font-size: 3.5rem; margin-bottom: 16px; }
+        .upload-title { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        .upload-desc { font-size: 0.9rem; color: var(--na); font-weight: 600; }
+        .upload-hint { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+        .upload-hint span {
+            font-size: 0.78rem; font-weight: 700; color: var(--mid);
+            background: var(--bg); border: 1px solid var(--border);
+            padding: 4px 12px; border-radius: 20px;
+        }
 
-        .section-card { background: white; border-radius: 18px; margin-bottom: 15px; border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; }
-        .section-trigger { width: 100%; padding: 16px 24px; display: flex; justify-content: space-between; background: white; border: none; cursor: pointer; font-weight: 800; font-size: 1rem; }
-        .section-content { display: none; padding: 0 20px 20px; }
-        .section-content.active { display: block; }
+        /* ───── BRANCH MODAL ───── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(10, 20, 50, 0.55);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: white; border-radius: 24px; padding: 36px 32px;
+            box-shadow: var(--shadow-lg); width: 460px; max-width: 90vw;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e8f0fe; color: var(--primary); font-size: 0.75rem; font-weight: 800;
+            padding: 3px 12px; border-radius: 20px; margin-bottom: 12px;
+            letter-spacing: 0.04em;
+        }
+        .modal-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
+        .modal-sub { font-size: 0.88rem; color: var(--na); font-weight: 600; margin-bottom: 28px; }
+        .modal-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .modal-choice {
+            border: 2px solid var(--border); border-radius: 16px;
+            padding: 22px 18px; cursor: pointer; transition: 0.2s;
+            text-align: center; background: #fafbfd;
+        }
+        .modal-choice:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .modal-choice-icon { font-size: 2rem; margin-bottom: 8px; }
+        .modal-choice-name { font-size: 1rem; font-weight: 900; color: var(--dark); margin-bottom: 4px; }
+        .modal-choice-count { font-size: 0.78rem; color: var(--na); font-weight: 700; }
+        .modal-or { 
+            text-align: center; font-size: 0.8rem; color: var(--na); font-weight: 700;
+            margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+        }
+        .modal-both-btn {
+            width: 100%; margin-top: 12px; padding: 10px; border-radius: 10px;
+            border: 1.5px dashed var(--border); background: white;
+            font-size: 0.85rem; font-weight: 800; color: var(--mid); cursor: pointer; transition: 0.2s;
+        }
+        .modal-both-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-        table { width: 100%; border-collapse: collapse; border-radius: 10px; overflow: hidden; font-size: 0.9rem; }
-        th { background: #f1f5f9; padding: 12px; font-size: 0.75rem; color: var(--text-sub); }
-        td { padding: 12px 8px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 600; }
-        .st-name-col { background: #f8faff; font-weight: 800; color: var(--primary); width: 100px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 15px; }
-        .row-critical { background: #fff1f2 !important; color: var(--danger); }
+        /* ───── SECTION TABS (분소 탭) ───── */
+        .branch-tabs {
+            display: flex; gap: 6px; margin-bottom: 22px;
+            background: white; border: 1px solid var(--border);
+            padding: 4px; border-radius: 14px; width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+        .branch-tab {
+            padding: 8px 22px; border-radius: 10px; border: none;
+            font-size: 0.88rem; font-weight: 800; cursor: pointer;
+            background: transparent; color: var(--na); transition: 0.2s;
+        }
+        .branch-tab.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,82,204,0.25); }
+
+        /* ───── STATS ROW ───── */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white; border-radius: 14px; padding: 16px 18px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .stat-label { font-size: 0.72rem; font-weight: 800; color: var(--na); margin-bottom: 4px; }
+        .stat-val { font-size: 1.6rem; font-weight: 900; color: var(--dark); line-height: 1; }
+        .stat-val.danger { color: var(--danger); }
+        .stat-val.success { color: var(--success); }
+        .stat-sub { font-size: 0.72rem; font-weight: 700; color: var(--na); margin-top: 3px; }
+
+        /* ───── DETAIL SECTIONS ───── */
+        .detail-section-title {
+            font-size: 0.85rem; font-weight: 900; color: var(--mid);
+            margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .detail-section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .accordion-btn {
+            width: 100%; padding: 12px 16px; margin-bottom: 6px;
+            border-radius: 12px; border: 1px solid var(--border);
+            background: white; font-weight: 800; font-size: 0.88rem;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            color: var(--mid); transition: 0.2s; box-shadow: var(--shadow-sm);
+        }
+        .accordion-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .accordion-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .accordion-btn .acc-arrow { transition: transform 0.25s; }
+        .accordion-btn.active .acc-arrow { transform: rotate(180deg); }
+        .accordion-btn .acc-badge {
+            background: rgba(225,29,72,0.12); color: var(--danger);
+            font-size: 0.7rem; padding: 1px 7px; border-radius: 8px; font-weight: 800;
+        }
+        .accordion-btn.active .acc-badge { background: rgba(255,255,255,0.25); color: white; }
+        .accordion-content { display: none; margin-bottom: 10px; animation: fadeDown 0.2s ease; }
+        .accordion-content.active { display: block; }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ───── TABLE ───── */
+        .table-wrap {
+            background: white; border-radius: 12px;
+            border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm);
+        }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        thead th {
+            background: #f8fafc; padding: 9px 6px;
+            font-size: 0.72rem; color: var(--na); font-weight: 800;
+            border-bottom: 1px solid var(--border); text-align: center;
+        }
+        tbody td {
+            padding: 10px 6px; text-align: center;
+            border-bottom: 1px solid #f1f5f9; font-size: 0.86rem; font-weight: 600;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f8faff; }
+        .td-station {
+            font-weight: 900; color: var(--primary); background: #f8faff !important;
+            width: 85px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 12px;
+        }
+        .critical-val { background: var(--danger) !important; color: white !important; border-radius: 0; }
+        .bad-val { background: #fffbeb !important; color: #b45309 !important; }
+
+        /* ───── EMPTY STATES ───── */
+        .section-placeholder {
+            padding: 60px 20px; text-align: center; color: var(--na);
+            font-size: 0.9rem; font-weight: 700;
+        }
+        .section-placeholder .big { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+        /* ───── SCROLLBAR ───── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 99px; }
+
+        /* ───── NO UPLOAD SIDEBAR ───── */
+        .sidebar-idle {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 24px; text-align: center; color: var(--na); gap: 8px;
+        }
+        .sidebar-idle .idle-icon { font-size: 2rem; }
+        .sidebar-idle p { font-size: 0.82rem; font-weight: 600; line-height: 1.6; }
     </style>
 </head>
 <body>
 
 <header class="app-header">
-    <div class="header-logo">🚇 장비 가동 통합 관제</div>
+    <div class="header-logo">
+        <div class="logo-icon">🚇</div>
+        <span>장비 가동 통합 분석 시스템</span>
+    </div>
     <div class="header-pills" id="header-pills"></div>
     <div class="header-actions">
-        <button class="header-btn upload-btn" onclick="document.getElementById('excelFile').click()">📂 파일 업로드</button>
+        <button class="header-btn upload-btn" id="upload-trigger-btn" onclick="document.getElementById('excelFile').click()">
+            📂 파일 업로드
+        </button>
         <input type="file" id="excelFile" hidden />
         <button class="header-btn" onclick="location.reload()">↺ 초기화</button>
     </div>
@@ -167,33 +390,50 @@
 
 <div class="modal-overlay" id="branchModal">
     <div class="modal-box">
-        <h2 id="modal-line-title" style="font-weight:900; margin-bottom:10px;">분소 선택</h2>
-        <p style="color:var(--na); font-weight:600; font-size:0.9rem;">상세 분석을 진행할 분소를 선택해 주세요.</p>
-        <div class="modal-choices" id="modal-choices-area"></div>
-        <button style="width:100%; margin-top:15px; padding:12px; border-radius:12px; border:1.5px dashed var(--border); background:white; font-weight:800; cursor:pointer;" onclick="selectBranch('both')">⇄ 두 분소 모두 보기</button>
+        <div class="modal-badge" id="modal-line-badge">🚇 분소 선택</div>
+        <div class="modal-title">분소를 선택해 주세요</div>
+        <div class="modal-sub">분석할 분소를 선택하면 해당 분소의 상세 내역을 확인합니다.</div>
+        <div class="modal-choices">
+            <div class="modal-choice" onclick="selectBranch('left')">
+                <div class="modal-choice-icon" id="modal-icon-left">🏭</div>
+                <div class="modal-choice-name" id="modal-name-left">기계분소 A</div>
+                <div class="modal-choice-count" id="modal-count-left">0개 역사</div>
+            </div>
+            <div class="modal-choice" onclick="selectBranch('right')">
+                <div class="modal-choice-icon" id="modal-icon-right">🏗️</div>
+                <div class="modal-choice-name" id="modal-name-right">기계분소 B</div>
+                <div class="modal-choice-count" id="modal-count-right">0개 역사</div>
+            </div>
+        </div>
+        <div class="modal-or">또는</div>
+        <button class="modal-both-btn" onclick="selectBranch('both')">⇄ 두 분소 모두 보기</button>
     </div>
 </div>
 
 <div class="app-shell">
     <aside class="sidebar" id="sidebar">
-        <div style="padding:40px 20px; text-align:center; color:var(--na); font-weight:700;">파일을 업로드하면<br>목표 리스트가 생성됩니다.</div>
+        <div class="sidebar-idle">
+            <span class="idle-icon">📋</span>
+            <p>파일을 업로드하면<br>확인 필요 장비 목록이<br>이곳에 표시됩니다.</p>
+        </div>
     </aside>
-
     <main class="main-content" id="main-content">
         <div class="upload-screen">
             <div class="upload-card" onclick="document.getElementById('excelFile').click()">
-                <div style="font-size:4rem; margin-bottom:20px;">📊</div>
-                <h2 style="font-weight:900; color:var(--primary); margin-bottom:10px;">가동일보 데이터 분석</h2>
-                <p style="color:var(--na); font-weight:600;">DRIMS 가동일보 엑셀 파일을 선택하세요.</p>
+                <div class="upload-icon">📂</div>
+                <div class="upload-title">가동일보 엑셀 업로드</div>
+                <div class="upload-desc">DRIMS 가동일보 파일을 선택하거나 이곳에 끌어다 놓으세요</div>
+                <div class="upload-hint">
+                    <span>1호선 가동시간.xlsx</span>
+                    <span>2호선 일보.xlsx</span>
+                </div>
             </div>
         </div>
     </main>
 </div>
 
 <script>
-/**
- * [환경 설정 및 로직] - 기존 로직 100% 유지
- */
+/* CONFIG & GLOBALS (동일) */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
     NO_EQUIP: { "문양": ["공조기", "송풍기", "냉동기", "공기청정기"], "다사": ["상부배기", "하부배기"], "대실": ["상부배기", "하부배기"] },
@@ -205,42 +445,48 @@ const CONFIG = {
     },
     BRANCHES: {
         line1: {
-            left: { name: "송현기계분소", stations: ["설화명곡", "화원", "대곡", "진천", "월배", "상인", "월촌", "송현", "서부정류장", "대명", "안지랑", "현충로", "영대병원", "교대", "명덕", "반월당", "중앙로"] },
-            right: { name: "동대구기계분소", stations: ["대구역", "칠성시장", "신천", "동대구", "동구청", "아양교", "동촌", "해안", "방촌", "용계", "율하", "신기", "반야월", "각산", "안심"] }
+            left:  { name: "송현기계분소",    stations: ["설화명곡","화원","대곡","진천","월배","상인","월촌","송현","서부정류장","대명","안지랑","현충로","영대병원","교대","명덕","반월당","중앙로"], icon: "🔴" },
+            right: { name: "동대구기계분소",   stations: ["대구역","칠성시장","신천","동대구","동구청","아양교","동촌","해안","방촌","용계","율하","신기","반야월","각산","안심"], icon: "🔴" }
         },
         line2: {
-            left: { name: "문양기지기계분소", stations: ["문양", "다사", "대실", "강창", "계명대", "성서산단", "성서산업단지", "이곡", "용산", "죽전", "감삼", "두류", "내당", "반고개", "청라언덕"] },
-            right: { name: "사월기계분소", stations: ["반월당", "경대병원", "대구은행", "범어", "수성구청", "만촌", "담티", "연호", "수성알파", "수성알파시티", "대공원", "고산", "신매", "사월", "정평", "임당", "영남대", "영대"] }
+            left:  { name: "문양기지기계분소", stations: ["문양","다사","대실","강창","계명대","성서산단","성서산업단지","이곡","용산","죽전","감삼","두류","내당","반고개","청라언덕"], icon: "🏭" },
+            right: { name: "사월기계분소",     stations: ["반월당","경대병원","대구은행","범어","수성구청","만촌","담티","연호","수성알파","수성알파시티","대공원","고산","신매","사월","정평","임당","영남대","영대"], icon: "🏗️" }
         }
     },
     L1_ST_LIST: ["대곡","진천","월배","상인","월촌","송현","서부정류장","대명","안지랑","현충로","영대병원","교대","명덕","반월당","중앙로","대구역","칠성시장","신천","동대구","동구청","아양교","동촌","해안","방촌","용계","율하","신기","반야월","각산","안심"]
 };
 
-let isCooling = false, currentLine = '', ventSeason = '', globalData = null, selectedBranch = 'both';
-let doneCount = 0, totalItems = 0;
+let isCooling = false, currentLine = '', ventSeason = '';
+let globalData = null;
+let selectedBranch = 'both';
+let checkedCount = 0, totalCount = 0;
 
-function parseH(v) { 
-    if(!v || v==="" || v==="-" || v==="N/A") return 0;
-    if(typeof v === 'number') return v * 24;
+/* PARSE HELPERS & ANALYZE (동일) */
+function parseH(v) {
+    if (v === undefined || v === null || v === "" || v === "N/A" || v === "-" || v === "0") return 0;
+    if (typeof v === 'number') return v * 24;
     let s = String(v).trim();
-    if(s.includes(':')) {
-        let p = s.split(':'); return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
+    if (s.includes(':')) {
+        const p = s.split(' '); const t = p[0].split(':');
+        return (parseInt(t[0])||0) + (parseInt(t[1])||0)/60 + (parseInt(t[2])||0)/3600;
     }
-    return parseFloat(s) || 0;
+    const n = parseFloat(s); return (n > 0 && n <= 1.0) ? n * 24 : n;
+}
+function getCV(s, r, c) {
+    if (!s) return "";
+    const cell = s[XLSX.utils.encode_cell({r, c})];
+    return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : "";
 }
 function formatToHMS(v) {
-    if(!v || v==="-" || v==="N/A") return "-";
-    let h = (typeof v === 'number') ? v : parseH(v);
-    let ts = Math.round(h * 3600);
-    return `${Math.floor(ts/3600)}:${String(Math.floor((ts%3600)/60)).padStart(2,'0')}:${String(ts%60).padStart(2,'0')}`;
+    if (!v || v === "N/A" || v === "0") return "0:00:00";
+    if (v === "-") return "-";
+    let totalH = (typeof v === 'number') ? v : parseH(v);
+    let ts = Math.round(totalH * 3600);
+    const h = Math.floor(ts/3600), m = Math.floor((ts%3600)/60), s = ts%60;
+    return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
-function getCV(s, r, c) { let cell = s[XLSX.utils.encode_cell({r,c})]; return cell ? (cell.w || String(cell.v || "")) : ""; }
-
-/**
- * [판정 로직]
- */
 function analyzeHVAC(val, st, type) {
-    if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: 'na-text' };
+    if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: 'na-cell' };
     const h = (typeof val === 'number') ? val : parseH(val);
     if (!isCooling) {
         const cleanSt = st.replace(/\s+/g,"");
@@ -248,10 +494,10 @@ function analyzeHVAC(val, st, type) {
         const tNum = CONFIG.ST_NOR_TYPE[sk] || 4;
         const target = (tNum === 1) ? 17 : (tNum === 2 ? 15 : (tNum === 3 ? 15.5 : 16.5));
         if (type === 'supply') {
-            if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'row-critical' };
-            return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
+            if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'critical-val' };
+            return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
         } else {
-            return h <= (10/60) ? { s: 'critical', c: 'row-critical' } : (h <= 0.5 ? { s: 'warning', c: '' } : { s: 'ok', c: '' });
+            return h <= (10/60) ? { s: 'critical', c: 'critical-val' } : (h <= 0.5 ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' });
         }
     } else {
         const cleanSt = st.replace(/\s+/g,"");
@@ -260,26 +506,26 @@ function analyzeHVAC(val, st, type) {
         const chTg = CONFIG.CHILLER_VALS[chKey] || 9.0;
         if (type === 'supply') {
             if (tNum === 1) {
-                if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'row-critical' };
-                return (h >= 10 && h <= 13) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
+                if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'critical-val' };
+                return (h >= 10 && h <= 13) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
             } else if (tNum === 2) {
-                return (h >= 7.5 && h <= 10.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
+                return (h >= 7.5 && h <= 10.5) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
             } else {
-                return (Math.abs(h - chTg) > 2) ? { s: 'critical', c: 'row-critical' } : { s: 'ok', c: '' };
+                return (Math.abs(h - chTg) > 2) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
             }
         } else {
-            if (h < 0.5 || h >= 4) return { s: 'critical', c: 'row-critical' };
-            return (h >= 0.5 && h <= 3.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
+            if (h < 0.5 || h >= 4) return { s: 'critical', c: 'critical-val' };
+            return (h >= 0.5 && h <= 3.5) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
         }
     }
 }
 function analyzeVent(val, isR, st) {
-    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: 'na-text' };
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: 'na-cell' };
     const h = (typeof val === 'number') ? val : parseH(val);
     const cSt = st.replace(/\s+/g,"").replace("(2)","");
     if (cSt === "대실" || cSt === "범어") {
         const limit = (ventSeason === '하절기') ? 20 : 5;
-        return (h >= limit) ? { s: 'critical', c: 'row-critical' } : { s: 'ok', c: '' };
+        return (h >= limit) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
     }
     let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
     if (currentLine === 'line1') {
@@ -300,20 +546,18 @@ function analyzeVent(val, isR, st) {
         if (cSt === "정평" && isR) target = 5.5;
         if (cSt === "이곡") target = 4.5;
     }
-    if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'row-critical' };
+    if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'critical-val' };
     if (Math.abs(h - target) <= 1.5) return { s: 'ok', c: '' };
-    return { s: 'warning', c: '' };
+    return { s: 'warning', c: 'bad-val' };
 }
 function analyzeAir(val) {
     const h = parseH(val);
     if (h === 0) return { s: 'none', c: '' };
-    if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'row-critical' };
-    return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
+    if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'critical-val' };
+    return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
 }
 
-/**
- * [추출 모듈]
- */
+/* EXTRACTOR (동일) */
 const Extractor = {
     getLine1(s) {
         const res = { hvac: [], vent: [], chiller: [], air: [] };
@@ -338,7 +582,7 @@ const Extractor = {
             res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s==='critical');
             res.vent.push({ name: st, raw: vR, res: vR.map((v,i) => analyzeVent(v,i>=2,st)), isCri: false });
             res.vent[res.vent.length-1].isCri = res.vent[res.vent.length-1].res.some(r => r.s==='critical');
-            if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'),c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'row-critical':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
+            if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'),c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
             if (parseH(aV) > 0) res.air.push({ name: st, units: [{label:"01호기",val:aV,res:analyzeAir(aV)}], isCri: analyzeAir(aV).s==='critical' });
         }); return res;
     },
@@ -348,8 +592,8 @@ const Extractor = {
         const rg = XLSX.utils.decode_range(s['!ref']);
         allSt.forEach(stName => {
             if (stName === "문양") {
-                res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), isCri:false });
-                res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), unitNames:["-","-","-","-"], isCri:false });
+                res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), isCri:false });
+                res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), unitNames:["-","-","-","-"], isCri:false });
             }
             const mn = stName.replace(/\s+/g,""); let fR = -1;
             for (let r = 0; r <= rg.e.r; r++) { if ((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").includes(mn)) { fR=r; break; } }
@@ -375,7 +619,7 @@ const Extractor = {
                 if (chFound&&isCooling) {
                     const sk=(stName==="반월당")?"반월당(2호선)":stName;
                     const isC=(chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3);
-                    res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'row-critical':''}],isCri:isC});
+                    res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'critical-val':''}],isCri:isC});
                 }
                 if (apSheet) {
                     let rawUnits=[]; let apR=-1; const apRg=XLSX.utils.decode_range(apSheet['!ref']);
@@ -396,243 +640,246 @@ const Extractor = {
     }
 };
 
-/**
- * [UX 핸들러]
- */
-document.getElementById('excelFile').addEventListener('change', function(e) {
-    const file = e.target.files[0]; if (!file) return;
-    currentLine = file.name.includes("일보") ? 'line2' : 'line1';
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-        try {
-            const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
-            const dm = file.name.match(/\d{8}/);
-            let m = dm ? parseInt(dm[0].substring(4,6)) : 1, d = dm ? parseInt(dm[0].substring(6,8)) : 1;
-            isCooling = (m===7 || m===8 || (m===9 && d<=20));
-            ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
+/* FILE UPLOAD & MODAL */
+function attachFileListener() {
+    document.getElementById('excelFile').addEventListener('change', function handler(e) {
+        const file = e.target.files[0]; if (!file) return;
+        currentLine = file.name.includes("일보") ? 'line2' : 'line1';
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const wb = XLSX.read(evt.target.result, { type: 'binary' });
+                const dm = file.name.match(/\d{8}/);
+                let m = dm ? parseInt(dm[0].substring(4,6)) : 1;
+                let d = dm ? parseInt(dm[0].substring(6,8)) : 1;
+                isCooling = (m===7 || m===8 || (m===9 && d<=20));
+                ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
 
-            document.getElementById('header-pills').innerHTML = `
-                <div class="header-pill">📅 ${m}월 ${d}일</div>
-                <div class="header-pill">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div>
-                <div class="header-pill">${currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선'}</div>
-            `;
+                document.getElementById('header-pills').innerHTML = `
+                    <div class="header-pill date-pill">📅 ${m}월 ${d}일</div>
+                    <div class="header-pill">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div>
+                    <div class="header-pill">🌪️ ${ventSeason}</div>
+                    <div class="header-pill">${currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선'}</div>
+                `;
 
-            const findS = (names) => {
-                for (let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"")===n); if (sheet) return wb.Sheets[sheet]; }
-                return null;
-            };
-            
-            globalData = (currentLine === 'line1') 
-                ? Extractor.getLine1(findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]])
-                : Extractor.getLine2(findS(["장비"]), findS(["공기청정기"]));
+                const findS = (names) => {
+                    for (let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"")===n); if (sheet) return wb.Sheets[sheet]; }
+                    return null;
+                };
 
-            openModal();
-        } catch(err) { alert("분석 실패"); console.error(err); }
-    };
-    reader.readAsBinaryString(file);
-});
+                if (currentLine === 'line1') {
+                    const sheet = findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]];
+                    globalData = Extractor.getLine1(sheet);
+                } else {
+                    const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]);
+                    globalData = Extractor.getLine2(sheet, apSheet);
+                }
+                
+                openModal(); // 1, 2호선 공통으로 팝업 호출
+                e.target.value = '';
+            } catch(err) { alert("분석 실패: " + err.message); console.error(err); }
+        };
+        reader.readAsBinaryString(file);
+    });
+}
+attachFileListener();
 
 function openModal() {
-    const modal = document.getElementById('branchModal');
-    const title = document.getElementById('modal-line-title');
-    const area = document.getElementById('modal-choices-area');
     const br = CONFIG.BRANCHES[currentLine];
+    const badge = document.getElementById('modal-line-badge');
+    badge.textContent = currentLine === 'line1' ? "🔴 1호선 가동시간" : "🟢 2호선 가동일보";
     
-    title.innerText = (currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선') + ' 분소 선택';
-    area.innerHTML = `
-        <div class="modal-choice" onclick="selectBranch('left')">
-            <div style="font-size:2rem; margin-bottom:10px;">🏭</div>
-            <div style="font-weight:900;">${br.left.name}</div>
-        </div>
-        <div class="modal-choice" onclick="selectBranch('right')">
-            <div style="font-size:2rem; margin-bottom:10px;">🏗️</div>
-            <div style="font-weight:900;">${br.right.name}</div>
-        </div>
-    `;
-    modal.classList.add('active');
-}
+    document.getElementById('modal-name-left').innerHTML = br.left.name.replace("기계분소", "<br>기계분소");
+    document.getElementById('modal-count-left').textContent = `${br.left.stations.length}개 역사`;
+    document.getElementById('modal-icon-left').textContent = br.left.icon || "🏭";
 
+    document.getElementById('modal-name-right').innerHTML = br.right.name.replace("기계분소", "<br>기계분소");
+    document.getElementById('modal-count-right').textContent = `${br.right.stations.length}개 역사`;
+    document.getElementById('modal-icon-right').textContent = br.right.icon || "🏗️";
+
+    document.getElementById('branchModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('branchModal').classList.remove('active');
+}
 function selectBranch(side) {
     selectedBranch = side;
-    document.getElementById('branchModal').classList.remove('active');
-    document.getElementById('upload-screen')?.remove(); 
+    closeModal();
     renderDashboard();
 }
 
-function renderDashboard() {
-    const br = CONFIG.BRANCHES[currentLine];
-    let branches = (selectedBranch === 'both') ? [br.left, br.right] : [br[selectedBranch]];
-
-    // 사이드바 체크리스트 렌더
-    renderSidebar(branches);
-
-    // 메인 콘텐츠 렌더
-    let mainHtml = '';
-    if (selectedBranch === 'both') {
-        mainHtml += `
-        <div class="branch-tabs">
-            <button class="branch-tab active" id="tab-l" onclick="switchTab('l')">${br.left.name}</button>
-            <button class="branch-tab" id="tab-r" onclick="switchTab('r')">${br.right.name}</button>
-        </div>`;
-    }
-
-    branches.forEach((branch, idx) => {
-        const panelId = `panel-${(selectedBranch === 'both' && idx === 1) ? 'r' : 'l'}`;
-        const isHidden = (selectedBranch === 'both' && idx === 1) ? 'display:none' : '';
-        mainHtml += `<div id="${panelId}" style="${isHidden}">`;
-        mainHtml += renderBranchUI(branch);
-        mainHtml += `</div>`;
+/* SIDEBAR & DASHBOARD RENDER */
+function renderSidebar(branches, data) {
+    totalItems = 0; doneItems = 0;
+    let content = '';
+    branches.forEach(b => {
+        if (branches.length > 1) {
+            content += `<div style="padding: 12px 14px 4px; font-size: 0.8rem; font-weight: 900; color: var(--primary);">📍 ${b.name}</div>`;
+        }
+        content += buildSidebarForBranch(b, data);
     });
 
-    document.getElementById('main-content').innerHTML = mainHtml;
+    const allClear = totalItems === 0;
+    const sidebar = document.getElementById('sidebar');
+    const headerHtml = `
+        <div class="sidebar-header">
+            <div class="sidebar-title">확인 필요 장비</div>
+            <div class="sidebar-branch-name" id="sidebar-branch-label">${branches.map(b=>b.name).join(' / ')}</div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+            </div>
+            <div class="progress-label">
+                <span id="prog-done">0 / ${totalItems} 완료</span>
+                <span id="prog-pct">0%</span>
+            </div>
+        </div>
+    `;
+
+    if (allClear) {
+        sidebar.innerHTML = headerHtml + `<div class="sidebar-all-clear">✅ 모든 장비가 정상 가동 중입니다!</div>`;
+    } else {
+        sidebar.innerHTML = headerHtml + content;
+    }
+    totalCount = totalItems;
+    updateProgress();
 }
 
-function renderBranchUI(branch) {
-    const data = globalData;
+function buildSidebarForBranch(branch, data) {
+    const hL = ["시급","시배","종급","종배"];
     const cH = data.hvac.filter(d => branch.stations.includes(d.name) && d.isCri);
     const cV = data.vent.filter(d => branch.stations.includes(d.name) && d.isCri);
     const cC = data.chiller.filter(d => branch.stations.includes(d.name) && d.isCri);
     const cA = data.air.filter(d => branch.stations.includes(d.name) && d.isCri);
-    const isAllOk = (cH.length + cV.length + cC.length + cA.length === 0);
-
-    // [핵심] 요약 영역 2열 배치 레이아웃
-    let summaryHtml = '<div class="summary-grid">';
-    const buildAlert = (title, items, type, fullWidth = false) => {
-        const cls = fullWidth ? 'full-width' : '';
-        if (items.length === 0) return `<div class="alert-card ok ${cls}"><div class="alert-title">${title} ✅</div><p style="color:var(--success); font-size:0.85rem; font-weight:700;">이상 항목 없음</p></div>`;
-        let h = `<div class="alert-card ${cls}"><div class="alert-title">${title} ⚠️</div><div class="badge-list">`;
+    let html = '';
+    const makeGroup = (icon, title, items, labels, type) => {
+        if (items.length === 0) return '';
+        let items_html = '';
         items.forEach(d => {
             if (type === 'air') {
-                d.units.forEach(u => { if(u.res.s==='critical') h += `<div class="badge-item" onclick="this.classList.toggle('checked')"><span>${d.name} ${u.label}</span><span class="val-tag">${formatToHMS(u.val)}</span></div>`; });
+                d.units.forEach(u => {
+                    if (u.res.s === 'critical') {
+                        totalItems++;
+                        items_html += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${u.label}</span></div><div class="checklist-val">${formatToHMS(u.val)}</div></div>`;
+                    }
+                });
             } else {
-                d.res.forEach((r, i) => { if (r.s === 'critical') {
-                    const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i]));
-                    h += `<div class="badge-item" onclick="this.classList.toggle('checked')"><span>${d.name} ${lbl}</span><span class="val-tag">${formatToHMS(d.raw[i])}</span></div>`;
-                } });
+                d.res.forEach((r, i) => {
+                    if (r.s === 'critical') {
+                        totalItems++;
+                        const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
+                        items_html += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${lbl}</span></div><div class="checklist-val">${formatToHMS(d.raw[i])}</div></div>`;
+                    }
+                });
             }
         });
-        return h + `</div></div>`;
+        if (!items_html) return '';
+        return `<div class="sidebar-group"><div class="sidebar-group-title">${icon} ${title}</div>${items_html}</div>`;
     };
-
-    if (isAllOk) {
-        summaryHtml += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
-    } else {
-        if (isCooling) {
-            // 냉방 시즌: 공조/송풍 (1행), 냉동/청정 (2행)
-            summaryHtml += buildAlert('승강장공조기', cH, 'hvac');
-            summaryHtml += buildAlert('환기실송풍기', cV, 'vent');
-            summaryHtml += buildAlert('냉동기', cC, 'chiller');
-            summaryHtml += buildAlert('공기청정기', cA, 'air');
-        } else {
-            // 비냉방 시즌: 공조/송풍 (1행), 청정기 (2행 전체)
-            summaryHtml += buildAlert('승강장공조기', cH, 'hvac');
-            summaryHtml += buildAlert('환기실송풍기', cV, 'vent');
-            summaryHtml += buildAlert('공기청정기', cA, 'air', true);
-        }
-    }
-    summaryHtml += '</div>';
-
-    // 상세 테이블 섹션
-    const sH = data.hvac.filter(d => branch.stations.includes(d.name)), sV = data.vent.filter(d => branch.stations.includes(d.name)), sC = data.chiller.filter(d => branch.stations.includes(d.name)), sA = data.air.filter(d => branch.stations.includes(d.name));
-    const buildT = (items, labels) => {
-        let h = `<table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
-        items.forEach(d => {
-            const isEx = d.res.length > 0 && d.res[0].s === 'none';
-            h += `<tr class="${d.isCri?'row-critical':''}">`;
-            h += `<td class="st-name-col">${d.name}</td>`;
-            for (let i=0; i<labels.length; i++) h += `<td>${isEx?"-":formatToHMS(d.raw[i])}</td>`;
-            h += `<td style="font-weight:900">${isEx?'장비 없음':(d.isCri?'이상':'정상')}</td></tr>`;
-        }); return h + `</tbody></table>`;
-    };
-    const buildAT = (items) => {
-        let h = `<table><thead><tr><th>역사</th><th>장비명</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
-        items.forEach(d => { d.units.forEach((u, idx) => {
-            h += `<tr class="${u.res.s==='critical'?'row-critical':''}">`;
-            if (idx === 0) h += `<td class="st-name-col" rowspan="${d.units.length}">${d.name}</td>`;
-            h += `<td style="color:var(--text-sub)">${u.label}</td><td>${formatToHMS(u.val)}</td><td style="font-weight:900">${u.res.s==='critical'?'이상':'정상'}</td></tr>`;
-        }); }); return h + `</tbody></table>`;
-    };
-
-    let detailHtml = `
-        <div class="section-card">
-            <button class="section-trigger" onclick="toggleAcc(this)">⚙️ 승강장공조기 상세 내역 <span>▾</span></button>
-            <div class="section-content ${cH.length>0?'active':''}">${buildT(sH, ["시급","시배","종급","종배"])}</div>
-        </div>
-        <div class="section-card">
-            <button class="section-trigger" onclick="toggleAcc(this)">🌪️ 환기실송풍기 상세 내역 <span>▾</span></button>
-            <div class="section-content ${cV.length>0?'active':''}">${buildT(sV, ["시급","시배","종급","종배"])}</div>
-        </div>
-        ${isCooling?`<div class="section-card"><button class="section-trigger" onclick="toggleAcc(this)">❄️ 냉동기 상세 내역 <span>▾</span></button><div class="section-content ${cC.length>0?'active':''}">${buildT(sC, ["가동시간"])}</div></div>`:''}
-        <div class="section-card">
-            <button class="section-trigger" onclick="toggleAcc(this)">🌬️ 공기청정기 상세 내역 <span>▾</span></button>
-            <div class="section-content ${cA.length>0?'active':''}">${buildAT(sA)}</div>
-        </div>
-    `;
-
-    return summaryHtml + detailHtml;
-}
-
-function renderSidebar(branches) {
-    const data = globalData;
-    let itemsHtml = ''; totalItems = 0; doneCount = 0;
-    
-    branches.forEach(br => {
-        const cH = data.hvac.filter(d => br.stations.includes(d.name) && d.isCri);
-        const cV = data.vent.filter(d => br.stations.includes(d.name) && d.isCri);
-        const cC = data.chiller.filter(d => br.stations.includes(d.name) && d.isCri);
-        const cA = data.air.filter(d => br.stations.includes(d.name) && d.isCri);
-        
-        if (branches.length > 1) itemsHtml += `<div style="padding:12px 18px 5px; font-weight:900; color:var(--primary); font-size:0.8rem;">📍 ${br.name}</div>`;
-
-        const makeGroup = (title, items, type) => {
-            if (items.length === 0) return '';
-            let h = `<div class="sidebar-group"><div class="sidebar-group-title">${title}</div>`;
-            items.forEach(d => {
-                if (type === 'air') {
-                    d.units.forEach(u => { if(u.res.s==='critical') { totalItems++; h += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name} ${u.label}</div><div class="checklist-val">${formatToHMS(u.val)}</div></div>`; }});
-                } else {
-                    d.res.forEach((r, i) => { if (r.s === 'critical') {
-                        totalItems++;
-                        const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i]));
-                        h += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name} ${lbl}</div><div class="checklist-val">${formatToHMS(d.raw[i])}</div></div>`;
-                    }});
-                }
-            });
-            return h + `</div>`;
-        };
-        itemsHtml += makeGroup('⚙️ 공조기', cH, 'hvac') + makeGroup('🌪️ 송풍기', cV, 'vent') + makeGroup('❄️ 냉동기', cC, 'chiller') + makeGroup('🌬️ 청정기', cA, 'air');
-    });
-
-    document.getElementById('sidebar').innerHTML = `
-        <div class="sidebar-header">
-            <div class="sidebar-title">확인 필요 리스트</div>
-            <div class="sidebar-branch-name">${branches.map(b=>b.name).join(' / ')}</div>
-            <div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div>
-        </div>
-        ${totalItems === 0 ? '<div style="padding:40px 20px; text-align:center; color:var(--success); font-weight:800;">✅ 모든 장비 정상</div>' : itemsHtml}
-    `;
-    updateProg();
+    html += makeGroup('⚙️','공조기', cH, hL, 'hvac');
+    html += makeGroup('🌪️','송풍기', cV, hL, 'vent');
+    html += makeGroup('❄️','냉동기', cC, [], 'chiller');
+    html += makeGroup('🌬️','공기청정기', cA, [], 'air');
+    return html;
 }
 
 function checkItem(el) {
-    el.classList.toggle('done');
-    doneCount = document.querySelectorAll('.checklist-item.done').length;
-    updateProg();
+    if (el.classList.contains('done')) { el.classList.remove('done'); el.querySelector('.checklist-check').innerHTML = ''; doneItems = Math.max(0, doneItems - 1); }
+    else { el.classList.add('done'); el.querySelector('.checklist-check').innerHTML = '✓'; doneItems++; }
+    updateProgress();
 }
-function updateProg() {
-    const pct = totalItems === 0 ? 100 : (doneCount / totalItems * 100);
-    document.getElementById('prog-fill').style.width = pct + '%';
+function updateProgress() {
+    const pct = totalCount === 0 ? 100 : Math.round((doneItems / totalCount) * 100);
+    if (document.getElementById('prog-fill')) document.getElementById('prog-fill').style.width = pct + '%';
+    if (document.getElementById('prog-done')) document.getElementById('prog-done').textContent = `${doneItems} / ${totalCount} 완료`;
+    if (document.getElementById('prog-pct')) document.getElementById('prog-pct').textContent = pct + '%';
 }
-function toggleAcc(btn) {
-    btn.classList.toggle('active');
-    btn.nextElementSibling.classList.toggle('active');
+
+function renderDashboard() {
+    const br = CONFIG.BRANCHES[currentLine];
+    const data = globalData;
+    const hL = ["시급","시배","종급","종배"];
+    let branches = (selectedBranch === 'left') ? [br.left] : (selectedBranch === 'right' ? [br.right] : [br.left, br.right]);
+
+    renderSidebar(branches, data);
+
+    let mainHtml = '';
+    if (selectedBranch === 'both') {
+        mainHtml += `<div class="branch-tabs">
+            <button class="branch-tab active" id="tab-left" onclick="switchTab('left')">${currentLine==='line1'?'🔴':'🏭'} ${br.left.name}</button>
+            <button class="branch-tab" id="tab-right" onclick="switchTab('right')">${currentLine==='line1'?'🔴':'🏗️'} ${br.right.name}</button>
+        </div>`;
+    }
+
+    branches.forEach((branch, idx) => {
+        const sH = data.hvac.filter(d => branch.stations.includes(d.name));
+        const sV = data.vent.filter(d => branch.stations.includes(d.name));
+        const sC = data.chiller.filter(d => branch.stations.includes(d.name));
+        const sA = data.air.filter(d => branch.stations.includes(d.name));
+        const cntH = sH.filter(d=>d.isCri).length, cntV = sV.filter(d=>d.isCri).length, cntC = sC.filter(d=>d.isCri).length, cntA = sA.filter(d=>d.isCri).length;
+        
+        mainHtml += `<div class="branch-panel" id="panel-${idx === 0 ? 'left' : 'right'}" style="${(selectedBranch === 'both' && idx !== 0) ? 'display:none' : ''}">`;
+        mainHtml += `<div class="stats-row">
+            <div class="stat-card"><div class="stat-label">분석 역사</div><div class="stat-val">${sH.length}<span style="font-size:1rem;color:var(--na)">개소</span></div></div>
+            <div class="stat-card"><div class="stat-label">이상 감지</div><div class="stat-val danger">${cntH+cntV+cntC+cntA}<span style="font-size:1rem;color:var(--na)">건</span></div><div class="stat-sub">공조 ${cntH} · 송풍 ${cntV} · 냉동 ${cntC} · 공청 ${cntA}</div></div>
+            <div class="stat-card"><div class="stat-label">정상 역사</div><div class="stat-val success">${sH.filter(d=>!d.isCri).length}<span style="font-size:1rem;color:var(--na)">개소</span></div></div>
+            <div class="stat-card"><div class="stat-label">가동 모드</div><div class="stat-val" style="font-size:1.3rem;color:var(--primary)">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div><div class="stat-sub">${ventSeason}</div></div>
+        </div>`;
+
+        /* ─── 2열 그리드 레이아웃 적용 구간 ─── */
+        mainHtml += `<div class="detail-grid">`;
+        mainHtml += `<div><div class="detail-section-title">⚙️ 공조기 상세내역</div>${buildAccordion(sH, hL, 'buildTable', `acc-h-${idx}`, cntH)}</div>`;
+        mainHtml += `<div><div class="detail-section-title">🌪️ 송풍기 상세내역</div>${buildAccordion(sV, ["시급","시배","종급","종배"], 'buildTable', `acc-v-${idx}`, cntV)}</div>`;
+        mainHtml += `</div>`;
+
+        mainHtml += `<div class="detail-grid">`;
+        mainHtml += `<div><div class="detail-section-title">🌬️ 공기청정기 상세내역</div>${buildAccordionAir(sA, `acc-a-${idx}`, cntA)}</div>`;
+        if (isCooling) {
+            mainHtml += `<div><div class="detail-section-title">❄️ 냉동기 합산내역</div>${buildAccordion(sC, ["가동시간"], 'buildTable', `acc-c-${idx}`, cntC)}</div>`;
+        }
+        mainHtml += `</div>`;
+        /* ────────────────────────────────── */
+
+        mainHtml += `</div>`;
+    });
+    document.getElementById('main-content').innerHTML = mainHtml;
 }
-function switchTab(s) {
-    const isL = s === 'l';
-    document.getElementById('tab-l').classList.toggle('active', isL);
-    document.getElementById('tab-r').classList.toggle('active', !isL);
-    document.getElementById('panel-l').style.display = isL ? '' : 'none';
-    document.getElementById('panel-r').style.display = isL ? 'none' : '';
+
+/* TABLE BUILDERS (동일) */
+function buildTable(items, labels) {
+    let h = `<div class="table-wrap"><table><thead><tr><th style="width:90px;text-align:left;padding-left:12px;">역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
+    items.forEach(d => {
+        const isEx = d.res.length > 0 && d.res[0].s === 'none';
+        h += `<tr><td class="td-station">${d.name}</td>`;
+        for (let i = 0; i < labels.length; i++) h += `<td class="${d.res[i] ? d.res[i].c : ''}">${isEx ? '-' : formatToHMS(d.raw[i])}</td>`;
+        h += `<td><b style="color:${isEx?'var(--na)':(d.isCri?'var(--danger)':'var(--success)')}">${isEx?'장비없음':(d.isCri?'이상':'정상')}</b></td></tr>`;
+    });
+    return h + `</tbody></table></div>`;
+}
+function buildTableAir(items) {
+    let h = `<div class="table-wrap"><table><thead><tr><th style="width:90px;text-align:left;padding-left:12px;">역사</th><th>장비명</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
+    items.forEach(d => {
+        d.units.forEach((u, idx) => {
+            h += `<tr>`;
+            if (idx === 0) h += `<td class="td-station" rowspan="${d.units.length}">${d.name}</td>`;
+            h += `<td style="color:#64748b;font-size:0.82rem;">${u.label}</td><td class="${u.res.c}" style="font-weight:700;">${formatToHMS(u.val)}</td><td><b style="color:${u.res.s==='critical'?'var(--danger)':'var(--success)'}">${u.res.s==='critical'?'이상':'정상'}</b></td></tr>`;
+        });
+    });
+    return h + `</tbody></table></div>`;
+}
+function buildAccordion(items, labels, type, id, cntCri) {
+    const badge = cntCri > 0 ? `<span class="acc-badge">${cntCri}건 이상</span>` : '';
+    return `<button class="accordion-btn ${cntCri>0?'active':''}" onclick="toggleAcc(this,'${id}')"><span>현황 ${badge}</span><span class="acc-arrow">▾</span></button><div class="accordion-content ${cntCri>0?'active':''}" id="${id}">${buildTable(items, labels)}</div>`;
+}
+function buildAccordionAir(items, id, cntCri) {
+    const badge = cntCri > 0 ? `<span class="acc-badge">${cntCri}건 이상</span>` : '';
+    return `<button class="accordion-btn ${cntCri>0?'active':''}" onclick="toggleAcc(this,'${id}')"><span>현황 ${badge}</span><span class="acc-arrow">▾</span></button><div class="accordion-content ${cntCri>0?'active':''}" id="${id}">${buildTableAir(items)}</div>`;
+}
+function toggleAcc(btn, id) { btn.classList.toggle('active'); document.getElementById(id).classList.toggle('active'); }
+function switchTab(side) {
+    document.getElementById('tab-left').classList.toggle('active', side === 'left');
+    document.getElementById('tab-right').classList.toggle('active', side === 'right');
+    document.getElementById('panel-left').style.display = side === 'left' ? '' : 'none';
+    document.getElementById('panel-right').style.display = side === 'right' ? '' : 'none';
 }
 </script>
 </body>
