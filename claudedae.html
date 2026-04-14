@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>대구교통공사 장비 가동 통합 분석 시스템</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+        :root {
+            --primary: #0052cc;
+            --primary-dark: #003a99;
+            --primary-light: #e8f0fe;
+            --dark: #0f172a;
+            --mid: #334155;
+            --bg: #f4f6fb;
+            --danger: #e11d48;
+            --danger-light: #fff1f4;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --success: #059669;
+            --success-light: #ecfdf5;
+            --border: #dde3ef;
+            --na: #94a3b8;
+            --sidebar-w: 320px;
+            --header-h: 58px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+            --shadow-md: 0 4px 16px rgba(0,52,153,0.08), 0 1px 4px rgba(0,0,0,0.04);
+            --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background: var(--bg);
+            color: var(--dark);
+            line-height: 1.6;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* ───── HEADER ───── */
+        .app-header {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            height: var(--header-h);
+            background: var(--primary-dark);
+            display: flex; align-items: center;
+            padding: 0 24px;
+            gap: 20px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
+        }
+        .header-logo {
+            display: flex; align-items: center; gap: 10px;
+            color: white; font-size: 1rem; font-weight: 900;
+            white-space: nowrap; letter-spacing: -0.3px;
+        }
+        .header-logo .logo-icon {
+            width: 32px; height: 32px; background: rgba(255,255,255,0.15);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+        }
+        .header-pills {
+            flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .header-pill {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+            color: white; padding: 4px 14px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 700; white-space: nowrap;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .header-pill.date-pill { background: rgba(255,255,255,0.2); }
+        .header-actions { display: flex; align-items: center; gap: 8px; }
+        .header-btn {
+            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
+            color: white; padding: 6px 14px; border-radius: 20px;
+            font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.2s;
+            white-space: nowrap;
+        }
+        .header-btn:hover { background: rgba(255,255,255,0.25); }
+        .header-btn.upload-btn { background: white; color: var(--primary-dark); border-color: white; }
+        .header-btn.upload-btn:hover { background: #e8f0fe; }
+
+        /* ───── LAYOUT ───── */
+        .app-shell {
+            display: flex;
+            margin-top: var(--header-h);
+            height: calc(100vh - var(--header-h));
+        }
+
+        /* ───── SIDEBAR ───── */
+        .sidebar {
+            width: var(--sidebar-w);
+            min-width: var(--sidebar-w);
+            background: white;
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            overflow-x: hidden;
+            display: flex; flex-direction: column;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.04);
+        }
+        .sidebar-header {
+            padding: 16px 18px 12px;
+            border-bottom: 1px solid var(--border);
+            background: white;
+            position: sticky; top: 0; z-index: 10;
+        }
+        .sidebar-title {
+            font-size: 0.78rem; font-weight: 800; color: var(--na); letter-spacing: 0.05em; text-transform: uppercase;
+        }
+        .sidebar-branch-name {
+            font-size: 1rem; font-weight: 900; color: var(--dark); margin-top: 2px;
+        }
+        .progress-bar-wrap {
+            margin-top: 10px; background: #f1f5f9; border-radius: 99px; height: 6px; overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa);
+            border-radius: 99px; transition: width 0.4s ease;
+        }
+        .progress-label {
+            font-size: 0.73rem; color: var(--na); font-weight: 700; margin-top: 5px;
+            display: flex; justify-content: space-between;
+        }
+
+        .sidebar-group { padding: 12px 14px 4px; }
+        .sidebar-group-title {
+            font-size: 0.72rem; font-weight: 800; color: var(--na);
+            letter-spacing: 0.06em; margin-bottom: 6px;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .sidebar-group-title::before {
+            content: ''; display: block; width: 3px; height: 11px;
+            background: var(--primary); border-radius: 2px;
+        }
+        .checklist-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 10px;
+            border: 1.5px solid #fbd0d9; background: #fff8f9;
+            margin-bottom: 5px; cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+        }
+        .checklist-item:hover { border-color: var(--danger); transform: translateX(2px); }
+        .checklist-item:active { transform: scale(0.98); }
+        .checklist-check {
+            width: 20px; height: 20px; border-radius: 6px;
+            border: 2px solid #fbb6c4; background: white;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            font-size: 0.7rem; transition: 0.2s;
+        }
+        .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; line-height: 1.3; }
+        .checklist-val {
+            font-size: 0.72rem; font-weight: 700; color: var(--danger);
+            background: #fce7ec; padding: 2px 7px; border-radius: 6px; white-space: nowrap;
+        }
+
+        @keyframes slideOut {
+            0%   { opacity: 1; transform: translateX(0); max-height: 60px; margin-bottom: 5px; padding: 8px 10px; }
+            60%  { opacity: 0; transform: translateX(30px); }
+            100% { opacity: 0; max-height: 0; margin-bottom: 0; padding: 0; border-width: 0; }
+        }
+        .checklist-item.removing { animation: slideOut 0.35s ease forwards; pointer-events: none; }
+        .checklist-item.done {
+            border-color: #d1fae5; background: #f0fdf4;
+            opacity: 0.55;
+        }
+        .checklist-item.done .checklist-check { background: var(--success); border-color: var(--success); color: white; }
+        .checklist-item.done .checklist-label { color: var(--success); text-decoration: line-through; }
+        .checklist-item.done .checklist-val { background: #d1fae5; color: var(--success); }
+
+        .sidebar-all-clear {
+            margin: 12px 14px; padding: 14px 12px; border-radius: 12px;
+            background: var(--success-light); border: 1.5px solid #a7f3d0;
+            text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--success);
+        }
+        .sidebar-empty {
+            padding: 30px 18px; text-align: center;
+            color: var(--na); font-size: 0.85rem; font-weight: 700;
+        }
+
+        /* ───── MAIN CONTENT ───── */
+        .main-content {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            padding: 24px 28px 48px;
+        }
+
+        /* ───── UPLOAD STATE ───── */
+        .upload-screen {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; gap: 0;
+        }
+        .upload-card {
+            background: white; border-radius: 24px; padding: 56px 60px;
+            box-shadow: var(--shadow-md); border: 2px dashed #c5d3e8;
+            text-align: center; cursor: pointer; transition: 0.25s;
+            max-width: 500px; width: 100%;
+        }
+        .upload-card:hover { border-color: var(--primary); background: #f8faff; }
+        .upload-icon { font-size: 3.5rem; margin-bottom: 16px; }
+        .upload-title { font-size: 1.4rem; font-weight: 900; color: var(--primary); margin-bottom: 8px; }
+        .upload-desc { font-size: 0.9rem; color: var(--na); font-weight: 600; }
+        .upload-hint { margin-top: 20px; display: flex; justify-content: center; gap: 10px; }
+        .upload-hint span {
+            font-size: 0.78rem; font-weight: 700; color: var(--mid);
+            background: var(--bg); border: 1px solid var(--border);
+            padding: 4px 12px; border-radius: 20px;
+        }
+
+        /* ───── BRANCH MODAL ───── */
+        .modal-overlay {
+            position: fixed; inset: 0; z-index: 500;
+            background: rgba(10, 20, 50, 0.55);
+            backdrop-filter: blur(6px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; pointer-events: none; transition: opacity 0.25s;
+        }
+        .modal-overlay.active { opacity: 1; pointer-events: all; }
+        .modal-box {
+            background: white; border-radius: 24px; padding: 36px 32px;
+            box-shadow: var(--shadow-lg); width: 460px; max-width: 90vw;
+            transform: translateY(20px) scale(0.97);
+            transition: transform 0.3s cubic-bezier(.34,1.56,.64,1);
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1); }
+        .modal-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #e8f0fe; color: var(--primary); font-size: 0.75rem; font-weight: 800;
+            padding: 3px 12px; border-radius: 20px; margin-bottom: 12px;
+            letter-spacing: 0.04em;
+        }
+        .modal-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
+        .modal-sub { font-size: 0.88rem; color: var(--na); font-weight: 600; margin-bottom: 28px; }
+        .modal-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .modal-choice {
+            border: 2px solid var(--border); border-radius: 16px;
+            padding: 22px 18px; cursor: pointer; transition: 0.2s;
+            text-align: center; background: #fafbfd;
+        }
+        .modal-choice:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .modal-choice-icon { font-size: 2rem; margin-bottom: 8px; }
+        .modal-choice-name { font-size: 1rem; font-weight: 900; color: var(--dark); margin-bottom: 4px; }
+        .modal-choice-count { font-size: 0.78rem; color: var(--na); font-weight: 700; }
+        .modal-or { 
+            text-align: center; font-size: 0.8rem; color: var(--na); font-weight: 700;
+            margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);
+        }
+        .modal-both-btn {
+            width: 100%; margin-top: 12px; padding: 10px; border-radius: 10px;
+            border: 1.5px dashed var(--border); background: white;
+            font-size: 0.85rem; font-weight: 800; color: var(--mid); cursor: pointer; transition: 0.2s;
+        }
+        .modal-both-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+
+        /* ───── SECTION TABS (분소 탭) ───── */
+        .branch-tabs {
+            display: flex; gap: 6px; margin-bottom: 22px;
+            background: white; border: 1px solid var(--border);
+            padding: 4px; border-radius: 14px; width: fit-content;
+            box-shadow: var(--shadow-sm);
+        }
+        .branch-tab {
+            padding: 8px 22px; border-radius: 10px; border: none;
+            font-size: 0.88rem; font-weight: 800; cursor: pointer;
+            background: transparent; color: var(--na); transition: 0.2s;
+        }
+        .branch-tab.active { background: var(--primary); color: white; box-shadow: 0 2px 8px rgba(0,82,204,0.25); }
+
+        /* ───── STATS ROW ───── */
+        .stats-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white; border-radius: 14px; padding: 16px 18px;
+            border: 1px solid var(--border); box-shadow: var(--shadow-sm);
+        }
+        .stat-label { font-size: 0.72rem; font-weight: 800; color: var(--na); margin-bottom: 4px; }
+        .stat-val { font-size: 1.6rem; font-weight: 900; color: var(--dark); line-height: 1; }
+        .stat-val.danger { color: var(--danger); }
+        .stat-val.success { color: var(--success); }
+        .stat-sub { font-size: 0.72rem; font-weight: 700; color: var(--na); margin-top: 3px; }
+
+        /* ───── DETAIL SECTIONS ───── */
+        .detail-section-title {
+            font-size: 0.85rem; font-weight: 900; color: var(--mid);
+            margin-bottom: 10px; display: flex; align-items: center; gap: 8px;
+        }
+        .detail-section-title::after {
+            content: ''; flex: 1; height: 1px; background: var(--border);
+        }
+
+        .accordion-btn {
+            width: 100%; padding: 12px 16px; margin-bottom: 6px;
+            border-radius: 12px; border: 1px solid var(--border);
+            background: white; font-weight: 800; font-size: 0.88rem;
+            cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+            color: var(--mid); transition: 0.2s; box-shadow: var(--shadow-sm);
+        }
+        .accordion-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .accordion-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        .accordion-btn .acc-arrow { transition: transform 0.25s; }
+        .accordion-btn.active .acc-arrow { transform: rotate(180deg); }
+        .accordion-btn .acc-badge {
+            background: rgba(225,29,72,0.12); color: var(--danger);
+            font-size: 0.7rem; padding: 1px 7px; border-radius: 8px; font-weight: 800;
+        }
+        .accordion-btn.active .acc-badge { background: rgba(255,255,255,0.25); color: white; }
+        .accordion-content { display: none; margin-bottom: 10px; animation: fadeDown 0.2s ease; }
+        .accordion-content.active { display: block; }
+
+        @keyframes fadeDown {
+            from { opacity: 0; transform: translateY(-6px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ───── TABLE ───── */
+        .table-wrap {
+            background: white; border-radius: 12px;
+            border: 1px solid var(--border); overflow: hidden; box-shadow: var(--shadow-sm);
+        }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        thead th {
+            background: #f8fafc; padding: 9px 6px;
+            font-size: 0.72rem; color: var(--na); font-weight: 800;
+            border-bottom: 1px solid var(--border); text-align: center;
+        }
+        tbody td {
+            padding: 10px 6px; text-align: center;
+            border-bottom: 1px solid #f1f5f9; font-size: 0.86rem; font-weight: 600;
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: #f8faff; }
+        .td-station {
+            font-weight: 900; color: var(--primary); background: #f8faff !important;
+            width: 85px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 12px;
+        }
+        .critical-val { background: var(--danger) !important; color: white !important; border-radius: 0; }
+        .bad-val { background: #fffbeb !important; color: #b45309 !important; }
+
+        /* ───── EMPTY STATES ───── */
+        .section-placeholder {
+            padding: 60px 20px; text-align: center; color: var(--na);
+            font-size: 0.9rem; font-weight: 700;
+        }
+        .section-placeholder .big { font-size: 2.5rem; display: block; margin-bottom: 10px; }
+
+        /* ───── SCROLLBAR ───── */
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e0; border-radius: 99px; }
+
+        /* ───── NO UPLOAD SIDEBAR ───── */
+        .sidebar-idle {
+            flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 24px; text-align: center; color: var(--na); gap: 8px;
+        }
+        .sidebar-idle .idle-icon { font-size: 2rem; }
+        .sidebar-idle p { font-size: 0.82rem; font-weight: 600; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<header class="app-header">
+    <div class="header-logo">
+        <div class="logo-icon">🚇</div>
+        <span>장비 가동 통합 분석 시스템</span>
+    </div>
+    <div class="header-pills" id="header-pills"></div>
+    <div class="header-actions">
+        <button class="header-btn upload-btn" id="upload-trigger-btn" onclick="document.getElementById('excelFile').click()">
+            📂 파일 업로드
+        </button>
+        <input type="file" id="excelFile" hidden />
+        <button class="header-btn" onclick="location.reload()">↺ 초기화</button>
+    </div>
+</header>
+
+<!-- ════ BRANCH MODAL ════ -->
+<div class="modal-overlay" id="branchModal">
+    <div class="modal-box">
+        <div class="modal-badge">🚇 2호선 가동일보</div>
+        <div class="modal-title">분소를 선택해 주세요</div>
+        <div class="modal-sub">분석할 분소를 선택하면 해당 분소의 상세 내역을 확인합니다.</div>
+        <div class="modal-choices">
+            <div class="modal-choice" onclick="selectBranch('left')">
+                <div class="modal-choice-icon">🏭</div>
+                <div class="modal-choice-name">문양기지<br>기계분소</div>
+                <div class="modal-choice-count">15개 역사</div>
+            </div>
+            <div class="modal-choice" onclick="selectBranch('right')">
+                <div class="modal-choice-icon">🏗️</div>
+                <div class="modal-choice-name">사월<br>기계분소</div>
+                <div class="modal-choice-count">18개 역사</div>
+            </div>
+        </div>
+        <div class="modal-or">또는</div>
+        <button class="modal-both-btn" onclick="selectBranch('both')">⇄ 두 분소 모두 보기</button>
+    </div>
+</div>
+
+<!-- ════ APP SHELL ════ -->
+<div class="app-shell">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-idle">
+            <span class="idle-icon">📋</span>
+            <p>파일을 업로드하면<br>확인 필요 장비 목록이<br>이곳에 표시됩니다.</p>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <main class="main-content" id="main-content">
+        <div class="upload-screen">
+            <div class="upload-card" onclick="document.getElementById('excelFile').click()">
+                <div class="upload-icon">📂</div>
+                <div class="upload-title">가동일보 엑셀 업로드</div>
+                <div class="upload-desc">DRIMS 가동일보 파일을 선택하거나 이곳에 끌어다 놓으세요</div>
+                <div class="upload-hint">
+                    <span>1호선 가동시간.xlsx</span>
+                    <span>2호선 일보.xlsx</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG & GLOBALS
+═══════════════════════════════════════════ */
+const CONFIG = {
+    VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
+    NO_EQUIP: { "문양": ["공조기", "송풍기", "냉동기", "공기청정기"], "다사": ["상부배기", "하부배기"], "대실": ["상부배기", "하부배기"] },
+    ST_NOR_TYPE: { "명덕": 1, "청라언덕": 1, "반월당": 1, "현충로": 2, "중앙로": 2, "안심": 2, "다사": 2, "두류": 2, "담티": 2, "영남대": 2, "영대": 2, "반월당(1호선)": 3 },
+    ST_COOL_TYPE: { "화원": 1, "반야월": 1, "각산": 1, "대곡": 2, "월촌": 2, "송현": 2, "교대": 2, "명덕": 2, "동구청": 2, "방촌": 2, "용계": 2, "율하": 2, "신기": 2 },
+    CHILLER_VALS: {
+        "설화명곡":6.0,"화원":6.0,"대곡":6.0,"진천":5.5,"월배":5.5,"상인":11.5,"월촌":5.5,"송현":5.5,"서부정류장":10.0,"대명":5.5,"안지랑":5.5,"현충로":5.5,"영대병원":6.0,"교대":7.0,"명덕":6.0,"반월당":11.5,"중앙로":14.5,"대구역":6.0,"칠성시장":5.5,"신천":5.5,"동대구":11.5,"동구청":5.5,"아양교":6.0,"동촌":5.5,"해안":5.5,"방촌":6.0,"용계":5.5,"율하":6.0,"신기":5.5,"반야월":5.5,"각산":6.0,"안심":11.5,
+        "문양":7.0,"다사":4.0,"대실":4.5,"강창":4.5,"계명대":4.5,"성서산단":4.5,"성서산업단지":4.5,"이곡":4.5,"용산":6.0,"죽전":6.0,"감삼":6.0,"두류":6.0,"내당":6.5,"반고개":6.0,"청라언덕":6.5,"반월당(2호선)":12.0,"경대병원":6.0,"대구은행":6.0,"범어":5.5,"수성구청":5.0,"만촌":4.5,"담티":5.0,"연호":5.0,"수성알파":5.0,"수성알파시티":5.0,"고산":6.5,"신매":5.5,"사월":6.0,"정평":5.5,"임당":4.5,"영남대":4.5,"영대":4.5
+    },
+    BRANCHES: {
+        line1: {
+            left:  { name: "송현기계분소",    stations: ["설화명곡","화원","대곡","진천","월배","상인","월촌","송현","서부정류장","대명","안지랑","현충로","영대병원","교대","명덕","반월당","중앙로"] },
+            right: { name: "동대구기계분소",   stations: ["대구역","칠성시장","신천","동대구","동구청","아양교","동촌","해안","방촌","용계","율하","신기","반야월","각산","안심"] }
+        },
+        line2: {
+            left:  { name: "문양기지기계분소", stations: ["문양","다사","대실","강창","계명대","성서산단","성서산업단지","이곡","용산","죽전","감삼","두류","내당","반고개","청라언덕"] },
+            right: { name: "사월기계분소",     stations: ["반월당","경대병원","대구은행","범어","수성구청","만촌","담티","연호","수성알파","수성알파시티","대공원","고산","신매","사월","정평","임당","영남대","영대"] }
+        }
+    },
+    L1_ST_LIST: ["대곡","진천","월배","상인","월촌","송현","서부정류장","대명","안지랑","현충로","영대병원","교대","명덕","반월당","중앙로","대구역","칠성시장","신천","동대구","동구청","아양교","동촌","해안","방촌","용계","율하","신기","반야월","각산","안심"]
+};
+
+let isCooling = false, currentLine = '', ventSeason = '';
+let globalData = null;
+let selectedBranch = 'both'; // 'left' | 'right' | 'both'
+let checkedCount = 0, totalCount = 0;
+
+/* ═══════════════════════════════════════════
+   PARSE HELPERS
+═══════════════════════════════════════════ */
+function parseH(v) {
+    if (v === undefined || v === null || v === "" || v === "N/A" || v === "-" || v === "0") return 0;
+    if (typeof v === 'number') return v * 24;
+    let s = String(v).trim();
+    if (s.includes(':')) {
+        const p = s.split(' '); const t = p[0].split(':');
+        return (parseInt(t[0])||0) + (parseInt(t[1])||0)/60 + (parseInt(t[2])||0)/3600;
+    }
+    const n = parseFloat(s); return (n > 0 && n <= 1.0) ? n * 24 : n;
+}
+function getCV(s, r, c) {
+    if (!s) return "";
+    const cell = s[XLSX.utils.encode_cell({r, c})];
+    return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : "";
+}
+function formatToHMS(v) {
+    if (!v || v === "N/A" || v === "0") return "0:00:00";
+    if (v === "-") return "-";
+    let totalH = (typeof v === 'number') ? v : parseH(v);
+    let ts = Math.round(totalH * 3600);
+    const h = Math.floor(ts/3600), m = Math.floor((ts%3600)/60), s = ts%60;
+    return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+/* ═══════════════════════════════════════════
+   ANALYZE
+═══════════════════════════════════════════ */
+function analyzeHVAC(val, st, type) {
+    if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: 'na-cell' };
+    const h = (typeof val === 'number') ? val : parseH(val);
+    if (!isCooling) {
+        const cleanSt = st.replace(/\s+/g,"");
+        const sk = (cleanSt === "반월당" && currentLine === 'line1') ? "반월당(1호선)" : cleanSt;
+        const tNum = CONFIG.ST_NOR_TYPE[sk] || 4;
+        const target = (tNum === 1) ? 17 : (tNum === 2 ? 15 : (tNum === 3 ? 15.5 : 16.5));
+        if (type === 'supply') {
+            if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'critical-val' };
+            return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+        } else {
+            return h <= (10/60) ? { s: 'critical', c: 'critical-val' } : (h <= 0.5 ? { s: 'warning', c: 'bad-val' } : { s: 'ok', c: '' });
+        }
+    } else {
+        const cleanSt = st.replace(/\s+/g,"");
+        const tNum = CONFIG.ST_COOL_TYPE[cleanSt] || 3;
+        const chKey = (cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt;
+        const chTg = CONFIG.CHILLER_VALS[chKey] || 9.0;
+        if (type === 'supply') {
+            if (tNum === 1) {
+                if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'critical-val' };
+                return (h >= 10 && h <= 13) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+            } else if (tNum === 2) {
+                return (h >= 7.5 && h <= 10.5) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+            } else {
+                return (Math.abs(h - chTg) > 2) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
+            }
+        } else {
+            if (h < 0.5 || h >= 4) return { s: 'critical', c: 'critical-val' };
+            return (h >= 0.5 && h <= 3.5) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+        }
+    }
+}
+function analyzeVent(val, isR, st) {
+    if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: 'na-cell' };
+    const h = (typeof val === 'number') ? val : parseH(val);
+    const cSt = st.replace(/\s+/g,"").replace("(2)","");
+    if (cSt === "대실" || cSt === "범어") {
+        const limit = (ventSeason === '하절기') ? 20 : 5;
+        return (h >= limit) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
+    }
+    let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
+    if (currentLine === 'line1') {
+        if (cSt === "중앙로" && isR) target = 19;
+        if (cSt === "칠성시장" && !isR) target = 19;
+        if (cSt === "방촌" && !isR) target = 19;
+        if (cSt === "송현" && isR) target = 19;
+    } else if (currentLine === 'line2') {
+        if (cSt === "반월당") target = 19;
+        if (cSt === "수성알파" && isR) target = 19;
+        if (cSt === "수성구청" && isR) target = 19;
+        if (cSt === "연호" && isR) target = 19;
+    }
+    if (ventSeason === '하절기') {
+        if (["명덕","연호","임당","영남대"].some(s => cSt.includes(s)) && isR) target = 17.8;
+        if (cSt === "고산" && isR) target = 6.5;
+        if (cSt === "신매" && !isR) target = 5.5;
+        if (cSt === "정평" && isR) target = 5.5;
+        if (cSt === "이곡") target = 4.5;
+    }
+    if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'critical-val' };
+    if (Math.abs(h - target) <= 1.5) return { s: 'ok', c: '' };
+    return { s: 'warning', c: 'bad-val' };
+}
+function analyzeAir(val) {
+    const h = parseH(val);
+    if (h === 0) return { s: 'none', c: '' };
+    if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'critical-val' };
+    return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
+}
+
+/* ═══════════════════════════════════════════
+   EXTRACTOR
+═══════════════════════════════════════════ */
+const Extractor = {
+    getLine1(s) {
+        const res = { hvac: [], vent: [], chiller: [], air: [] };
+        const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
+        allSt.forEach((st) => {
+            let c, hR, vR, cV, aV;
+            if (st === "설화명곡") {
+                c = 5; hR = [getCV(s,81,c),getCV(s,82,c),getCV(s,89,c),getCV(s,90,c)];
+                vR = [getCV(s,97,c),getCV(s,98,c),getCV(s,99,c),getCV(s,100,c)];
+                cV = parseH(getCV(s,155,c)) + parseH(getCV(s,156,c)); aV = getCV(s,179,c);
+            } else if (st === "화원") {
+                c = 4; hR = [getCV(s,81,c),getCV(s,82,c),getCV(s,89,c),getCV(s,90,c)];
+                vR = [getCV(s,97,c),getCV(s,98,c),getCV(s,99,c),getCV(s,100,c)];
+                cV = parseH(getCV(s,155,c)) + parseH(getCV(s,156,c)); aV = getCV(s,179,c);
+            } else {
+                c = CONFIG.L1_ST_LIST.indexOf(st) + 4;
+                hR = [getCV(s,5,c),getCV(s,6,c),getCV(s,13,c),getCV(s,14,c)];
+                vR = [getCV(s,19,c),getCV(s,20,c),getCV(s,21,c),getCV(s,22,c)];
+                cV = parseH(getCV(s,56,c)); aV = getCV(s,75,c);
+            }
+            res.hvac.push({ name: st, raw: hR, res: hR.map((v,i) => analyzeHVAC(v,st,i%2===0?'supply':'exhaust')), isCri: false });
+            res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s==='critical');
+            res.vent.push({ name: st, raw: vR, res: vR.map((v,i) => analyzeVent(v,i>=2,st)), isCri: false });
+            res.vent[res.vent.length-1].isCri = res.vent[res.vent.length-1].res.some(r => r.s==='critical');
+            if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'),c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
+            if (parseH(aV) > 0) res.air.push({ name: st, units: [{label:"01호기",val:aV,res:analyzeAir(aV)}], isCri: analyzeAir(aV).s==='critical' });
+        }); return res;
+    },
+    getLine2(s, apSheet) {
+        const res = { hvac: [], vent: [], chiller: [], air: [] };
+        const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
+        const rg = XLSX.utils.decode_range(s['!ref']);
+        allSt.forEach(stName => {
+            if (stName === "문양") {
+                res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), isCri:false });
+                res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), unitNames:["-","-","-","-"], isCri:false });
+            }
+            const mn = stName.replace(/\s+/g,""); let fR = -1;
+            for (let r = 0; r <= rg.e.r; r++) { if ((getCV(s,r,0)+getCV(s,r,1)).replace(/\s+/g,"").includes(mn)) { fR=r; break; } }
+            if (fR !== -1) {
+                if (stName !== "문양") {
+                    const isSp = ["정평","임당","영대","영남대"].some(sp => stName.includes(sp));
+                    let hL=getCV(s,fR+5,4), hLe=getCV(s,fR+6,4), hR=getCV(s,fR+(isSp?9:8),4), hRe=getCV(s,fR+(isSp?10:9),4);
+                    res.hvac.push({ name:stName, raw:[hL,hLe,hR,hRe], res:[analyzeHVAC(hL,stName,'supply'),analyzeHVAC(hLe,stName,'exhaust'),analyzeHVAC(hR,stName,'supply'),analyzeHVAC(hRe,stName,'exhaust')], isCri:false });
+                    res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r=>r.s==='critical');
+                }
+                let unitsV=[], chSum=0, chFound=false;
+                if (stName==="문양") { chSum=parseH(getCV(s,5,4)); chFound=true; }
+                const isBWD = stName==="반월당";
+                const vNameCol=isBWD?16:11, vValCol=isBWD?19:14;
+                for (let r=fR; r<fR+55&&r<=rg.e.r; r++) {
+                    if (stName!=="문양") {
+                        let vName=getCV(s,r,vNameCol).replace(/\s+/g,""); let vVal=getCV(s,r,vValCol);
+                        if (vName.includes("환기실")) unitsV.push({l:vName.replace("환기실","").trim(),v:vVal,r:analyzeVent(vVal,(vName.includes("우")||vName.includes("종점")),stName)});
+                    }
+                    if (getCV(s,r,0).includes("냉동기")&&stName!=="문양") { chSum+=parseH(getCV(s,r,4)); chFound=true; }
+                }
+                if (stName!=="문양"&&unitsV.length>0) res.vent.push({name:stName,raw:unitsV.slice(0,4).map(u=>u.v),res:unitsV.slice(0,4).map(u=>u.r),unitNames:unitsV.slice(0,4).map(u=>u.l),isCri:unitsV.some(u=>u.r.s==='critical')});
+                if (chFound&&isCooling) {
+                    const sk=(stName==="반월당")?"반월당(2호선)":stName;
+                    const isC=(chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3);
+                    res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'critical-val':''}],isCri:isC});
+                }
+                if (apSheet) {
+                    let rawUnits=[]; let apR=-1; const apRg=XLSX.utils.decode_range(apSheet['!ref']);
+                    for(let r=0;r<=apRg.e.r;r++){if(getCV(apSheet,r,0).replace(/\s+/g,"").includes(mn)){apR=r;break;}}
+                    if (apR !== -1) {
+                        for(let r=apR;r<apR+50&&r<=apRg.e.r;r++){
+                            const nL=getCV(apSheet,r,1),vL=getCV(apSheet,r,4),nR=getCV(apSheet,r,6),vR=getCV(apSheet,r,9);
+                            if(nL&&nL!=="장비명"&&!nL.includes("스마트")&&vL!==""){rawUnits.push({label:nL.trim().substring(0,2)+"호기",val:vL,res:analyzeAir(vL)});}
+                            if(nR&&nR!=="장비명"&&!nR.includes("스마트")&&vR!==""){rawUnits.push({label:nR.trim().substring(0,2)+"호기",val:vR,res:analyzeAir(vR)});}
+                            if(r>apR+5&&!nL&&!nR)break;
+                        }
+                        rawUnits.sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true}));
+                    }
+                    if (rawUnits.length>0) res.air.push({name:stName,units:rawUnits,isCri:rawUnits.some(a=>a.res.s==='critical')});
+                }
+            }
+        }); return res;
+    }
+};
+
+/* ═══════════════════════════════════════════
+   FILE UPLOAD HANDLER
+═══════════════════════════════════════════ */
+function attachFileListener() {
+    document.getElementById('excelFile').addEventListener('change', function handler(e) {
+        const file = e.target.files[0]; if (!file) return;
+        currentLine = file.name.includes("일보") ? 'line2' : 'line1';
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            try {
+                const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
+                const dm = file.name.match(/\d{8}/);
+                let m = dm ? parseInt(dm[0].substring(4,6)) : 1;
+                let d = dm ? parseInt(dm[0].substring(6,8)) : 1;
+                isCooling = (m===7 || m===8 || (m===9 && d<=20));
+                ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
+
+                // Header pills
+                document.getElementById('header-pills').innerHTML = `
+                    <div class="header-pill date-pill">📅 ${m}월 ${d}일</div>
+                    <div class="header-pill">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div>
+                    <div class="header-pill">🌪️ ${ventSeason}</div>
+                    <div class="header-pill">${currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선'}</div>
+                `;
+
+                const findS = (names) => {
+                    for (let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"")===n); if (sheet) return wb.Sheets[sheet]; }
+                    return null;
+                };
+                if (currentLine === 'line1') {
+                    const sheet = findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]];
+                    globalData = Extractor.getLine1(sheet);
+                    selectedBranch = 'both';
+                    renderDashboard();
+                } else {
+                    const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]);
+                    globalData = Extractor.getLine2(sheet, apSheet);
+                    // 2호선: 분소 선택 모달
+                    openModal();
+                }
+                e.target.value = '';
+                // reattach on new input if recreated
+            } catch(err) { alert("분석 실패: " + err.message); console.error(err); }
+        };
+        reader.readAsBinaryString(file);
+    });
+}
+attachFileListener();
+
+/* ═══════════════════════════════════════════
+   MODAL
+═══════════════════════════════════════════ */
+function openModal() {
+    document.getElementById('branchModal').classList.add('active');
+}
+function closeModal() {
+    document.getElementById('branchModal').classList.remove('active');
+}
+function selectBranch(side) {
+    selectedBranch = side;
+    closeModal();
+    renderDashboard();
+}
+
+/* ═══════════════════════════════════════════
+   SIDEBAR CHECKLIST
+═══════════════════════════════════════════ */
+let totalItems = 0;
+let doneItems  = 0;
+
+function buildSidebarForBranch(branch, data) {
+    const hL = ["시급","시배","종급","종배"];
+    const cH = data.hvac.filter(d => branch.stations.includes(d.name) && d.isCri);
+    const cV = data.vent.filter(d => branch.stations.includes(d.name) && d.isCri);
+    const cC = data.chiller.filter(d => branch.stations.includes(d.name) && d.isCri);
+    const cA = data.air.filter(d => branch.stations.includes(d.name) && d.isCri);
+
+    let html = '';
+
+    const makeGroup = (icon, title, items, labels, type) => {
+        if (items.length === 0) return '';
+        let items_html = '';
+        items.forEach(d => {
+            if (type === 'air') {
+                d.units.forEach(u => {
+                    if (u.res.s === 'critical') {
+                        totalItems++;
+                        items_html += `
+                        <div class="checklist-item" onclick="checkItem(this)">
+                            <div class="checklist-check"></div>
+                            <div class="checklist-label">${d.name}<br><span style="font-weight:700;font-size:0.72rem;">${u.label}</span></div>
+                            <div class="checklist-val">${formatToHMS(u.val)}</div>
+                        </div>`;
+                    }
+                });
+            } else {
+                d.res.forEach((r, i) => {
+                    if (r.s === 'critical') {
+                        totalItems++;
+                        const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
+                        items_html += `
+                        <div class="checklist-item" onclick="checkItem(this)">
+                            <div class="checklist-check"></div>
+                            <div class="checklist-label">${d.name}<br><span style="font-weight:700;font-size:0.72rem;">${lbl}</span></div>
+                            <div class="checklist-val">${formatToHMS(d.raw[i])}</div>
+                        </div>`;
+                    }
+                });
+            }
+        });
+        if (!items_html) return '';
+        return `<div class="sidebar-group">
+            <div class="sidebar-group-title">${icon} ${title}</div>
+            ${items_html}
+        </div>`;
+    };
+
+    html += makeGroup('⚙️','공조기', cH, hL, 'hvac');
+    html += makeGroup('🌪️','송풍기', cV, hL, 'vent');
+    html += makeGroup('❄️','냉동기', cC, [], 'chiller');
+    html += makeGroup('🌬️','공기청정기', cA, [], 'air');
+    return html;
+}
+
+function renderSidebar(branches, data) {
+    totalItems = 0; doneItems = 0;
+    let content = '';
+    branches.forEach(b => {
+        if (branches.length > 1) {
+            content += `<div style="padding: 12px 14px 4px; font-size: 0.8rem; font-weight: 900; color: var(--primary);">📍 ${b.name}</div>`;
+        }
+        content += buildSidebarForBranch(b, data);
+    });
+
+    const allClear = totalItems === 0;
+    const sidebar = document.getElementById('sidebar');
+
+    const headerHtml = `
+        <div class="sidebar-header">
+            <div class="sidebar-title">확인 필요 장비</div>
+            <div class="sidebar-branch-name" id="sidebar-branch-label">${branches.map(b=>b.name).join(' / ')}</div>
+            <div class="progress-bar-wrap">
+                <div class="progress-bar-fill" id="prog-fill" style="width:0%"></div>
+            </div>
+            <div class="progress-label">
+                <span id="prog-done">0 / ${totalItems} 완료</span>
+                <span id="prog-pct">0%</span>
+            </div>
+        </div>
+    `;
+
+    if (allClear) {
+        sidebar.innerHTML = headerHtml + `<div class="sidebar-all-clear">✅ 모든 장비가 정상 가동 중입니다!</div>`;
+    } else {
+        sidebar.innerHTML = headerHtml + content;
+    }
+    totalCount = totalItems;
+    updateProgress();
+}
+
+function checkItem(el) {
+    if (el.classList.contains('done')) {
+        // 되돌리기
+        el.classList.remove('done');
+        el.querySelector('.checklist-check').innerHTML = '';
+        doneItems = Math.max(0, doneItems - 1);
+        updateProgress();
+        return;
+    }
+    el.classList.add('done');
+    el.querySelector('.checklist-check').innerHTML = '✓';
+    doneItems++;
+    updateProgress();
+
+    // 전부 완료 시 축하 메시지
+    if (doneItems >= totalCount) {
+        setTimeout(() => {
+            const existing = document.querySelector('.sidebar-all-clear');
+            if (!existing) {
+                const msg = document.createElement('div');
+                msg.className = 'sidebar-all-clear';
+                msg.textContent = '🎉 모든 장비 확인 완료!';
+                document.getElementById('sidebar').appendChild(msg);
+            }
+        }, 400);
+    }
+}
+
+function updateProgress() {
+    const pct = totalCount === 0 ? 100 : Math.round((doneItems / totalCount) * 100);
+    const fill = document.getElementById('prog-fill');
+    const done = document.getElementById('prog-done');
+    const pctEl = document.getElementById('prog-pct');
+    if (fill) fill.style.width = pct + '%';
+    if (done) done.textContent = `${doneItems} / ${totalCount} 완료`;
+    if (pctEl) pctEl.textContent = pct + '%';
+}
+
+/* ═══════════════════════════════════════════
+   MAIN RENDER
+═══════════════════════════════════════════ */
+function renderDashboard() {
+    const br = CONFIG.BRANCHES[currentLine];
+    const data = globalData;
+    const hL = ["시급","시배","종급","종배"];
+
+    // 어떤 분소들을 보여줄지 결정
+    let branches = [];
+    if (selectedBranch === 'left')  branches = [br.left];
+    else if (selectedBranch === 'right') branches = [br.right];
+    else branches = [br.left, br.right];
+
+    // ─── 사이드바 렌더 ───
+    renderSidebar(branches, data);
+
+    // ─── 통계 계산 ───
+    let totalCri = 0, totalOk = 0;
+    ['hvac','vent','chiller','air'].forEach(type => {
+        data[type].forEach(d => {
+            const inBranch = branches.some(b => b.stations.includes(d.name));
+            if (!inBranch) return;
+            if (d.isCri) totalCri++; else totalOk++;
+        });
+    });
+
+    // ─── 메인 콘텐츠 ───
+    let mainHtml = '';
+
+    // 탭 (2호선 both일 때 탭 표시)
+    if (currentLine === 'line2' && selectedBranch === 'both') {
+        mainHtml += `
+        <div class="branch-tabs">
+            <button class="branch-tab active" id="tab-left" onclick="switchTab('left')">🏭 ${br.left.name}</button>
+            <button class="branch-tab" id="tab-right" onclick="switchTab('right')">🏗️ ${br.right.name}</button>
+        </div>`;
+    } else if (currentLine === 'line1' && selectedBranch === 'both') {
+        mainHtml += `
+        <div class="branch-tabs">
+            <button class="branch-tab active" id="tab-left" onclick="switchTab('left')">🔴 ${br.left.name}</button>
+            <button class="branch-tab" id="tab-right" onclick="switchTab('right')">🔴 ${br.right.name}</button>
+        </div>`;
+    }
+
+    // 각 분소 패널
+    branches.forEach((branch, idx) => {
+        const sH = data.hvac.filter(d => branch.stations.includes(d.name));
+        const sV = data.vent.filter(d => branch.stations.includes(d.name));
+        const sC = data.chiller.filter(d => branch.stations.includes(d.name));
+        const sA = data.air.filter(d => branch.stations.includes(d.name));
+
+        const cntH = sH.filter(d=>d.isCri).length;
+        const cntV = sV.filter(d=>d.isCri).length;
+        const cntC = sC.filter(d=>d.isCri).length;
+        const cntA = sA.filter(d=>d.isCri).length;
+        const allOk = (cntH+cntV+cntC+cntA === 0);
+        const totalSt = sH.length;
+        const okSt = sH.filter(d=>!d.isCri).length;
+
+        const panelId = `panel-${idx === 0 ? 'left' : 'right'}`;
+        const isActive = (selectedBranch === 'both') ? idx === 0 : true;
+
+        mainHtml += `<div class="branch-panel" id="${panelId}" style="${(!isActive) ? 'display:none' : ''}">`;
+
+        // Stats row
+        mainHtml += `
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">분석 역사</div>
+                <div class="stat-val">${totalSt}<span style="font-size:1rem; color:var(--na)">개소</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">이상 감지</div>
+                <div class="stat-val danger">${cntH+cntV+cntC+cntA}<span style="font-size:1rem; color:var(--na)">건</span></div>
+                <div class="stat-sub">공조 ${cntH} · 송풍 ${cntV} · 냉동 ${cntC} · 공청 ${cntA}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">정상 역사</div>
+                <div class="stat-val success">${okSt}<span style="font-size:1rem;color:var(--na)">개소</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">냉방 모드</div>
+                <div class="stat-val" style="font-size:1.3rem; color:var(--primary)">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div>
+                <div class="stat-sub">${ventSeason}</div>
+            </div>
+        </div>`;
+
+        if (allOk) {
+            mainHtml += `<div style="background:white; border-radius:16px; padding:40px; text-align:center; color:var(--success); font-weight:900; font-size:1.1rem; border:1px solid #a7f3d0;">✅ 모든 장비가 정상 가동 중입니다.</div>`;
+        }
+
+        // Accordions
+        mainHtml += `<div class="detail-section-title">⚙️ 공조기 상세내역</div>`;
+        mainHtml += buildAccordion(sH, hL, 'buildTable', `acc-h-${idx}`, cntH);
+
+        mainHtml += `<div class="detail-section-title">🌪️ 송풍기 상세내역</div>`;
+        mainHtml += buildAccordion(sV, ["시급","시배","종급","종배"], 'buildTable', `acc-v-${idx}`, cntV);
+
+        if (isCooling) {
+            mainHtml += `<div class="detail-section-title">❄️ 냉동기 합산내역</div>`;
+            mainHtml += buildAccordion(sC, ["가동시간"], 'buildTable', `acc-c-${idx}`, cntC);
+        }
+
+        mainHtml += `<div class="detail-section-title">🌬️ 공기청정기 상세내역</div>`;
+        mainHtml += buildAccordionAir(sA, `acc-a-${idx}`, cntA);
+
+        mainHtml += `</div>`; // .branch-panel
+    });
+
+    document.getElementById('main-content').innerHTML = mainHtml;
+}
+
+/* ═══════════════════════════════════════════
+   TABLE BUILDERS
+═══════════════════════════════════════════ */
+function buildTable(items, labels) {
+    let h = `<div class="table-wrap"><table><thead><tr>
+        <th style="width:90px;text-align:left;padding-left:12px;">역사</th>
+        ${labels.map(l=>`<th>${l}</th>`).join('')}
+        <th>판정</th>
+    </tr></thead><tbody>`;
+    items.forEach(d => {
+        const isEx = d.res.length > 0 && d.res[0].s === 'none';
+        h += `<tr><td class="td-station">${d.name}</td>`;
+        for (let i = 0; i < labels.length; i++) {
+            h += `<td class="${d.res[i] ? d.res[i].c : ''}">${isEx ? '-' : formatToHMS(d.raw[i])}</td>`;
+        }
+        const color = isEx ? 'var(--na)' : (d.isCri ? 'var(--danger)' : 'var(--success)');
+        h += `<td><b style="color:${color}">${isEx ? '장비없음' : (d.isCri ? '이상' : '정상')}</b></td></tr>`;
+    });
+    return h + `</tbody></table></div>`;
+}
+function buildTableAir(items) {
+    let h = `<div class="table-wrap"><table><thead><tr>
+        <th style="width:90px;text-align:left;padding-left:12px;">역사</th>
+        <th>장비명</th><th>가동시간</th><th>판정</th>
+    </tr></thead><tbody>`;
+    items.forEach(d => {
+        d.units.forEach((u, idx) => {
+            h += `<tr>`;
+            if (idx === 0) h += `<td class="td-station" rowspan="${d.units.length}">${d.name}</td>`;
+            const sT = u.res.s === 'critical' ? '이상' : '정상';
+            const sC = u.res.s === 'critical' ? 'var(--danger)' : 'var(--success)';
+            h += `<td style="color:#64748b;font-size:0.82rem;">${u.label}</td>
+                  <td class="${u.res.c}" style="font-weight:700;">${formatToHMS(u.val)}</td>
+                  <td><b style="color:${sC}">${sT}</b></td></tr>`;
+        });
+    });
+    return h + `</tbody></table></div>`;
+}
+
+function buildAccordion(items, labels, type, id, cntCri) {
+    const badgeHtml = cntCri > 0 ? `<span class="acc-badge">${cntCri}건 이상</span>` : '';
+    const isOpen = cntCri > 0;
+    return `
+    <button class="accordion-btn ${isOpen?'active':''}" onclick="toggleAcc(this,'${id}')">
+        <span style="display:flex;align-items:center;gap:8px;">전체 역사 현황 ${badgeHtml}</span>
+        <span class="acc-arrow">▾</span>
+    </button>
+    <div class="accordion-content ${isOpen?'active':''}" id="${id}">
+        ${buildTable(items, labels)}
+    </div>`;
+}
+function buildAccordionAir(items, id, cntCri) {
+    const badgeHtml = cntCri > 0 ? `<span class="acc-badge">${cntCri}건 이상</span>` : '';
+    const isOpen = cntCri > 0;
+    return `
+    <button class="accordion-btn ${isOpen?'active':''}" onclick="toggleAcc(this,'${id}')">
+        <span style="display:flex;align-items:center;gap:8px;">전체 역사 현황 ${badgeHtml}</span>
+        <span class="acc-arrow">▾</span>
+    </button>
+    <div class="accordion-content ${isOpen?'active':''}" id="${id}">
+        ${buildTableAir(items)}
+    </div>`;
+}
+
+/* ═══════════════════════════════════════════
+   UI INTERACTIONS
+═══════════════════════════════════════════ */
+function toggleAcc(btn, id) {
+    const content = document.getElementById(id);
+    btn.classList.toggle('active');
+    content.classList.toggle('active');
+}
+
+function switchTab(side) {
+    const br = CONFIG.BRANCHES[currentLine];
+    document.getElementById('tab-left').classList.toggle('active', side === 'left');
+    document.getElementById('tab-right').classList.toggle('active', side === 'right');
+    document.getElementById('panel-left').style.display  = side === 'left'  ? '' : 'none';
+    document.getElementById('panel-right').style.display = side === 'right' ? '' : 'none';
+}
+</script>
+</body>
+</html>
