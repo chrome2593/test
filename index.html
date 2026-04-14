@@ -91,7 +91,7 @@ const CONFIG = {
 let isCooling = false, currentLine = '', ventSeason = '';
 
 function parseH(v) { 
-    if(v === undefined || v === null || v === "" || v === "N/A" || v === "-") return 0;
+    if(v === undefined || v === null || v === "" || v === "N/A" || v === "-" || v === "0") return 0;
     if(typeof v === 'number') return v * 24; 
     let s = String(v).trim();
     if(s.includes(':')) {
@@ -111,6 +111,7 @@ function getCV(s, r, c) {
 
 function formatToHMS(v) { 
     if(!v || v === "N/A" || v === "0") return "0:00:00";
+    if(v === "-") return "-"; // 문양역 대응
     let totalHours = (typeof v === 'number') ? v : parseH(v);
     let ts = Math.round(totalHours * 3600);
     const h = Math.floor(ts / 3600), m = Math.floor((ts % 3600) / 60), s = ts % 60;
@@ -224,14 +225,25 @@ const Extractor = {
         const rg = XLSX.utils.decode_range(s['!ref']);
         
         allSt.forEach(stName => {
+            // [문양역 예외 처리] 공조기, 송풍기 추출 생략
+            if (stName === "문양") {
+                res.hvac.push({ name: "문양", raw: ["-", "-", "-", "-"], res: Array(4).fill({s: 'none', c: 'na-cell'}), isCri: false });
+                res.vent.push({ name: "문양", raw: ["-", "-", "-", "-"], res: Array(4).fill({s: 'none', c: 'na-cell'}), unitNames: ["-", "-", "-", "-"], isCri: false });
+                // 냉동기 및 청정기 로직은 하단에서 별도 처리됨 (NO_EQUIP에 의해 판정만 제어)
+            }
+
             const mn = stName.replace(/\s+/g,""); let fR = -1;
             for (let r = 0; r <= rg.e.r; r++) { if ((getCV(s, r, 0) + getCV(s, r, 1)).replace(/\s+/g, "").includes(mn)) { fR = r; break; } }
+            
             if (fR !== -1) {
-                const isSpecial = ["정평", "임당", "영대", "영남대"].some(sp => stName.includes(sp));
-                let hL = getCV(s, fR + 5, 4), hLe = getCV(s, fR + 6, 4);
-                let hR = getCV(s, fR + (isSpecial ? 9 : 8), 4), hRe = getCV(s, fR + (isSpecial ? 10 : 9), 4);
-                res.hvac.push({ name: stName, raw: [hL, hLe, hR, hRe], res: [analyzeHVAC(hL,stName,'supply'), analyzeHVAC(hLe,stName,'exhaust'), analyzeHVAC(hR,stName,'supply'), analyzeHVAC(hRe,stName,'exhaust')], isCri: false });
-                res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
+                // 문양역이 아닌 경우에만 공조기 추출
+                if (stName !== "문양") {
+                    const isSpecial = ["정평", "임당", "영대", "영남대"].some(sp => stName.includes(sp));
+                    let hL = getCV(s, fR + 5, 4), hLe = getCV(s, fR + 6, 4);
+                    let hR = getCV(s, fR + (isSpecial ? 9 : 8), 4), hRe = getCV(s, fR + (isSpecial ? 10 : 9), 4);
+                    res.hvac.push({ name: stName, raw: [hL, hLe, hR, hRe], res: [analyzeHVAC(hL,stName,'supply'), analyzeHVAC(hLe,stName,'exhaust'), analyzeHVAC(hR,stName,'supply'), analyzeHVAC(hRe,stName,'exhaust')], isCri: false });
+                    res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
+                }
                 
                 let unitsV = [], chSum = 0, chFound = false;
                 if (stName === "문양") { chSum = parseH(getCV(s, 5, 4)); chFound = true; }
@@ -239,44 +251,34 @@ const Extractor = {
                 const vNameCol = isBWD ? 16 : 11, vValCol = isBWD ? 19 : 14; 
 
                 for (let r = fR; r < fR + 55 && r <= rg.e.r; r++) {
-                    let vName = getCV(s, r, vNameCol).replace(/\s+/g, "");
-                    let vVal = getCV(s, r, vValCol);
-                    if (vName.includes("환기실")) unitsV.push({ l: vName.replace("환기실","").trim(), v: vVal, r: analyzeVent(vVal, (vName.includes("우")||vName.includes("종점")), stName) });
-                    if (getCV(s, r, 0).includes("냉동기") && stName !== "문양") { chSum += parseH(v); chFound = true; }
+                    // 문양역이 아닌 경우에만 송풍기 추출
+                    if (stName !== "문양") {
+                        let vName = getCV(s, r, vNameCol).replace(/\s+/g, "");
+                        let vVal = getCV(s, r, vValCol);
+                        if (vName.includes("환기실")) unitsV.push({ l: vName.replace("환기실","").trim(), v: vVal, r: analyzeVent(vVal, (vName.includes("우")||vName.includes("종점")), stName) });
+                    }
+                    if (getCV(s, r, 0).includes("냉동기") && stName !== "문양") { chSum += parseH(getCV(s, r, 4)); chFound = true; }
                 }
-                if (unitsV.length > 0) res.vent.push({ name: stName, raw: unitsV.slice(0,4).map(u=>u.v), res: unitsV.slice(0,4).map(u=>u.r), unitNames: unitsV.slice(0,4).map(u=>u.l), isCri: unitsV.some(u=>u.r.s==='critical') });
+                
+                if (stName !== "문양" && unitsV.length > 0) res.vent.push({ name: stName, raw: unitsV.slice(0,4).map(u=>u.v), res: unitsV.slice(0,4).map(u=>u.r), unitNames: unitsV.slice(0,4).map(u=>u.l), isCri: unitsV.some(u=>u.r.s==='critical') });
+                
                 if (chFound && isCooling) {
                     const sk = (stName === "반월당") ? "반월당(2호선)" : stName;
                     const isC = (chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3);
                     res.chiller.push({ name: stName, raw: [chSum], res: [{s:isC?'critical':'ok', c:isC?'critical-val':''}], isCri: isC });
                 }
 
-                // [교정] 2호선 공기청정기 오름차순 정렬 및 명칭 형식(XX호기) 적용
                 if (apSheet) {
-                    let rawUnits = [];
-                    let apR = -1;
+                    let rawUnits = []; let apR = -1;
                     const apRg = XLSX.utils.decode_range(apSheet['!ref']);
-                    for(let r=0; r<=apRg.e.r; r++) {
-                        if(getCV(apSheet, r, 0).replace(/\s+/g,"").includes(mn)) { apR = r; break; }
-                    }
+                    for(let r=0; r<=apRg.e.r; r++) { if(getCV(apSheet, r, 0).replace(/\s+/g,"").includes(mn)) { apR = r; break; } }
                     if (apR !== -1) {
                         for(let r = apR; r < apR + 50 && r <= apRg.e.r; r++) {
-                            const nL = getCV(apSheet, r, 1), vL = getCV(apSheet, r, 4);
-                            const nR = getCV(apSheet, r, 6), vR = getCV(apSheet, r, 9);
-                            
-                            // 좌측 데이터 처리
-                            if (nL && nL !== "장비명" && !nL.includes("스마트") && vL !== "") {
-                                let label = nL.trim().substring(0, 2) + "호기";
-                                rawUnits.push({ label: label, val: vL, res: analyzeAir(vL) });
-                            }
-                            // 우측 데이터 처리
-                            if (nR && nR !== "장비명" && !nR.includes("스마트") && vR !== "") {
-                                let label = nR.trim().substring(0, 2) + "호기";
-                                rawUnits.push({ label: label, val: vR, res: analyzeAir(vR) });
-                            }
+                            const nL = getCV(apSheet, r, 1), vL = getCV(apSheet, r, 4), nR = getCV(apSheet, r, 6), vR = getCV(apSheet, r, 9);
+                            if (nL && nL !== "장비명" && !nL.includes("스마트") && vL !== "") { rawUnits.push({ label: nL.trim().substring(0, 2) + "호기", val: vL, res: analyzeAir(vL) }); }
+                            if (nR && nR !== "장비명" && !nR.includes("스마트") && vR !== "") { rawUnits.push({ label: nR.trim().substring(0, 2) + "호기", val: vR, res: analyzeAir(vR) }); }
                             if (r > apR + 5 && !nL && !nR) break;
                         }
-                        // 오름차순 정렬
                         rawUnits.sort((a, b) => a.label.localeCompare(b.label, undefined, {numeric: true}));
                     }
                     if (rawUnits.length > 0) res.air.push({ name: stName, units: rawUnits, isCri: rawUnits.some(a=>a.res.s==='critical') });
@@ -301,18 +303,15 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과`;
             document.getElementById('season-banner').style.display = 'block';
             document.getElementById('season-banner').innerHTML = `📅 분석 날짜: <strong>${m}월 ${d}일</strong> | 공조: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기: <strong>${ventSeason}</strong>`;
-            
             const findS = (names) => {
                 for(let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"") === n); if(sheet) return wb.Sheets[sheet]; }
                 return null;
             };
-            
             if (currentLine === 'line1') {
                 const sheet = findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]];
                 render(Extractor.getLine1(sheet));
             } else {
-                const sheet = findS(["장비"]);
-                const apSheet = findS(["공기청정기"]);
+                const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]);
                 render(Extractor.getLine2(sheet, apSheet));
             }
             document.getElementById('upload-container').classList.add('minimized');
@@ -351,15 +350,24 @@ function render(data) {
         return h + `</div>`;
     };
     document.getElementById('summary-section').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기</h2><div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>`;
+    
+    // [업데이트] 문양역 등 제외 장비 "-" 및 "장비 없음" 표시 로직
     const buildT = (items, labels) => {
         let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
         items.forEach(d => {
+            const isExcluded = d.res.length > 0 && d.res[0].s === 'none';
             h += `<tr><td class="st-name">${d.name}</td>`;
-            for (let i=0; i<labels.length; i++) h += `<td class="${d.res[i].c}">${formatToHMS(d.raw[i])}</td>`;
-            h += `<td><span style="font-weight:800; color:${d.isCri?'var(--danger)':'var(--success)'}">${d.isCri?'이상':'정상'}</span></td></tr>`;
+            for (let i=0; i<labels.length; i++) {
+                let displayVal = isExcluded ? "-" : formatToHMS(d.raw[i]);
+                h += `<td class="${d.res[i].c}">${displayVal}</td>`;
+            }
+            let statusText = isExcluded ? "장비 없음" : (d.isCri ? '이상' : '정상');
+            let statusColor = isExcluded ? "var(--na)" : (d.isCri ? 'var(--danger)' : 'var(--success)');
+            h += `<td><span style="font-weight:800; color:${statusColor}">${statusText}</span></td></tr>`;
         });
         return h + `</tbody></table></div>`;
     };
+
     const buildAT = (items) => {
         let h = `<div class="table-wrapper"><table><thead><tr><th style="width:95px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
         items.forEach(d => {
@@ -368,6 +376,7 @@ function render(data) {
             h += `</div></td></tr>`;
         }); return h + `</tbody></table></div>`;
     };
+    
     const buildCol = (branch, side) => {
         const sH = data.hvac.filter(d => branch.stations.includes(d.name)); const sV = data.vent.filter(d => branch.stations.includes(d.name)); const sC = data.chiller.filter(d => branch.stations.includes(d.name)); const sA = data.air.filter(d => branch.stations.includes(d.name));
         return `<div class="branch-column"><div class="branch-header">${branch.name} 상세</div>
