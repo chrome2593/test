@@ -28,7 +28,6 @@
             line-height: 1.6; overflow-x: hidden;
         }
 
-        /* 헤더 가로형 레이아웃 */
         .app-header { 
             background: var(--primary); color: white; padding: 16px 40px; position: sticky; top: 0; z-index: 1000;
             display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -40,9 +39,8 @@
         .btn-reset { background: rgba(255,255,255,0.2); border: none; color: white; padding: 8px 16px; border-radius: 8px; cursor: pointer; font-weight: 700; transition: 0.2s; }
         .btn-reset:hover { background: var(--danger); }
 
-        .main-container { max-width: 1200px; margin: 40px auto; padding: 0 20px; min-height: 80vh; }
+        .main-container { max-width: 1300px; margin: 40px auto; padding: 0 20px; min-height: 80vh; }
 
-        /* 초기 업로드 화면 */
         .welcome-section { text-align: center; padding: 100px 40px; background: white; border-radius: var(--radius); box-shadow: var(--shadow); border: 1px solid var(--border); }
         .upload-trigger { 
             display: inline-block; padding: 60px 100px; border: 2px dashed var(--accent); border-radius: var(--radius);
@@ -50,58 +48,57 @@
         }
         .upload-trigger:hover { background: #dbeafe; transform: translateY(-5px); }
 
-        /* 분소 선택 대시보드 (핵심 개편) */
+        /* 분소 선택 대시보드 */
         #branch-selector { 
             display: none; grid-template-columns: 1fr 1fr; gap: 30px; margin-top: 20px; animation: fadeIn 0.5s ease;
         }
         .branch-card {
             background: white; border-radius: 24px; padding: 40px; text-align: center; cursor: pointer;
-            border: 1px solid var(--border); box-shadow: var(--shadow); transition: 0.3s; position: relative; overflow: hidden;
+            border: 1px solid var(--border); box-shadow: var(--shadow); transition: 0.3s; position: relative;
         }
-        .branch-card::after { content: '입장하기 →'; position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); opacity: 0; transition: 0.3s; font-weight: 800; color: var(--accent); }
         .branch-card:hover { border-color: var(--accent); transform: scale(1.02); }
-        .branch-card:hover::after { opacity: 1; bottom: 30px; }
         .branch-card h2 { font-size: 2rem; margin: 10px 0; color: var(--primary); }
         .branch-card .stat { font-size: 0.95rem; color: var(--text-sub); }
         
-        /* 분석 결과 상세 뷰 */
         #analysis-view { display: none; }
         .view-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px; }
         .btn-back-home { background: var(--card-bg); border: 1px solid var(--border); padding: 10px 20px; border-radius: 12px; cursor: pointer; font-weight: 700; }
 
-        /* 요약 섹션 */
-        .summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .alert-card { background: white; border-radius: 20px; padding: 25px; border-left: 8px solid var(--danger); box-shadow: var(--shadow); }
+        /* [핵심 수정] 요약 그리드 2열 배치 */
+        .summary-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            margin-bottom: 40px; 
+        }
+        .alert-card { background: white; border-radius: 20px; padding: 25px; border-left: 8px solid var(--danger); box-shadow: var(--shadow); height: fit-content; }
         .alert-card.ok { border-left-color: var(--success); }
+        .alert-card.full-width { grid-column: 1 / -1; }
         .alert-title { font-weight: 800; font-size: 1.1rem; margin-bottom: 15px; display: flex; justify-content: space-between; }
         
-        .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .badge-item { 
             background: #fff1f2; color: var(--danger); padding: 10px; border-radius: 10px; font-size: 0.85rem; 
-            font-weight: 700; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            border: 1px solid #ffe4e6; transition: 0.2s;
+            font-weight: 700; cursor: pointer; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 8px;
+            border: 1px solid #ffe4e6; transition: 0.2s; white-space: nowrap;
         }
         .badge-item:hover { background: #ffe4e6; }
         .badge-item.checked { opacity: 0.3; text-decoration: line-through; background: #f1f5f9; color: var(--text-sub); border-color: var(--border); }
         .val-tag { background: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8rem; }
 
-        /* 상세 아코디언 및 테이블 */
         .section-card { background: white; border-radius: 20px; margin-bottom: 20px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); }
         .section-trigger { 
             width: 100%; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center;
-            background: white; border: none; cursor: pointer; font-weight: 800; font-size: 1.1rem; color: var(--text-main);
+            background: white; border: none; cursor: pointer; font-weight: 800; font-size: 1.15rem; color: var(--text-main);
         }
-        .section-trigger:hover { background: #f8fafc; }
         .section-content { display: none; padding: 0 30px 30px; }
         .section-content.active { display: block; }
 
-        table { width: 100%; border-collapse: collapse; border-radius: 12px; overflow: hidden; }
-        th { background: #f1f5f9; padding: 15px; font-size: 0.8rem; color: var(--text-sub); text-align: center; }
-        td { padding: 18px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 600; font-size: 0.95rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #f1f5f9; padding: 15px; font-size: 0.8rem; color: var(--text-sub); }
+        td { padding: 16px 10px; border-bottom: 1px solid #f1f5f9; text-align: center; font-weight: 600; font-size: 1rem; }
         .st-name-col { background: #fcfdfe; font-weight: 800; color: var(--accent); width: 120px; border-right: 1px solid #f1f5f9; }
-        
         .row-critical { background: #fff1f2 !important; color: var(--danger); }
-        .row-warning { background: #fffbeb !important; color: var(--warning); }
         .na-text { color: var(--na); font-style: italic; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -127,15 +124,13 @@
             </div>
         </section>
 
-        <section id="branch-selector">
-            </section>
+        <section id="branch-selector"></section>
 
         <section id="analysis-view">
             <div class="view-header">
                 <button class="btn-back-home" onclick="showBranchSelector()">← 분소 목록으로</button>
                 <h2 id="current-branch-title" style="margin:0; font-weight:900; font-size:1.8rem;">분소 데이터</h2>
             </div>
-            
             <div id="branch-summary" class="summary-grid"></div>
             <div id="branch-details"></div>
         </section>
@@ -143,7 +138,7 @@
 
 <script>
 /**
- * [추출 및 판정 로직] - 절대 수정 없음
+ * [환경 설정 및 데이터 추출 로직] - 사용자 요청대로 디자인만 변경하며 로직은 유지
  */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
@@ -182,8 +177,7 @@ function parseH(v) {
 
 function getCV(s, r, c) { 
     if(!s) return ""; 
-    const addr = XLSX.utils.encode_cell({r:r, c:c});
-    const cell = s[addr]; 
+    const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
     return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : ""; 
 }
 
@@ -368,7 +362,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             
             document.getElementById('header-info').innerHTML = `
                 <span>📅 <b>${m}월 ${d}일</b></span>
-                <span>⚙️ <b>${isCooling?'냉방':'비냉방'}</b></span>
+                <span>❄️ <b>${isCooling?'냉방':'비냉방'}</b></span>
                 <span>🌪️ <b>${ventSeason}</b></span>
             `;
 
@@ -413,7 +407,6 @@ function viewBranchDetail(side) {
     document.getElementById('branch-selector').style.display = 'none';
     document.getElementById('analysis-view').style.display = 'block';
     document.getElementById('current-branch-title').innerText = branch.name;
-    
     renderBranchUI(branch);
 }
 
@@ -424,40 +417,40 @@ function renderBranchUI(branch) {
     const cA = globalData.air.filter(d => branch.stations.includes(d.name) && d.isCri);
     const isOk = (cH.length + cV.length + cC.length + cA.length === 0);
     
-    // 요약 섹션 (3열 가로 배지)
     let summaryHtml = '';
-    const themeClass = currentLine === 'line1' ? 'line1-theme' : 'line2-theme';
-    
     if (isOk) {
-        summaryHtml = `<div class="alert-card ok" style="grid-column: 1 / -1; text-align:center;">
-            <h3 style="color:var(--success)">✅ 모든 장비 정상 가동 중입니다.</h3>
-        </div>`;
+        summaryHtml = `<div class="alert-card ok full-width" style="text-align:center;"><h3 style="color:var(--success)">✅ 모든 장비 정상 가동 중입니다.</h3></div>`;
     } else {
-        const buildAlert = (title, items, type) => {
-            if (items.length === 0) return "";
-            let h = `<div class="alert-card ${themeClass}"><div class="alert-title">${title} ⚠️</div><div class="badge-list">`;
+        const buildAlert = (title, items, type, isHalf = true) => {
+            if (items.length === 0) return `<div class="alert-card ok ${isHalf?'':'full-width'}"><div class="alert-title">${title}</div><p style="color:var(--success); font-weight:700;">이상 없음</p></div>`;
+            let h = `<div class="alert-card ${isHalf?'':'full-width'}"><div class="alert-title">${title} ⚠️</div><div class="badge-list">`;
             items.forEach(d => {
                 if (type === 'air') {
                     d.units.forEach(u => { if(u.res.s==='critical') h += `<div class="badge-item" onclick="this.classList.toggle('checked')">${d.name} ${u.label} <span class="val-tag">${formatToHMS(u.val)}</span></div>`; });
                 } else {
                     d.res.forEach((r, i) => { if (r.s === 'critical') {
-                        const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i]));
+                        const labels = ["시급","시배","종급","종배"];
+                        const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
                         h += `<div class="badge-item" onclick="this.classList.toggle('checked')">${d.name} ${lbl} <span class="val-tag">${formatToHMS(d.raw[i])}</span></div>`;
                     } });
                 }
             });
             return h + `</div></div>`;
         };
-        summaryHtml = buildAlert('공조기 이상', cH, 'hvac') + buildAlert('송풍기 이상', cV, 'vent') + buildAlert('냉동기/청정기', [...cC, ...cA], 'air');
+
+        // [수정 포인트] 시즌별 2열 배치 레이아웃
+        if (isCooling) {
+            summaryHtml = buildAlert('승강장공조기', cH, 'hvac') + buildAlert('환기실송풍기', cV, 'vent') + 
+                          buildAlert('냉동기', cC, 'chiller') + buildAlert('공기청정기', cA, 'air');
+        } else {
+            summaryHtml = buildAlert('승강장공조기', cH, 'hvac') + buildAlert('환기실송풍기', cV, 'vent') + 
+                          buildAlert('공기청정기', cA, 'air', false);
+        }
     }
     document.getElementById('branch-summary').innerHTML = summaryHtml;
 
-    // 상세 섹션 (아코디언)
-    const sH = globalData.hvac.filter(d => branch.stations.includes(d.name));
-    const sV = globalData.vent.filter(d => branch.stations.includes(d.name));
-    const sC = globalData.chiller.filter(d => branch.stations.includes(d.name));
-    const sA = globalData.air.filter(d => branch.stations.includes(d.name));
-
+    // 상세 섹션
+    const sH = globalData.hvac.filter(d => branch.stations.includes(d.name)), sV = globalData.vent.filter(d => branch.stations.includes(d.name)), sC = globalData.chiller.filter(d => branch.stations.includes(d.name)), sA = globalData.air.filter(d => branch.stations.includes(d.name));
     const buildT = (items, labels) => {
         let h = `<table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
         items.forEach(d => {
@@ -466,39 +459,22 @@ function renderBranchUI(branch) {
             h += `<td class="st-name-col">${d.name}</td>`;
             for (let i=0; i<labels.length; i++) h += `<td>${isEx?"-":formatToHMS(d.raw[i])}</td>`;
             h += `<td style="font-weight:900">${isEx?'장비 없음':(d.isCri?'이상':'정상')}</td></tr>`;
-        });
-        return h + `</tbody></table>`;
+        }); return h + `</tbody></table>`;
     };
-
     const buildAT = (items) => {
         let h = `<table><thead><tr><th>역사</th><th>장비명</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
-        items.forEach(d => {
-            d.units.forEach((u, idx) => {
-                h += `<tr class="${u.res.s==='critical'?'row-critical':''}">`;
-                if (idx === 0) h += `<td class="st-name-col" rowspan="${d.units.length}">${d.name}</td>`;
-                h += `<td>${u.label}</td><td>${formatToHMS(u.val)}</td><td style="font-weight:900">${u.res.s==='critical'?'이상':'정상'}</td></tr>`;
-            });
-        });
-        return h + `</tbody></table>`;
+        items.forEach(d => { d.units.forEach((u, idx) => {
+            h += `<tr class="${u.res.s==='critical'?'row-critical':''}">`;
+            if (idx === 0) h += `<td class="st-name-col" rowspan="${d.units.length}">${d.name}</td>`;
+            h += `<td>${u.label}</td><td>${formatToHMS(u.val)}</td><td style="font-weight:900">${u.res.s==='critical'?'이상':'정상'}</td></tr>`;
+        }); }); return h + `</tbody></table>`;
     };
 
     document.getElementById('branch-details').innerHTML = `
-        <div class="section-card">
-            <button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">⚙️ 공조기(HVAC) 상세 내역 <span>▾</span></button>
-            <div class="section-content">${buildT(sH, ["시급","시배","종급","종배"])}</div>
-        </div>
-        <div class="section-card">
-            <button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">🌪️ 송풍기(Vent) 상세 내역 <span>▾</span></button>
-            <div class="section-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
-        </div>
-        ${isCooling ? `<div class="section-card">
-            <button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">❄️ 냉동기(Chiller) 상세 내역 <span>▾</span></button>
-            <div class="section-content">${buildT(sC, ["가동시간"])}</div>
-        </div>` : ''}
-        <div class="section-card">
-            <button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">🌬️ 공기청정기 상세 내역 <span>▾</span></button>
-            <div class="section-content">${buildAT(sA)}</div>
-        </div>
+        <div class="section-card"><button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">⚙️ 승강장공조기 상세 <span>▾</span></button><div class="section-content">${buildT(sH, ["시급","시배","종급","종배"])}</div></div>
+        <div class="section-card"><button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">🌪️ 환기실송풍기 상세 <span>▾</span></button><div class="section-content">${buildT(sV, ["시급","시배","종급","종배"])}</div></div>
+        ${isCooling ? `<div class="section-card"><button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">❄️ 냉동기 상세 <span>▾</span></button><div class="section-content">${buildT(sC, ["가동시간"])}</div></div>` : ''}
+        <div class="section-card"><button class="section-trigger" onclick="this.nextElementSibling.classList.toggle('active')">🌬️ 공기청정기 상세 <span>▾</span></button><div class="section-content">${buildAT(sA)}</div></div>
     `;
 }
 </script>
