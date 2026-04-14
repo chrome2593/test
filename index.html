@@ -33,39 +33,57 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* [수정 4] 컨테이너 폭 조정 (1600px -> 1400px) */
         .container { max-width: 1400px; margin: 0 auto; padding: 0 30px; }
 
+        /* [수정] 헤더 내 정보 통합 레이아웃 */
         .app-header { 
-            background: rgba(255, 255, 255, 0.95); 
+            background: rgba(255, 255, 255, 0.98); 
             backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border); 
-            padding: 18px 0; 
+            border-bottom: 2px solid var(--primary); 
+            padding: 15px 0; 
             position: sticky; 
             top: 0; 
             z-index: 100; 
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         }
-        .header-inner { display: flex; justify-content: space-between; align-items: center; }
+        .header-inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; }
+        
+        .header-center-info {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            font-weight: 800;
+            color: var(--dark);
+        }
+        .header-center-info span {
+            background: var(--bg-light);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            border: 1px solid var(--border);
+        }
+        .header-center-info b { color: var(--primary); }
+
         .app-title { 
             font-weight: 900; 
             color: var(--primary); 
-            font-size: 1.5rem; 
+            font-size: 1.4rem; 
             letter-spacing: -0.025em;
-            display: flex;
-            align-items: center;
-            gap: 12px;
+            white-space: nowrap;
         }
 
         .back-btn { 
             background: #fff; 
-            border: 1px solid var(--border); 
-            padding: 8px 20px; 
+            border: 1.5px solid var(--border); 
+            padding: 8px 18px; 
             border-radius: 10px; 
             cursor: pointer; 
             font-weight: 700; 
             color: #64748b;
             transition: all 0.2s;
+            white-space: nowrap;
         }
         .back-btn:hover { background: #f8fafc; border-color: var(--na); color: var(--dark); }
 
@@ -94,7 +112,6 @@
             background: white;
         }
 
-        /* [수정 5] 제목 옆 안내 문구 추가 */
         .summary-section-main-title { 
             font-weight: 900; 
             font-size: 1.7rem; 
@@ -112,14 +129,12 @@
 
         .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
         
-        /* [수정 3] 호선별 카드 테두리 */
         .summary-card { 
             background: white; 
             border: 1px solid var(--border); 
             padding: 25px; 
             border-radius: 24px; 
             box-shadow: var(--card-shadow);
-            transition: border 0.3s;
         }
         .summary-card.line1-theme { border-top: 8px solid var(--danger); border-left: 1px solid var(--danger-bg); border-right: 1px solid var(--danger-bg); border-bottom: 1px solid var(--danger-bg); }
         .summary-card.line2-theme { border-top: 8px solid var(--success); border-left: 1px solid var(--success-bg); border-right: 1px solid var(--success-bg); border-bottom: 1px solid var(--success-bg); }
@@ -133,15 +148,8 @@
             color: var(--dark);
         }
 
-        .summary-group-label { 
-            font-weight: 800; 
-            font-size: 0.9rem; 
-            color: #64748b; 
-            margin: 15px 0 8px 0; 
-            display: block;
-        }
+        .summary-group-label { font-weight: 800; font-size: 0.9rem; color: #64748b; margin: 15px 0 8px 0; display: block; }
 
-        /* [수정 6] 요약 호기 3열 배치 */
         .badge-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
         .badge { 
             padding: 10px 12px; 
@@ -162,7 +170,7 @@
         .badge:hover { transform: translateY(-2px); border-color: var(--danger); }
         .badge .val-highlight {
             margin-top: 4px;
-            background: var(--danger-bg); /* [수정 4] 연한 핑크 배경 */
+            background: var(--danger-bg);
             padding: 1px 6px;
             border-radius: 4px;
             font-size: 0.8rem;
@@ -189,7 +197,7 @@
             border: 1px solid var(--border); 
             background: white; 
             font-weight: 800; 
-            font-size: 1rem; 
+            font-size: 1.05rem; 
             cursor: pointer; 
             display: flex; 
             justify-content: space-between; 
@@ -197,7 +205,7 @@
             transition: all 0.2s;
             color: #475569;
         }
-        .toggle-btn.active { background: var(--primary); color: white; }
+        .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         
         .detail-content { display: none; margin-bottom: 25px; animation: slideDown 0.3s ease-out; }
         .detail-content.active { display: block; }
@@ -205,27 +213,14 @@
 
         .table-wrapper { background: white; border-radius: 16px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--card-shadow); }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: #f8fafc; padding: 12px 5px; font-size: 0.75rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); }
-        td { padding: 14px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 600; }
+        th { background: #f8fafc; padding: 12px 5px; font-size: 0.8rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); }
+        /* [수정] 테이블 폰트 크기 확대 */
+        td { padding: 16px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; font-weight: 600; }
         
         .st-name { font-weight: 900; color: var(--primary); background: #fcfdfe; width: 100px; border-right: 1px solid #f1f5f9; }
         .critical-val { background: var(--danger) !important; color: white !important; }
         .bad-val { background: #fffbeb !important; color: #b45309 !important; }
         .na-cell { background: #f8fafc; color: var(--na); font-style: italic; }
-
-        .season-info { 
-            padding: 15px 25px; 
-            background: white; 
-            border: 1px solid var(--border); 
-            border-left: 6px solid var(--primary); 
-            border-radius: 14px; 
-            font-weight: 700; 
-            margin-bottom: 25px; 
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            font-size: 0.95rem;
-        }
     </style>
 </head>
 <body>
@@ -233,11 +228,11 @@
         <header class="app-header">
             <div class="container header-inner">
                 <div id="line-indicator" class="app-title">장비 가동 일보 통합 분석</div>
+                <div id="header-status" class="header-center-info"></div>
                 <button class="back-btn" onclick="location.reload()">↺ 분석 초기화</button>
             </div>
         </header>
         <main class="container">
-            <div id="season-banner" class="season-info" style="display:none;"></div>
             <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
                 <input type="file" id="excelFile" hidden />
                 <div style="font-size: 4rem; margin-bottom: 15px;">📂</div>
@@ -251,7 +246,7 @@
 
 <script>
 /**
- * [환경 설정 및 데이터 추출 로직] - 사용자 요청에 따라 절대 수정하지 않음
+ * [추출 및 판정 로직] - 절대 수정 없음
  */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
@@ -282,12 +277,10 @@ function parseH(v) {
     if(typeof v === 'number') return v * 24; 
     let s = String(v).trim();
     if(s.includes(':')) {
-        const p = s.split(' ');
-        const t = p[0].split(':');
+        const p = s.split(' '); const t = p[0].split(':');
         return (parseInt(t[0])||0) + (parseInt(t[1])||0)/60 + (parseInt(t[2])||0)/3600;
     }
-    const n = parseFloat(s);
-    return (n > 0 && n <= 1.0) ? n * 24 : n;
+    const n = parseFloat(s); return (n > 0 && n <= 1.0) ? n * 24 : n;
 }
 
 function getCV(s, r, c) { 
@@ -460,8 +453,7 @@ const Extractor = {
                     if (rawUnits.length > 0) res.air.push({ name: stName, units: rawUnits, isCri: rawUnits.some(a=>a.res.s==='critical') });
                 }
             }
-        });
-        return res;
+        }); return res;
     }
 };
 
@@ -476,11 +468,15 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             let m = dm ? parseInt(dm[0].substring(4,6)) : 1, d = dm ? parseInt(dm[0].substring(6,8)) : 1;
             isCooling = (m === 7 || m === 8 || (m === 9 && d <= 20));
             ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
-            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과 리포트`;
-            document.getElementById('season-banner').style.display = 'flex';
-            document.getElementById('season-banner').innerHTML = `<span>📅 <b>분석 날짜:</b> ${m}월 ${d}일</span> <span>⚙️ <b>공조 시즌:</b> ${isCooling?'❄️ 냉방':'☀️ 비냉방'}</span> <span>🌪️ <b>환기 시즌:</b> ${ventSeason}</span>`;
             
-            // [수정 2] 파일 이름 변경 금지 안내 문구 추가
+            // [수정] 상단 헤더에 통합 정보 표시
+            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과 리포트`;
+            document.getElementById('header-status').innerHTML = `
+                <span>📅 <b>분석 날짜:</b> ${m}월 ${d}일</span>
+                <span>⚙️ <b>공조 시즌:</b> ${isCooling?'❄️ 냉방':'☀️ 비냉방'}</span>
+                <span>🌪️ <b>환기 시즌:</b> ${ventSeason}</span>
+            `;
+
             document.getElementById('upload-container').innerHTML = `
                 <div style="font-size: 1.5rem;">📂</div>
                 <h3 style="margin:0; color: var(--primary); font-size: 1.1rem; font-weight: 900;">가동일보 엑셀 업로드 완료</h3>
@@ -493,11 +489,9 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
                 return null;
             };
             if (currentLine === 'line1') {
-                const sheet = findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]];
-                render(Extractor.getLine1(sheet));
+                const sheet = findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]]; render(Extractor.getLine1(sheet));
             } else {
-                const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]);
-                render(Extractor.getLine2(sheet, apSheet));
+                const sheet = findS(["장비"]), apSheet = findS(["공기청정기"]); render(Extractor.getLine2(sheet, apSheet));
             }
         } catch(e) { alert("분석 실패"); console.error(e); }
     };
@@ -518,12 +512,9 @@ function render(data) {
         const cC = data.chiller.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cA = data.air.filter(d => branch.stations.includes(d.name) && d.isCri);
         const isOk = (cH.length + cV.length + cC.length + cA.length === 0);
-        
-        // [수정 3] 호선별 테두리 색상 분기
         const themeClass = currentLine === 'line1' ? 'line1-theme' : 'line2-theme';
         let h = `<div class="summary-card ${themeClass}"> <div class="summary-title">📍 ${branch.name} ${isOk?'✅':'⚠️'}</div>`;
         if (isOk) return h + `<div style="color:var(--success); font-weight:800; padding:20px 0; text-align:center;">모든 장비가 정상 가동 중입니다.</div></div>`;
-        
         const addB = (title, items, labels, type) => {
             if (items.length === 0) return "";
             let s = `<span class="summary-group-label">${title}</span><div class="badge-container">`;
@@ -539,7 +530,6 @@ function render(data) {
         return h + `</div>`;
     };
     
-    // [수정 5] 제목 옆 안내 가이드 추가
     document.getElementById('summary-section').innerHTML = `
         <h2 class="summary-section-main-title">확인 필요 장비 내역 <span class="sub-guide">장비 확인 시 클릭하여 삭제</span></h2>
         <div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>
@@ -557,38 +547,23 @@ function render(data) {
             let statusText = isExcluded ? "장비 없음" : (d.isCri ? '이상' : '정상');
             let statusColor = isExcluded ? "var(--na)" : (d.isCri ? 'var(--danger)' : 'var(--success)');
             h += `<td><span style="font-weight:900; color:${statusColor}">${statusText}</span></td></tr>`;
-        });
-        return h + `</tbody></table></div>`;
+        }); return h + `</tbody></table></div>`;
     };
 
+    // [수정] 공기청정기 상세 내역 가로 테이블 방식 (역사 | 장비명 | 가동시간 | 판정)
     const buildAT = (items) => {
-        if (currentLine === 'line1') {
-            let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th><th>01호기 가동시간</th><th>판정</th></tr></thead><tbody>`;
-            items.forEach(d => {
-                const u = d.units[0];
+        let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th><th>장비명</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
+        items.forEach(d => {
+            d.units.forEach((u, idx) => {
                 const statusText = u.res.s === 'critical' ? '이상' : '정상';
                 const statusColor = u.res.s === 'critical' ? 'var(--danger)' : 'var(--success)';
-                h += `<tr><td class="st-name">${d.name}</td>
+                h += `<tr>`;
+                if (idx === 0) h += `<td class="st-name" rowspan="${d.units.length}">${d.name}</td>`;
+                h += `<td style="color:#64748b; font-size:0.85rem;">${u.label}</td>
                     <td class="${u.res.c}" style="font-weight:700;">${formatToHMS(u.val)}</td>
                     <td><span style="font-weight:900; color:${statusColor}">${statusText}</span></td></tr>`;
             });
-            return h + `</tbody></table></div>`;
-        } else {
-            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:110px;">역사</th><th>기기별 상세 가동 현황 (호기순)</th></tr></thead><tbody>`;
-            items.forEach(d => {
-                h += `<tr><td class="st-name">${d.name}</td><td><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:8px; padding:10px;">`;
-                d.units.forEach(u => { 
-                    const borderStyle = u.res.s === 'critical' ? '2px solid var(--danger)' : '1px solid var(--border)';
-                    const bgStyle = u.res.s === 'critical' ? 'var(--danger-bg)' : '#fff';
-                    h += `<div style="padding:10px 5px; border-radius:10px; font-size:0.82rem; border:${borderStyle}; background:${bgStyle};">
-                        <div style="color:#64748b; font-size:0.75rem; margin-bottom:4px;">${u.label}</div>
-                        <div style="font-weight:800; color:${u.res.s==='critical'?'var(--danger)':'var(--dark)'}">${formatToHMS(u.val)}</div>
-                    </div>`; 
-                });
-                h += `</div></td></tr>`;
-            }); 
-            return h + `</tbody></table></div>`;
-        }
+        }); return h + `</tbody></table></div>`;
     };
     
     const buildCol = (branch, side) => {
@@ -596,19 +571,14 @@ function render(data) {
         const sV = data.vent.filter(d => branch.stations.includes(d.name)); 
         const sC = data.chiller.filter(d => branch.stations.includes(d.name)); 
         const sA = data.air.filter(d => branch.stations.includes(d.name));
-        
         return `<div class="branch-column">
             <div class="branch-header">${branch.name} 종합 내역</div>
             <button class="toggle-btn" onclick="toggleDetail(this,'${side}h')">⚙️ 공조기 상세내역 <span>▾</span></button>
             <div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
-            
             <button class="toggle-btn" onclick="toggleDetail(this,'${side}v')">🌪️ 송풍기 상세내역 <span>▾</span></button>
             <div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
-            
-            ${isCooling?`
-            <button class="toggle-btn" onclick="toggleDetail(this,'${side}c')">❄️ 냉동기 합산내역 <span>▾</span></button>
-            <div id="${side}c" class="detail-content">${buildT(sC, ["가동시간"])}</div>` : ''}
-            
+            ${isCooling?`<button class="toggle-btn" onclick="toggleDetail(this,'${side}c')">❄️ 냉동기 합산내역 <span>▾</span></button>
+            <div id="${side}c" class="detail-content">${buildT(sC, ["가동시간"])}</div>`:''}
             <button class="toggle-btn" onclick="toggleDetail(this,'${side}a')">🌬️ 공기청정기 상세내역 <span>▾</span></button>
             <div id="${side}a" class="detail-content">${buildAT(sA)}</div>
         </div>`;
