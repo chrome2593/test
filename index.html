@@ -190,9 +190,6 @@ function analyzeAir(val) {
     return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
 }
 
-/**
- * [추출 모듈]
- */
 const Extractor = {
     getLine1(s) {
         const res = { hvac: [], vent: [], chiller: [], air: [] };
@@ -245,7 +242,7 @@ const Extractor = {
                     let vName = getCV(s, r, vNameCol).replace(/\s+/g, "");
                     let vVal = getCV(s, r, vValCol);
                     if (vName.includes("환기실")) unitsV.push({ l: vName.replace("환기실","").trim(), v: vVal, r: analyzeVent(vVal, (vName.includes("우")||vName.includes("종점")), stName) });
-                    if (getCV(s, r, 0).includes("냉동기") && stName !== "문양") { chSum += parseH(getCV(s, r, 4)); chFound = true; }
+                    if (getCV(s, r, 0).includes("냉동기") && stName !== "문양") { chSum += parseH(v); chFound = true; }
                 }
                 if (unitsV.length > 0) res.vent.push({ name: stName, raw: unitsV.slice(0,4).map(u=>u.v), res: unitsV.slice(0,4).map(u=>u.r), unitNames: unitsV.slice(0,4).map(u=>u.l), isCri: unitsV.some(u=>u.r.s==='critical') });
                 if (chFound && isCooling) {
@@ -254,9 +251,9 @@ const Extractor = {
                     res.chiller.push({ name: stName, raw: [chSum], res: [{s:isC?'critical':'ok', c:isC?'critical-val':''}], isCri: isC });
                 }
 
-                // [추가] 2호선 공기청정기 추출 (공기청정기 시트)
+                // [교정] 2호선 공기청정기 오름차순 정렬 및 명칭 형식(XX호기) 적용
                 if (apSheet) {
-                    let untsA = [];
+                    let rawUnits = [];
                     let apR = -1;
                     const apRg = XLSX.utils.decode_range(apSheet['!ref']);
                     for(let r=0; r<=apRg.e.r; r++) {
@@ -264,14 +261,25 @@ const Extractor = {
                     }
                     if (apR !== -1) {
                         for(let r = apR; r < apR + 50 && r <= apRg.e.r; r++) {
-                            const nameL = getCV(apSheet, r, 1), valL = getCV(apSheet, r, 4);
-                            const nameR = getCV(apSheet, r, 6), valR = getCV(apSheet, r, 9);
-                            if (nameL && nameL !== "장비명" && valL !== "") untsA.push({ label: nameL, val: valL, res: analyzeAir(valL) });
-                            if (nameR && nameR !== "장비명" && valR !== "") untsA.push({ label: nameR, val: valR, res: analyzeAir(valR) });
-                            if (r > apR + 5 && !nameL && !nameR) break;
+                            const nL = getCV(apSheet, r, 1), vL = getCV(apSheet, r, 4);
+                            const nR = getCV(apSheet, r, 6), vR = getCV(apSheet, r, 9);
+                            
+                            // 좌측 데이터 처리
+                            if (nL && nL !== "장비명" && !nL.includes("스마트") && vL !== "") {
+                                let label = nL.trim().substring(0, 2) + "호기";
+                                rawUnits.push({ label: label, val: vL, res: analyzeAir(vL) });
+                            }
+                            // 우측 데이터 처리
+                            if (nR && nR !== "장비명" && !nR.includes("스마트") && vR !== "") {
+                                let label = nR.trim().substring(0, 2) + "호기";
+                                rawUnits.push({ label: label, val: vR, res: analyzeAir(vR) });
+                            }
+                            if (r > apR + 5 && !nL && !nR) break;
                         }
+                        // 오름차순 정렬
+                        rawUnits.sort((a, b) => a.label.localeCompare(b.label, undefined, {numeric: true}));
                     }
-                    if (untsA.length > 0) res.air.push({ name: stName, units: untsA, isCri: untsA.some(a=>a.res.s==='critical') });
+                    if (rawUnits.length > 0) res.air.push({ name: stName, units: rawUnits, isCri: rawUnits.some(a=>a.res.s==='critical') });
                 }
             }
         });
