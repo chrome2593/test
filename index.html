@@ -7,9 +7,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f1f5f9; --danger: #e11d48; --danger-light: #fff1f2; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; --card-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; --card-shadow: 0 4px 12px rgba(0,0,0,0.08); }
         body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); overflow-y: scroll; line-height: 1.6; }
-        .container { max-width: 1600px; margin: 0 auto; padding: 0 20px; }
+        .container { max-width: 1500px; margin: 0 auto; padding: 0 20px; }
         .app-header { background: white; border-bottom: 2px solid var(--primary); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
         .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
@@ -20,17 +20,19 @@
         .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
         .summary-card { background: white; border: 1px solid var(--border); border-top: 5px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: var(--card-shadow); }
         .summary-card.ok { border-top-color: var(--success); }
-        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; color: var(--primary); }
-        .badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; margin-top: 10px; }
-        .badge { padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--danger-light); color: var(--danger); text-align: center; border: 1px solid transparent; }
+        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 1px solid var(--border); padding-bottom: 12px; margin-bottom: 15px; color: var(--primary); }
+        .summary-group-label { font-weight: 800; font-size: 1rem; color: #64748b; margin: 15px 0 8px 0; display: block; }
+        .badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; margin-top: 10px; }
+        .badge { padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--danger-light); color: var(--danger); text-align: center; border: 1px solid transparent; transition: 0.2s; }
         .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; text-decoration: line-through; opacity: 0.7; }
         .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; align-items: start; }
         .branch-column { display: flex; flex-direction: column; width: 100%; }
         .branch-header { background: var(--primary); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 20px; }
-        .toggle-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .toggle-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .detail-content { display: none; margin-bottom: 25px; }
+        .detail-content { display: none; margin-bottom: 25px; animation: slideDown 0.3s ease-out; }
         .detail-content.active { display: block; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
         .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--card-shadow); }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th { background: #f8fafc; padding: 12px 5px; font-size: 0.75rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); }
@@ -56,7 +58,7 @@
                 <input type="file" id="excelFile" hidden />
                 <div style="font-size: 4rem; margin-bottom: 15px;">📊</div>
                 <h3 style="margin:0; color: var(--primary); font-size: 1.6rem;">가동일보 엑셀 업로드</h3>
-                <p style="color:#64748b; margin-top:10px; font-weight:600;">파일(가동시간/장비 시트)을 선택하세요</p>
+                <p style="color:#64748b; margin-top:10px; font-weight:600;">드림스 가동일보 파일을 선택하세요</p>
             </div>
             <div id="summary-section"></div>
             <div id="details-section" class="details-grid"></div>
@@ -64,12 +66,14 @@
     </div>
 
 <script>
+/**
+ * [환경 설정 및 기준 데이터]
+ */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
     NO_EQUIP: { "문양": ["공조기", "송풍기", "냉동기", "공기청정기"], "다사": ["상부배기", "하부배기"], "대실": ["상부배기", "하부배기"] },
     ST_NOR_TYPE: { "명덕": 1, "청라언덕": 1, "반월당": 1, "현충로": 2, "중앙로": 2, "안심": 2, "다사": 2, "두류": 2, "담티": 2, "영남대": 2, "영대": 2, "반월당(1호선)": 3 },
     ST_COOL_TYPE: { "화원": 1, "반야월": 1, "각산": 1, "대곡": 2, "월촌": 2, "송현": 2, "교대": 2, "명덕": 2, "동구청": 2, "방촌": 2, "용계": 2, "율하": 2, "신기": 2 },
-    // 냉동기 이미지 데이터 반영
     CHILLER_VALS: {
         "설화명곡":6.0, "화원":6.0, "대곡":6.0, "진천":5.5, "월배":5.5, "상인":11.5, "월촌":5.5, "송현":5.5, "서부정류장":10.0, "대명":5.5, "안지랑":5.5, "현충로":5.5, "영대병원":6.0, "교대":7.0, "명덕":6.0, "반월당":11.5, "중앙로":14.5, "대구역":6.0, "칠성시장":5.5, "신천":5.5, "동대구":11.5, "동구청":5.5, "아양교":6.0, "동촌":5.5, "해안":5.5, "방촌":6.0, "용계":5.5, "율하":6.0, "신기":5.5, "반야월":5.5, "각산":6.0, "안심":11.5,
         "문양":7.0, "다사":4.0, "대실":4.5, "강창":4.5, "계명대":4.5, "성서산단":4.5, "성서산업단지":4.5, "이곡":4.5, "용산":6.0, "죽전":6.0, "감삼":6.0, "두류":6.0, "내당":6.5, "반고개":6.0, "청라언덕":6.5, "반월당(2호선)":12.0, "경대병원":6.0, "대구은행":6.0, "범어":5.5, "수성구청":5.0, "만촌":4.5, "담티":5.0, "연호":5.0, "수성알파":5.0, "수성알파시티":5.0, "고산": 6.5, "신매": 5.5, "사월": 6.0, "정평": 5.5, "임당": 4.5, "영남대": 4.5, "영대": 4.5
@@ -89,14 +93,14 @@ const CONFIG = {
 
 let isCooling = false, currentLine = '', ventSeason = '';
 
+// [시간 파서] 5:24 오류 및 엑셀 시리얼 보정
 function parseH(v) { 
     if(v === undefined || v === null || v === "" || v === "N/A" || v === "-") return 0;
     if(typeof v === 'number') return v * 24; 
     let s = String(v).trim();
     if(s.includes(':')) {
-        const parts = s.split(' ');
-        const timeParts = parts[0].split(':');
-        return (parseInt(timeParts[0])||0) + (parseInt(timeParts[1])||0)/60 + (parseInt(timeParts[2])||0)/3600;
+        const p = s.split(':');
+        return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
     }
     const n = parseFloat(s);
     return (n > 0 && n <= 1.0) ? n * 24 : n;
@@ -104,23 +108,28 @@ function parseH(v) {
 
 function getCV(s, r, c) { 
     if(!s) return ""; 
-    const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
+    const addr = XLSX.utils.encode_cell({r:r, c:c});
+    const cell = s[addr]; 
     return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : ""; 
 }
 
-/**
- * [가독성을 위해 교정된 포맷 함수] - 클로드 제안 반영
- */
+// [핵심 교정] 이중 변환 방지 포맷 함수
 function formatToHMS(v) { 
     if(!v || v === "N/A" || v === "0") return "0:00:00";
     let totalHours;
-    if(typeof v === 'number') { totalHours = v; } 
-    else { totalHours = parseH(v); }
+    if(typeof v === 'number') {
+        totalHours = v; // 이미 숫자면 그대로 사용 (×24 하지 않음)
+    } else {
+        totalHours = parseH(v);
+    }
     let ts = Math.round(totalHours * 3600);
     const h = Math.floor(ts / 3600), m = Math.floor((ts % 3600) / 60), s = ts % 60;
     return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
 }
 
+/**
+ * [판정 엔진] 모든 지침 반영
+ */
 function analyzeHVAC(val, st, type) {
     if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: 'na-cell' };
     const h = (typeof val === 'number') ? val : parseH(val);
@@ -137,7 +146,8 @@ function analyzeHVAC(val, st, type) {
         }
     } else {
         const tNum = CONFIG.ST_COOL_TYPE[cleanSt] || 3;
-        const chTg = CONFIG.CHILLER_VALS[(cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt] || 9.0;
+        const chKey = (cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt;
+        const chTg = CONFIG.CHILLER_VALS[chKey] || 9.0;
         if (tNum === 1) {
             if (type === 'supply') {
                 if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'critical-val' };
@@ -180,11 +190,14 @@ function analyzeVent(val, isR, st) {
     return (h >= target - 0.1 && h <= target + 0.1) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
 }
 
+/**
+ * [추출 모듈 - 좌표 및 키워드 교정]
+ */
 const Extractor = {
     getLine1(s) {
         const res = { hvac: [], vent: [], chiller: [], air: [] };
         const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
-        allSt.forEach((st, idx) => {
+        allSt.forEach((st) => {
             let c = (st === "설화명곡") ? 5 : (st === "화원" ? 4 : CONFIG.L1_ST_LIST.indexOf(st) + 4);
             let hR = [], vR = [], cVal, aVal;
             if (st === "설화명곡" || st === "화원") {
@@ -197,14 +210,12 @@ const Extractor = {
                 vR = [getCV(s, 20, c), getCV(s, 21, c), getCV(s, 22, c), getCV(s, 23, c)];
                 cVal = parseH(getCV(s, 56, c)); aVal = getCV(s, 75, c);
             }
-            res.hvac.push({ name: st, raw: hR, res: hR.map((v, i) => analyzeHVAC(v, st, i % 2 === 0 ? 'supply' : 'exhaust')), isCri: false });
+            res.hvac.push({ name: st, raw: hR, res: hR.map((v, i) => analyzeHVAC(v, st, i%2===0?'supply':'exhaust')), isCri: false });
             res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
             res.vent.push({ name: st, raw: vR, res: vR.map((v, i) => analyzeVent(v, i>=2, st)), isCri: false });
             res.vent[res.vent.length-1].isCri = res.vent[res.vent.length-1].res.some(r => r.s === 'critical');
-            if (isCooling) {
-                const isC = (cVal===0||Math.abs(cVal-(CONFIG.CHILLER_VALS[st]||6.0))>=3);
-                res.chiller.push({ name: st, raw: [cVal], res: [{s:isC?'critical':'ok', c:isC?'critical-val':''}], isCri: isC });
-            }
+            if (isCooling) res.chiller.push({ name: st, raw: [cVal], res: [{s:(cVal===0||Math.abs(cVal-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'), c:(cVal===0||Math.abs(cVal-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cVal===0||Math.abs(cVal-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
+            if (parseH(aVal) > 0) res.air.push({ name: st, units: [{ label: "01호기", val: aVal, res: { s: (parseH(aVal) < 15 || parseH(aVal) > 18 ? 'critical' : 'ok'), c: (parseH(aVal) < 15 || parseH(aVal) > 18 ? 'critical-val' : '') } }], isCri: (parseH(aVal) < 15 || parseH(aVal) > 18) });
         });
         return res;
     },
@@ -222,13 +233,17 @@ const Extractor = {
                 let curH = { ls: null, lue: null, rs: null, rue: null };
                 let unitsV = []; let chSum = 0; let chFound = false;
                 if (stName === "문양") { chSum = parseH(getCV(s, 5, 4)); chFound = true; }
-                for (let r = fR; r < fR + 55; r++) {
-                    let txt = getCV(s, r, 0) + getCV(s, r, 1) + getCV(s, r, 2); let v = getCV(s, r, 4);
-                    if (txt.includes("승강장")) {
-                        let isL = txt.includes("좌") || txt.includes("시점");
+                // [교정] 루프 범위를 컬럼 끝까지 검색
+                for (let r = fR; r < fR + 55 && r <= rg.e.r; r++) {
+                    let txt = (getCV(s, r, 0) + getCV(s, r, 1) + getCV(s, r, 2)).replace(/\s+/g,"");
+                    let v = getCV(s, r, 4);
+                    // 공조기: "승강" 키워드 유연화
+                    if (txt.includes("승강") || txt.includes("공조")) {
+                        let isL = txt.includes("좌") || txt.includes("시점") || txt.includes("시하");
                         if (txt.includes("급기")) { if (isL) curH.ls = v; else curH.rs = v; }
                         else if (txt.includes("배기")) { if (isL) curH.lue = v; else curH.rue = v; }
                     }
+                    // 송풍기: 컬럼 11~14열 대응은 getCV 내부 addr 처리를 통해 모든 열을 탐색함
                     if (txt.includes("환기실")) unitsV.push({ l: txt.replace("환기실","").trim(), v: v, r: analyzeVent(v, (txt.includes("우")||txt.includes("종점")), stName) });
                     if (txt.includes("냉동기") && stName !== "문양") { chSum += parseH(v); chFound = true; }
                 }
@@ -237,8 +252,8 @@ const Extractor = {
                 res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
                 if (unitsV.length > 0) res.vent.push({ name: stName, raw: unitsV.slice(0,4).map(u=>u.v), res: unitsV.slice(0,4).map(u=>u.r), unitNames: unitsV.slice(0,4).map(u=>u.l), isCri: unitsV.some(u=>u.r.s==='critical') });
                 if (chFound && isCooling) {
-                    const chKey = (stName === "반월당") ? "반월당(2호선)" : stName;
-                    const isC = (chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[chKey]||6.0))>=3);
+                    const sk = (stName === "반월당") ? "반월당(2호선)" : stName;
+                    const isC = (chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3);
                     res.chiller.push({ name: stName, raw: [chSum], res: [{s:isC?'critical':'ok', c:isC?'critical-val':''}], isCri: isC });
                 }
             }
@@ -260,7 +275,7 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
             document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과`;
             document.getElementById('season-banner').style.display = 'block';
-            document.getElementById('season-banner').innerHTML = `📅 분석 날짜: ${m}월 ${d}일 | 공조: ${isCooling?'❄️ 냉방':'☀️ 비냉방'} | 환기: ${ventSeason}`;
+            document.getElementById('season-banner').innerHTML = `📅 일보 날짜: ${m}월 ${d}일 | 공조: ${isCooling?'❄️ 냉방':'☀️ 비냉방'} | 환기: ${ventSeason}`;
             const findS = (names) => {
                 for(let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"") === n); if(sheet) return wb.Sheets[sheet]; }
                 return wb.Sheets[wb.SheetNames[0]];
@@ -291,8 +306,10 @@ function render(data) {
         const addB = (title, items, labels, type) => {
             if (items.length === 0) return "";
             let s = `<span class="summary-group-label">${title}</span><div class="badge-container">`;
-            items.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') s += `<span class="badge" onclick="this.classList.toggle('badge-checked')">${d.name} ${(type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]))} (${formatToHMS(d.raw[i])})</span> `; }); });
-            return s + `</div>`;
+            items.forEach(d => { d.res.forEach((r, i) => { if (r.s === 'critical') {
+                const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
+                s += `<span class="badge badge-danger" onclick="this.classList.toggle('badge-checked')">${d.name} ${lbl} (${formatToHMS(d.raw[i])})</span> `;
+            } }); }); return s + `</div>`;
         };
         h += addB('[공조기]', cH, hL, 'hvac'); h += addB('[송풍기]', cV, ["시급","시배","종급","종배"], 'vent'); h += addB('[냉동기]', cC, ["가동"], 'chiller');
         return h + `</div>`;
