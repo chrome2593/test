@@ -3,52 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1·2호선 가동일보 통합 분석 시스템</title>
+    <title>대구교통공사 장비 가동 통합 분석 시스템</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-        :root { --primary: #004595; --dark: #1e293b; --bg-light: #f8fafc; --danger: #e11d48; --warning: #f59e0b; --success: #10b981; --border: #e2e8f0; --na: #94a3b8; --card-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        body { margin: 0; font-family: 'Pretendard', sans-serif; background: var(--bg-light); color: var(--dark); overflow-y: scroll; line-height: 1.6; }
-        .container { max-width: 1550px; margin: 0 auto; padding: 0 20px; }
-        .app-header { background: white; border-bottom: 2px solid var(--primary); padding: 15px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        
+        :root {
+            --primary: #004595;
+            --primary-dark: #003370;
+            --dark: #1e293b;
+            --bg-light: #f1f5f9;
+            --danger: #e11d48;
+            --danger-bg: #fff1f2;
+            --warning: #f59e0b;
+            --success: #10b981;
+            --border: #e2e8f0;
+            --na: #94a3b8;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        body { 
+            margin: 0; 
+            font-family: 'Pretendard', sans-serif; 
+            background: var(--bg-light); 
+            color: var(--dark); 
+            overflow-y: scroll; 
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container { max-width: 1600px; margin: 0 auto; padding: 0 30px; }
+
+        /* Header Design */
+        .app-header { 
+            background: rgba(255, 255, 255, 0.95); 
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border); 
+            padding: 18px 0; 
+            position: sticky; 
+            top: 0; 
+            z-index: 100; 
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
         .header-inner { display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: #fff; border: 1.5px solid #cbd5e0; padding: 10px 24px; border-radius: 8px; cursor: pointer; font-weight: 700; color: #475569; }
-        .upload-box { background: white; padding: 60px; border: 2px dashed var(--na); border-radius: 24px; text-align: center; cursor: pointer; margin-bottom: 30px; transition: 0.3s; box-shadow: var(--card-shadow); }
-        .upload-box.minimized { padding: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 20px; border-style: solid; border-width: 1px; }
-        .summary-section-main-title { font-weight: 900; font-size: 1.6rem; color: var(--danger); margin: 30px 0 20px; display: flex; align-items: center; gap: 10px; }
-        .summary-section-main-title::before { content: ''; width: 5px; height: 25px; background: var(--danger); border-radius: 3px; }
-        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 40px; }
-        .summary-card { background: white; border: 1px solid var(--border); border-top: 5px solid var(--danger); padding: 25px; border-radius: 20px; box-shadow: var(--card-shadow); }
+        .app-title { 
+            font-weight: 900; 
+            color: var(--primary); 
+            font-size: 1.6rem; 
+            letter-spacing: -0.025em;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .app-title::before {
+            content: '📊';
+            font-size: 1.8rem;
+        }
+
+        .back-btn { 
+            background: #fff; 
+            border: 1px solid var(--border); 
+            padding: 10px 24px; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            color: #64748b;
+            transition: all 0.2s;
+        }
+        .back-btn:hover { background: #f8fafc; border-color: var(--na); color: var(--dark); }
+
+        /* Upload Area */
+        .upload-box { 
+            background: white; 
+            padding: 80px 40px; 
+            border: 2px dashed var(--na); 
+            border-radius: 24px; 
+            text-align: center; 
+            cursor: pointer; 
+            margin: 40px 0; 
+            transition: all 0.3s;
+            box-shadow: var(--card-shadow);
+        }
+        .upload-box:hover { border-color: var(--primary); background: #fcfdfe; }
+        .upload-box.minimized { 
+            padding: 12px 30px; 
+            margin: 25px 0; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 20px; 
+            border-style: solid; 
+            border-width: 1px;
+            background: white;
+        }
+        .upload-box.minimized h3 { font-size: 1rem; color: var(--primary); }
+        .upload-box.minimized p { display: none; }
+        .upload-box.minimized div { font-size: 1.5rem !important; margin: 0 !important; }
+
+        /* Summary Section */
+        .summary-section-main-title { 
+            font-weight: 900; 
+            font-size: 1.8rem; 
+            color: var(--danger); 
+            margin: 40px 0 25px; 
+            display: flex; 
+            align-items: center; 
+            gap: 12px;
+        }
+        .summary-section-main-title::before { 
+            content: ''; 
+            width: 6px; 
+            height: 28px; 
+            background: var(--danger); 
+            border-radius: 4px; 
+        }
+
+        .summary-area-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; }
+        
+        .summary-card { 
+            background: white; 
+            border: 1px solid var(--border); 
+            border-top: 6px solid var(--danger); 
+            padding: 30px; 
+            border-radius: 24px; 
+            box-shadow: var(--card-shadow);
+        }
         .summary-card.ok { border-top-color: var(--success); }
-        .summary-title { font-weight: 900; font-size: 1.4rem; border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 15px; color: var(--primary); }
-        .summary-group-label { font-weight: 800; font-size: 1.05rem; color: #475569; margin: 15px 0 8px 0; display: block; }
-        .badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
-        .badge { padding: 10px 12px; border-radius: 10px; font-size: 0.85rem; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; background: var(--danger-light); color: var(--danger); text-align: center; border: 1px solid transparent; transition: 0.2s; }
-        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; text-decoration: line-through; opacity: 0.7; }
-        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 50px; align-items: start; }
-        .branch-column { display: flex; flex-direction: column; width: 100%; }
-        .branch-header { background: var(--primary); color: white; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 1.15rem; margin-bottom: 20px; }
-        .toggle-btn { width: 100%; padding: 15px; margin-bottom: 10px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; transition: 0.2s; }
+        .summary-title { 
+            font-weight: 800; 
+            font-size: 1.5rem; 
+            border-bottom: 2px solid #f8fafc; 
+            padding-bottom: 15px; 
+            margin-bottom: 20px; 
+            color: var(--dark);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-group-label { 
+            font-weight: 800; 
+            font-size: 0.95rem; 
+            color: #64748b; 
+            margin: 20px 0 10px 0; 
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+        .badge { 
+            padding: 12px 16px; 
+            border-radius: 12px; 
+            font-size: 0.88rem; 
+            font-weight: 800; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            cursor: pointer; 
+            background: #fff; 
+            color: var(--danger); 
+            border: 1.5px solid var(--danger-bg);
+            box-shadow: 0 2px 4px rgba(225, 29, 72, 0.04);
+            transition: 0.2s;
+        }
+        .badge:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(225, 29, 72, 0.1); }
+        /* 이상 데이터 강조 배경 */
+        .badge .val-highlight {
+            background: var(--danger-bg);
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        .badge-checked { background: #f1f5f9 !important; color: var(--na) !important; border-color: var(--border) !important; text-decoration: line-through; opacity: 0.6; }
+
+        /* Detail Section */
+        .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-bottom: 80px; align-items: start; }
+        
+        /* 분소 헤더 통일 (네이비) */
+        .branch-header { 
+            background: var(--primary-dark); 
+            color: white; 
+            padding: 18px 25px; 
+            border-radius: 15px; 
+            font-weight: 800; 
+            font-size: 1.25rem; 
+            margin-bottom: 25px; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .toggle-btn { 
+            width: 100%; 
+            padding: 18px 25px; 
+            margin-bottom: 12px; 
+            border-radius: 16px; 
+            border: 1px solid var(--border); 
+            background: white; 
+            font-weight: 800; 
+            font-size: 1.05rem; 
+            cursor: pointer; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            color: #475569;
+        }
+        .toggle-btn:hover { background: #fcfdfe; border-color: var(--primary); color: var(--primary); }
         .toggle-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .detail-content { display: none; margin-bottom: 25px; animation: slideDown 0.3s ease-out; }
+        
+        .detail-content { display: none; margin-bottom: 30px; animation: slideDown 0.4s ease-out; }
         .detail-content.active { display: block; }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        .table-wrapper { background: white; border-radius: 12px; border: 1px solid var(--border); overflow: hidden; box-shadow: var(--card-shadow); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Table Design */
+        .table-wrapper { 
+            background: white; 
+            border-radius: 20px; 
+            border: 1px solid var(--border); 
+            overflow: hidden; 
+            box-shadow: var(--card-shadow); 
+        }
         table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-        th { background: #f8fafc; padding: 12px 5px; font-size: 0.75rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); }
-        td { padding: 12px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.85rem; font-weight: 600; }
-        .st-name { font-weight: 800; color: var(--primary); background: #fcfdfe; width: 95px; border-right: 1px solid #f1f5f9; }
-        .critical-val { background: var(--danger) !important; color: white !important; }
+        th { background: #f8fafc; padding: 15px 5px; font-size: 0.8rem; color: #64748b; font-weight: 800; border-bottom: 1px solid var(--border); text-transform: uppercase; }
+        td { padding: 16px 5px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; font-weight: 600; }
+        tr:hover td { background: #fcfdfe; }
+        
+        .st-name { font-weight: 900; color: var(--primary); background: #fcfdfe; width: 110px; border-right: 1px solid #f1f5f9; }
+        .critical-val { background: var(--danger) !important; color: white !important; border-radius: 4px; }
         .bad-val { background: #fffbeb !important; color: #b45309 !important; }
         .na-cell { background: #f8fafc; color: var(--na); font-style: italic; }
-        .season-info { padding: 15px; background: #e0f2fe; border: 1px solid #bae6fd; border-radius: 12px; text-align: center; font-weight: 700; color: #0369a1; margin-bottom: 20px; }
+
+        .season-info { 
+            padding: 18px 30px; 
+            background: white; 
+            border: 1px solid var(--border); 
+            border-left: 8px solid var(--primary); 
+            border-radius: 16px; 
+            font-weight: 700; 
+            margin-bottom: 30px; 
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+        }
     </style>
 </head>
 <body>
     <div id="app-view">
         <header class="app-header">
             <div class="container header-inner">
-                <div id="line-indicator" style="font-weight: 900; color: var(--primary); font-size: 1.4rem;">장비 가동 일보 통합 분석</div>
+                <div id="line-indicator" class="app-title">장비 가동 일보 통합 분석</div>
                 <button class="back-btn" onclick="location.reload()">↺ 분석 초기화</button>
             </div>
         </header>
@@ -56,9 +261,9 @@
             <div id="season-banner" class="season-info" style="display:none;"></div>
             <div id="upload-container" class="upload-box" onclick="document.getElementById('excelFile').click()">
                 <input type="file" id="excelFile" hidden />
-                <div style="font-size: 4rem; margin-bottom: 15px;">📊</div>
-                <h3 style="margin:0; color: var(--primary); font-size: 1.6rem;">가동일보 엑셀 업로드</h3>
-                <p style="color:#64748b; margin-top:10px; font-weight:600;">드림스 가동일보 파일을 선택하세요</p>
+                <div style="font-size: 4.5rem; margin-bottom: 20px;">📂</div>
+                <h3 style="margin:0; color: var(--primary); font-size: 1.8rem; font-weight: 900;">가동일보 엑셀 업로드</h3>
+                <p style="color:#64748b; margin-top:15px; font-weight:600; font-size: 1.1rem;">DREAMS 가동일보 파일을 이곳에 드래그하거나 클릭하세요</p>
             </div>
             <div id="summary-section"></div>
             <div id="details-section" class="details-grid"></div>
@@ -66,6 +271,9 @@
     </div>
 
 <script>
+/**
+ * [환경 설정 및 기준 데이터] - 수정 없음
+ */
 const CONFIG = {
     VENT_SEASON: { INTER: [3, 4, 5, 10], SUMMER: [6, 7, 8, 9], WINTER: [11, 12, 1, 2] },
     NO_EQUIP: { "문양": ["공조기", "송풍기", "냉동기", "공기청정기"], "다사": ["상부배기", "하부배기"], "대실": ["상부배기", "하부배기"] },
@@ -90,6 +298,7 @@ const CONFIG = {
 
 let isCooling = false, currentLine = '', ventSeason = '';
 
+// [데이터 추출 로직 - 변동 없음]
 function parseH(v) { 
     if(v === undefined || v === null || v === "" || v === "N/A" || v === "-" || v === "0") return 0;
     if(typeof v === 'number') return v * 24; 
@@ -105,7 +314,8 @@ function parseH(v) {
 
 function getCV(s, r, c) { 
     if(!s) return ""; 
-    const cell = s[XLSX.utils.encode_cell({r:r, c:c})]; 
+    const addr = XLSX.utils.encode_cell({r:r, c:c});
+    const cell = s[addr]; 
     return cell ? (cell.w ? cell.w : (cell.v !== undefined ? String(cell.v) : "")) : ""; 
 }
 
@@ -195,29 +405,24 @@ function analyzeAir(val) {
 const Extractor = {
     getLine1(s) {
         const res = { hvac: [], vent: [], chiller: [], air: [] };
-        // 순서 고정: 설화명곡, 화원, 그외(대곡~안심)
         const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
         allSt.forEach((st) => {
             let c, hR, vR, cV, aV;
-            // [교정] 설화명곡 F열 180행, 화원 E열 180행 (엑셀 기준 180행 = 인덱스 179)
             if (st === "설화명곡") {
-                c = 5; // Column F
-                hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
+                c = 5; hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
                 vR = [getCV(s, 97, c), getCV(s, 98, c), getCV(s, 99, c), getCV(s, 100, c)];
                 cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c));
-                aV = getCV(s, 179, c); // 180행
+                aV = getCV(s, 179, c); 
             } else if (st === "화원") {
-                c = 4; // Column E
-                hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
+                c = 4; hR = [getCV(s, 81, c), getCV(s, 82, c), getCV(s, 89, c), getCV(s, 90, c)];
                 vR = [getCV(s, 97, c), getCV(s, 98, c), getCV(s, 99, c), getCV(s, 100, c)];
                 cV = parseH(getCV(s, 155, c)) + parseH(getCV(s, 156, c));
-                aV = getCV(s, 179, c); // 180행
+                aV = getCV(s, 179, c); 
             } else {
-                c = CONFIG.L1_ST_LIST.indexOf(st) + 4;
-                hR = [getCV(s, 5, c), getCV(s, 6, c), getCV(s, 13, c), getCV(s, 14, c)];
+                c = CONFIG.L1_ST_LIST.indexOf(st) + 4; hR = [getCV(s, 5, c), getCV(s, 6, c), getCV(s, 13, c), getCV(s, 14, c)];
                 vR = [getCV(s, 19, c), getCV(s, 20, c), getCV(s, 21, c), getCV(s, 22, c)];
                 cV = parseH(getCV(s, 56, c));
-                aV = getCV(s, 75, c); // 76행
+                aV = getCV(s, 75, c); 
             }
             res.hvac.push({ name: st, raw: hR, res: hR.map((v, i) => analyzeHVAC(v, st, i%2===0?'supply':'exhaust')), isCri: false });
             res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s === 'critical');
@@ -297,9 +502,9 @@ document.getElementById('excelFile').addEventListener('change', function(e) {
             let m = dm ? parseInt(dm[0].substring(4,6)) : 1, d = dm ? parseInt(dm[0].substring(6,8)) : 1;
             isCooling = (m === 7 || m === 8 || (m === 9 && d <= 20));
             ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
-            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과`;
-            document.getElementById('season-banner').style.display = 'block';
-            document.getElementById('season-banner').innerHTML = `📅 분석 날짜: <strong>${m}월 ${d}일</strong> | 공조: <strong>${isCooling?'❄️ 냉방':'☀️ 비냉방'}</strong> | 환기: <strong>${ventSeason}</strong>`;
+            document.getElementById('line-indicator').innerText = `${m}월 ${d}일 분석 결과 리포트`;
+            document.getElementById('season-banner').style.display = 'flex';
+            document.getElementById('season-banner').innerHTML = `<span>📅 <b>분석 날짜:</b> ${m}월 ${d}일</span> <span>⚙️ <b>공조 시즌:</b> ${isCooling?'❄️ 냉방':'☀️ 비냉방'}</span> <span>🌪️ <b>환기 시즌:</b> ${ventSeason}</span>`;
             const findS = (names) => {
                 for(let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"") === n); if(sheet) return wb.Sheets[sheet]; }
                 return null;
@@ -324,29 +529,33 @@ function toggleDetail(btn, id) {
 function render(data) {
     const br = CONFIG.BRANCHES[currentLine];
     const hL = ["시급", "시배", "종급", "종배"];
+    
+    // [UI 업데이트] 확인 필요 호기 카드 디자인 및 값 배경색 추가
     const buildS = (branch) => {
         const cH = data.hvac.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cV = data.vent.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cC = data.chiller.filter(d => branch.stations.includes(d.name) && d.isCri);
         const cA = data.air.filter(d => branch.stations.includes(d.name) && d.isCri);
         const isOk = (cH.length + cV.length + cC.length + cA.length === 0);
-        let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${branch.name}</div>`;
-        if (isOk) return h + `<div style="color:var(--success); font-weight:800;">✅ 모든 장비 정상</div></div>`;
+        let h = `<div class="summary-card ${isOk?'ok':''}"> <div class="summary-title">📍 ${branch.name} ${isOk?'✅':'⚠️'}</div>`;
+        if (isOk) return h + `<div style="color:var(--success); font-weight:800; padding:20px 0; text-align:center;">모든 장비가 정상 가동 중입니다.</div></div>`;
+        
         const addB = (title, items, labels, type) => {
             if (items.length === 0) return "";
             let s = `<span class="summary-group-label">${title}</span><div class="badge-container">`;
             items.forEach(d => {
-                if (type === 'air') { d.units.forEach(u => { if(u.res.s==='critical') s += `<span class="badge" onclick="this.classList.toggle('badge-checked')">${d.name} ${u.label} (${formatToHMS(u.val)})</span> `; }); }
+                if (type === 'air') { d.units.forEach(u => { if(u.res.s==='critical') s += `<span class="badge" onclick="this.classList.toggle('badge-checked')"><span>${d.name} ${u.label}</span><span class="val-highlight">${formatToHMS(u.val)}</span></span> `; }); }
                 else { d.res.forEach((r, i) => { if (r.s === 'critical') {
                     const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:labels[i]):(type==='chiller'?"냉동기":labels[i]));
-                    s += `<span class="badge badge-danger" onclick="this.classList.toggle('badge-checked')">${d.name} ${lbl} (${formatToHMS(d.raw[i])})</span> `;
+                    s += `<span class="badge" onclick="this.classList.toggle('badge-checked')"><span>${d.name} ${lbl}</span><span class="val-highlight">${formatToHMS(d.raw[i])}</span></span> `;
                 } }); }
             }); return s + `</div>`;
         };
-        h += addB('[공조기]', cH, hL, 'hvac'); h += addB('[송풍기]', cV, ["시급","시배","종급","종배"], 'vent'); h += addB('[냉동기]', cC, ["가동"], 'chiller'); h += addB('[청정기]', cA, [], 'air');
+        h += addB('[공조기]', cH, hL, 'hvac'); h += addB('[송풍기]', cV, ["시급","시배","종급","종배"], 'vent'); h += addB('[냉동기]', cC, ["가동"], 'chiller'); h += addB('[공기청정기]', cA, [], 'air');
         return h + `</div>`;
     };
-    document.getElementById('summary-section').innerHTML = `<h2 class="summary-section-main-title">⚠️ 확인 필요 호기</h2><div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>`;
+    document.getElementById('summary-section').innerHTML = `<h2 class="summary-section-main-title">확인 필요 장비 내역</h2><div class="summary-area-grid">${buildS(br.left)}${buildS(br.right)}</div>`;
+    
     const buildT = (items, labels) => {
         let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
         items.forEach(d => {
@@ -358,25 +567,64 @@ function render(data) {
             }
             let statusText = isExcluded ? "장비 없음" : (d.isCri ? '이상' : '정상');
             let statusColor = isExcluded ? "var(--na)" : (d.isCri ? 'var(--danger)' : 'var(--success)');
-            h += `<td><span style="font-weight:800; color:${statusColor}">${statusText}</span></td></tr>`;
+            h += `<td><span style="font-weight:900; color:${statusColor}">${statusText}</span></td></tr>`;
         });
         return h + `</tbody></table></div>`;
     };
+
+    // [UI 업데이트] 공기청정기 상세 내역 (1호선 중앙 정렬 및 판정 추가)
     const buildAT = (items) => {
-        let h = `<div class="table-wrapper"><table><thead><tr><th style="width:95px;">역사</th><th>장비 상세</th></tr></thead><tbody>`;
-        items.forEach(d => {
-            h += `<tr><td class="st-name">${d.name}</td><td><div class="units-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:5px;">`;
-            d.units.forEach(u => { h += `<div class="unit-box ${u.res.c}" style="padding:5px; border-radius:5px; font-size:0.75rem;"><strong>${u.label}</strong><div>${formatToHMS(u.val)}</div></div>`; });
-            h += `</div></td></tr>`;
-        }); return h + `</tbody></table></div>`;
+        if (currentLine === 'line1') {
+            // 1호선용 3컬럼 테이블
+            let h = `<div class="table-wrapper"><table><thead><tr><th>역사</th><th>01호기 가동시간</th><th>판정</th></tr></thead><tbody>`;
+            items.forEach(d => {
+                const u = d.units[0];
+                const statusText = u.res.s === 'critical' ? '이상' : '정상';
+                const statusColor = u.res.s === 'critical' ? 'var(--danger)' : 'var(--success)';
+                h += `<tr><td class="st-name">${d.name}</td>
+                    <td class="${u.res.c}" style="font-weight:700;">${formatToHMS(u.val)}</td>
+                    <td><span style="font-weight:900; color:${statusColor}">${statusText}</span></td></tr>`;
+            });
+            return h + `</tbody></table></div>`;
+        } else {
+            // 2호선용 기존 그리드 스타일 유지 및 디자인 강화
+            let h = `<div class="table-wrapper"><table><thead><tr><th style="width:110px;">역사</th><th>기기별 상세 가동 현황 (호기순)</th></tr></thead><tbody>`;
+            items.forEach(d => {
+                h += `<tr><td class="st-name">${d.name}</td><td><div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(110px, 1fr)); gap:8px; padding:10px;">`;
+                d.units.forEach(u => { 
+                    const borderStyle = u.res.s === 'critical' ? '2px solid var(--danger)' : '1px solid var(--border)';
+                    const bgStyle = u.res.s === 'critical' ? 'var(--danger-bg)' : '#fff';
+                    h += `<div style="padding:10px 5px; border-radius:10px; font-size:0.82rem; border:${borderStyle}; background:${bgStyle};">
+                        <div style="color:#64748b; font-size:0.75rem; margin-bottom:4px;">${u.label}</div>
+                        <div style="font-weight:800; color:${u.res.s==='critical'?'var(--danger)':'var(--dark)'}">${formatToHMS(u.val)}</div>
+                    </div>`; 
+                });
+                h += `</div></td></tr>`;
+            }); 
+            return h + `</tbody></table></div>`;
+        }
     };
+    
     const buildCol = (branch, side) => {
-        const sH = data.hvac.filter(d => branch.stations.includes(d.name)); const sV = data.vent.filter(d => branch.stations.includes(d.name)); const sC = data.chiller.filter(d => branch.stations.includes(d.name)); const sA = data.air.filter(d => branch.stations.includes(d.name));
-        return `<div class="branch-column"><div class="branch-header">${branch.name} 상세</div>
-            <button class="toggle-btn" onclick="toggleDetail(this,'${side}h')">📊 공조기 상세내역 <span>▾</span></button><div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
-            <button class="toggle-btn" onclick="toggleDetail(this,'${side}v')">🌪️ 송풍기 상세내역 <span>▾</span></button><div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
-            ${isCooling?`<button class="toggle-btn" onclick="toggleDetail(this,'${side}c')">❄️ 냉동기 합산내역 <span>▾</span></button><div id="${side}c" class="detail-content">${buildT(sC, ["가동시간"])}</div>`:''}
-            <button class="toggle-btn" onclick="toggleDetail(this,'${side}a')">🌬️ 청정기 상세내역 <span>▾</span></button><div id="${side}a" class="detail-content">${buildAT(sA)}</div>
+        const sH = data.hvac.filter(d => branch.stations.includes(d.name)); 
+        const sV = data.vent.filter(d => branch.stations.includes(d.name)); 
+        const sC = data.chiller.filter(d => branch.stations.includes(d.name)); 
+        const sA = data.air.filter(d => branch.stations.includes(d.name));
+        
+        return `<div class="branch-column">
+            <div class="branch-header">${branch.name} 종합 내역</div>
+            <button class="toggle-btn" onclick="toggleDetail(this,'${side}h')">⚙️ 공조기 상세내역 <span>▾</span></button>
+            <div id="${side}h" class="detail-content">${buildT(sH, hL)}</div>
+            
+            <button class="toggle-btn" onclick="toggleDetail(this,'${side}v')">🌪️ 송풍기 상세내역 <span>▾</span></button>
+            <div id="${side}v" class="detail-content">${buildT(sV, ["시급","시배","종급","종배"])}</div>
+            
+            ${isCooling?`
+            <button class="toggle-btn" onclick="toggleDetail(this,'${side}c')">❄️ 냉동기 합산내역 <span>▾</span></button>
+            <div id="${side}c" class="detail-content">${buildT(sC, ["가동시간"])}</div>` : ''}
+            
+            <button class="toggle-btn" onclick="toggleDetail(this,'${side}a')">🌬️ 공기청정기 상세내역 <span>▾</span></button>
+            <div id="${side}a" class="detail-content">${buildAT(sA)}</div>
         </div>`;
     };
     document.getElementById('details-section').innerHTML = buildCol(br.left, 'l') + buildCol(br.right, 'r');
