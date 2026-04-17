@@ -9,132 +9,73 @@
         @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 
         :root {
-            --primary: #0052cc;
-            --primary-dark: #003a99;
-            --primary-light: #e8f0fe;
-            --dark: #0f172a;
-            --mid: #334155;
-            --bg: #f4f6fb;
-            --danger: #e11d48;
-            --danger-light: #fff1f4;
-            --warning: #d97706;
-            --warning-light: #fffbeb;
-            --success: #059669;
-            --success-light: #ecfdf5;
-            --border: #dde3ef;
-            --na: #94a3b8;
-            --sidebar-w: 320px;
-            --header-h: 58px;
+            --primary: #0052cc; --primary-dark: #003a99; --primary-light: #e8f0fe;
+            --dark: #0f172a; --mid: #334155; --bg: #f4f6fb;
+            --danger: #e11d48; --danger-light: #fff1f4;
+            --warning: #d97706; --warning-light: #fffbeb;
+            --success: #059669; --success-light: #ecfdf5;
+            --border: #dde3ef; --na: #94a3b8;
+            --sidebar-w: 320px; --header-h: 58px;
             --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
             --shadow-md: 0 4px 16px rgba(0,52,153,0.08);
             --shadow-lg: 0 20px 40px rgba(0,0,0,0.12);
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Pretendard', sans-serif; background: var(--bg); color: var(--dark); line-height: 1.6; overflow: hidden; height: 100vh; }
 
-        body {
-            font-family: 'Pretendard', sans-serif;
-            background: var(--bg);
-            color: var(--dark);
-            line-height: 1.6;
-            overflow: hidden;
-            height: 100vh;
-        }
-
-        /* ───── HEADER ───── */
-        .app-header {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-            height: var(--header-h);
-            background: var(--primary-dark);
-            display: flex; align-items: center;
-            padding: 0 24px; gap: 20px;
-            box-shadow: 0 2px 12px rgba(0,0,0,0.18);
-        }
-        .header-logo {
-            display: flex; align-items: center; gap: 10px;
-            color: white; font-size: 1rem; font-weight: 900;
-            white-space: nowrap; letter-spacing: -0.3px;
-        }
-        .header-logo .logo-icon {
-            width: 32px; height: 32px; background: rgba(255,255,255,0.15);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.1rem;
-        }
+        /* HEADER */
+        .app-header { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: var(--header-h); background: var(--primary-dark); display: flex; align-items: center; padding: 0 24px; gap: 20px; box-shadow: 0 2px 12px rgba(0,0,0,0.18); }
+        .header-logo { display: flex; align-items: center; gap: 10px; color: white; font-size: 1rem; font-weight: 900; white-space: nowrap; }
+        .header-logo .logo-icon { width: 32px; height: 32px; background: rgba(255,255,255,0.15); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; }
         .header-pills { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .header-pill {
-            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-            color: white; padding: 4px 14px; border-radius: 20px;
-            font-size: 0.82rem; font-weight: 700; white-space: nowrap;
-            display: flex; align-items: center; gap: 5px;
-        }
+        .header-pill { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 4px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; white-space: nowrap; }
         .header-actions { display: flex; align-items: center; gap: 8px; }
-        .header-btn {
-            background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25);
-            color: white; padding: 6px 14px; border-radius: 20px;
-            font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.2s;
-            white-space: nowrap;
-        }
+        .header-btn { background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.25); color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: 0.2s; white-space: nowrap; }
         .header-btn.upload-btn { background: white; color: var(--primary-dark); border-color: white; }
 
         .app-shell { display: flex; margin-top: var(--header-h); height: calc(100vh - var(--header-h)); }
 
-        /* ───── SIDEBAR ───── */
-        .sidebar {
-            width: var(--sidebar-w); min-width: var(--sidebar-w);
-            background: white; border-right: 1px solid var(--border);
-            overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column;
-            box-shadow: 2px 0 12px rgba(0,0,0,0.04);
-        }
-        .sidebar-header {
-            padding: 16px 18px 12px; border-bottom: 1px solid var(--border);
-            background: white; position: sticky; top: 0; z-index: 10;
-        }
+        /* SIDEBAR */
+        .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: white; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); background: white; position: sticky; top: 0; z-index: 10; }
         .sidebar-title { font-size: 0.78rem; font-weight: 800; color: var(--na); text-transform: uppercase; }
         .sidebar-branch-name { font-size: 1rem; font-weight: 900; color: var(--dark); margin-top: 2px; }
         .progress-bar-wrap { margin-top: 10px; background: #f1f5f9; border-radius: 99px; height: 6px; overflow: hidden; }
         .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--primary), #60a5fa); transition: width 0.4s ease; }
-        .progress-label { font-size: 0.73rem; color: var(--na); font-weight: 700; margin-top: 5px; display: flex; justify-content: space-between; }
 
         .sidebar-group { padding: 12px 14px 4px; }
         .sidebar-group-title { font-size: 0.72rem; font-weight: 800; color: var(--na); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .sidebar-group-title::before { content: ''; width: 3px; height: 11px; background: var(--primary); border-radius: 2px; }
-        .checklist-item {
-            display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px;
-            border: 1.5px solid #fbd0d9; background: #fff8f9; margin-bottom: 5px; cursor: pointer; transition: 0.2s;
-        }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; border: 1.5px solid #fbd0d9; background: #fff8f9; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
         .checklist-item.done { border-color: #d1fae5; background: #f0fdf4; opacity: 0.6; }
         .checklist-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #fbb6c4; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
         .checklist-item.done .checklist-check { background: var(--success); border-color: var(--success); color: white; }
         .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; }
         .checklist-item.done .checklist-label { color: var(--success); text-decoration: line-through; }
         .checklist-val { font-size: 0.72rem; font-weight: 700; color: var(--danger); background: #fce7ec; padding: 2px 7px; border-radius: 6px; }
-
         .sidebar-all-clear { margin: 12px 14px; padding: 14px 12px; border-radius: 12px; background: var(--success-light); border: 1.5px solid #a7f3d0; text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--success); }
 
-        /* ───── MAIN CONTENT ───── */
+        /* MAIN CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding: 24px 28px 48px; }
-
-        /* ───── GRID LAYOUT ───── */
         .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; align-items: start; }
-
         .upload-screen { display: flex; align-items: center; justify-content: center; height: 100%; }
         .upload-card { background: white; border-radius: 24px; padding: 60px; box-shadow: var(--shadow-md); border: 2px dashed #c5d3e8; text-align: center; cursor: pointer; max-width: 500px; width: 100%; }
         
+        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(10, 20, 50, 0.55); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-box { background: white; border-radius: 24px; padding: 36px 32px; box-shadow: var(--shadow-lg); width: 460px; }
-        .modal-title { font-size: 1.3rem; font-weight: 900; color: var(--dark); margin-bottom: 6px; }
-        .modal-sub { font-size: 0.88rem; color: var(--na); font-weight: 600; margin-bottom: 28px; }
         .modal-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 25px; }
         .modal-choice { border: 2px solid var(--border); border-radius: 16px; padding: 22px 18px; cursor: pointer; text-align: center; transition: 0.2s; }
         .modal-choice:hover { border-color: var(--primary); background: var(--primary-light); transform: translateY(-2px); }
 
+        /* SUMMARY GRID */
         .summary-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
         .alert-card { background: white; border-radius: 20px; padding: 22px; border-left: 8px solid var(--danger); box-shadow: var(--shadow-sm); border-top: 1px solid var(--border); border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
         .alert-card.ok { border-left-color: var(--success); }
         .alert-card.full-width { grid-column: 1 / -1; }
         .alert-title { font-weight: 900; font-size: 1rem; margin-bottom: 12px; color: var(--dark); display: flex; justify-content: space-between; align-items: center; }
-        
         .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .badge-item { background: #fff1f2; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffe4e6; transition: 0.2s; cursor: pointer; }
         .badge-item.checked { opacity: 0.4; text-decoration: line-through; background: #f1f5f9; color: var(--na); border-color: var(--border); }
@@ -152,10 +93,7 @@
         .detail-section-title { font-size: 0.85rem; font-weight: 900; color: var(--mid); margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
         .detail-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
-        .accordion-btn {
-            width: 100%; padding: 12px 16px; margin-bottom: 6px; border-radius: 12px; border: 1px solid var(--border);
-            background: white; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
-        }
+        .accordion-btn { width: 100%; padding: 12px 16px; margin-bottom: 6px; border-radius: 12px; border: 1px solid var(--border); background: white; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
         .accordion-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .accordion-btn .acc-badge { background: rgba(225,29,72,0.12); color: var(--danger); font-size: 0.7rem; padding: 1px 7px; border-radius: 8px; font-weight: 800; margin-left: 8px; }
         .accordion-btn.active .acc-badge { background: rgba(255,255,255,0.25); color: white; }
@@ -165,7 +103,7 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #f8fafc; padding: 9px 6px; font-size: 0.72rem; color: var(--na); border-bottom: 1px solid var(--border); }
         td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.86rem; font-weight: 600; }
-        .td-station { font-weight: 900; color: var(--primary); background: #f8faff !important; width: 100px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 12px; }
+        .td-station { font-weight: 900; color: var(--primary); background: #f8faff !important; width: 100px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 15px; }
         .critical-val { background: var(--danger) !important; color: white !important; }
         .bad-val { background: #fffbeb !important; color: #b45309 !important; }
 
@@ -210,18 +148,13 @@
 </div>
 
 <script>
-/**
- * [모듈 1] 데이터 처리 유틸리티
- */
+/* 유틸리티 모듈 */
 const DataUtils = {
     parseH: (v) => {
         if(!v || v==="" || v==="-" || v==="N/A") return 0;
         if(typeof v === 'number') return v * 24;
         let s = String(v).trim();
-        if(s.includes(':')) {
-            let p = s.split(':'); 
-            return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600;
-        }
+        if(s.includes(':')) { let p = s.split(':'); return (parseInt(p[0])||0) + (parseInt(p[1])||0)/60 + (parseInt(p[2])||0)/3600; }
         return parseFloat(s) || 0;
     },
     formatToHMS: (v) => {
@@ -230,112 +163,59 @@ const DataUtils = {
         let ts = Math.round(h * 3600);
         return `${Math.floor(ts/3600)}:${String(Math.floor((ts%3600)/60)).padStart(2,'0')}:${String(ts%60).padStart(2,'0')}`;
     },
-    getCV: (s, r, c) => {
-        let cell = s[XLSX.utils.encode_cell({r,c})];
-        return cell ? (cell.w || String(cell.v || "")) : "";
-    }
+    getCV: (s, r, c) => { let cell = s[XLSX.utils.encode_cell({r,c})]; return cell ? (cell.w || String(cell.v || "")) : ""; }
 };
 
-/**
- * [모듈 2] 분석 엔진
- */
+/* 분석 로직 모듈 */
 const AnalysisEngine = {
     analyzeHVAC: (val, st, type) => {
         if (CONFIG.NO_EQUIP[st] && (CONFIG.NO_EQUIP[st].includes("공조기") || CONFIG.NO_EQUIP[st].includes(type))) return { s: 'none', c: 'na-text' };
-        const h = (typeof val === 'number') ? val : DataUtils.parseH(val);
+        const h = DataUtils.parseH(val);
         if (!isCooling) {
             const cleanSt = st.replace(/\s+/g,"");
             const sk = (cleanSt === "반월당" && currentLine === 'line1') ? "반월당(1호선)" : cleanSt;
             const tNum = CONFIG.ST_NOR_TYPE[sk] || 4;
             const target = (tNum === 1) ? 17 : (tNum === 2 ? 15 : (tNum === 3 ? 15.5 : 16.5));
-            if (type === 'supply') {
-                if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'critical-val' };
-                return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
-            } else {
-                return h <= (10/60) ? { s: 'critical', c: 'critical-val' } : (h <= 0.5 ? { s: 'warning', c: '' } : { s: 'ok', c: '' });
-            }
+            if (type === 'supply') { if (Math.abs(h - target) >= 5) return { s: 'critical', c: 'row-critical' }; return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: '' }; }
+            else { return h <= (10/60) ? { s: 'critical', c: 'row-critical' } : (h <= 0.5 ? { s: 'warning', c: '' } : { s: 'ok', c: '' }); }
         } else {
             const cleanSt = st.replace(/\s+/g,"");
             const tNum = CONFIG.ST_COOL_TYPE[cleanSt] || 3;
             const chKey = (cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt;
             const chTg = CONFIG.CHILLER_VALS[chKey] || 9.0;
-            if (type === 'supply') {
-                if (tNum === 1) {
-                    if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'critical-val' };
-                    return (h >= 10 && h <= 13) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
-                } else if (tNum === 2) {
-                    return (h >= 7.5 && h <= 10.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
-                } else {
-                    return (Math.abs(h - chTg) > 2) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
-                }
-            } else {
-                if (h < 0.5 || h >= 4) return { s: 'critical', c: 'critical-val' };
-                return (h >= 0.5 && h <= 3.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
-            }
+            if (type === 'supply') { if (tNum === 1) { if (Math.abs(h - 12) >= 4) return { s: 'critical', c: 'row-critical' }; return (h >= 10 && h <= 13) ? { s: 'ok', c: '' } : { s: 'warning', c: '' }; } else if (tNum === 2) { return (h >= 7.5 && h <= 10.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' }; } else { return (Math.abs(h - chTg) > 2) ? { s: 'critical', c: 'row-critical' } : { s: 'ok', c: '' }; } }
+            else { if (h < 0.5 || h >= 4) return { s: 'critical', c: 'row-critical' }; return (h >= 0.5 && h <= 3.5) ? { s: 'ok', c: '' } : { s: 'warning', c: '' }; }
         }
     },
     analyzeVent: (val, isR, st) => {
         if (CONFIG.NO_EQUIP[st] && CONFIG.NO_EQUIP[st].includes("송풍기")) return { s: 'none', c: 'na-cell' };
-        const h = (typeof val === 'number') ? val : DataUtils.parseH(val);
+        const h = DataUtils.parseH(val);
         const cSt = st.replace(/\s+/g,"").replace("(2)","");
-        if (cSt === "대실" || cSt === "범어") {
-            const limit = (ventSeason === '하절기') ? 20 : 5;
-            return (h >= limit) ? { s: 'critical', c: 'row-critical' } : { s: 'ok', c: '' };
-        }
+        if (cSt === "대실" || cSt === "범어") { const limit = (ventSeason === '하절기') ? 20 : 5; return (h >= limit) ? { s: 'critical', c: 'row-critical' } : { s: 'ok', c: '' }; }
         let target = (ventSeason === '간절기') ? 3 : (ventSeason === '하절기' ? (isR ? 10.8 : 9.8) : 2);
-        if (currentLine === 'line1') {
-            if (cSt === "중앙로" && isR) target = 19;
-            if (cSt === "칠성시장" && !isR) target = 19;
-            if (cSt === "방촌" && !isR) target = 19;
-            if (cSt === "송현" && isR) target = 19;
-        } else if (currentLine === 'line2') {
-            if (cSt === "반월당") target = 19;
-            if (cSt === "수성알파" && isR) target = 19;
-            if (cSt === "수성구청" && isR) target = 19;
-            if (cSt === "연호" && isR) target = 19;
-        }
-        if (ventSeason === '하절기') {
-            if (["명덕","연호","임당","영남대"].some(s => cSt.includes(s)) && isR) target = 17.8;
-            if (cSt === "고산" && isR) target = 6.5;
-            if (cSt === "신매" && !isR) target = 5.5;
-            if (cSt === "정평" && isR) target = 5.5;
-            if (cSt === "이곡") target = 4.5;
-        }
+        if (currentLine === 'line1') { if (cSt === "중앙로" && isR) target = 19; if (cSt === "칠성시장" && !isR) target = 19; if (cSt === "방촌" && !isR) target = 19; if (cSt === "송현" && isR) target = 19; }
+        else if (currentLine === 'line2') { if (cSt === "반월당") target = 19; if (cSt === "수성알파" && isR) target = 19; if (cSt === "수성구청" && isR) target = 19; if (cSt === "연호" && isR) target = 19; }
+        if (ventSeason === '하절기') { if (["명덕","연호","임당","영남대"].some(s => cSt.includes(s)) && isR) target = 17.8; if (cSt === "고산" && isR) target = 6.5; if (cSt === "신매" && !isR) target = 5.5; if (cSt === "정평" && isR) target = 5.5; if (cSt === "이곡") target = 4.5; }
         if (h === 0 || Math.abs(h - target) >= 2) return { s: 'critical', c: 'row-critical' };
-        if (Math.abs(h - target) <= 1.5) return { s: 'ok', c: '' };
-        return { s: 'warning', c: '' };
+        if (Math.abs(h - target) <= 1.5) return { s: 'ok', c: '' }; return { s: 'warning', c: '' };
     },
     analyzeAir: (val) => {
-        const h = DataUtils.parseH(val);
-        if (h === 0) return { s: 'none', c: '' };
+        const h = DataUtils.parseH(val); if (h === 0) return { s: 'none', c: '' };
         if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'row-critical' };
         return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: '' };
     }
 };
 
-/**
- * [모듈 3] 데이터 추출기
- */
+/* 데이터 추출 모듈 */
 const Extractor = {
     getLine1(s) {
         const res = { hvac: [], vent: [], chiller: [], air: [] };
         const allSt = CONFIG.BRANCHES.line1.left.stations.concat(CONFIG.BRANCHES.line1.right.stations);
         allSt.forEach((st) => {
             let c, hR, vR, cV, aV;
-            if (st === "설화명곡") {
-                c = 5; hR = [DataUtils.getCV(s,81,c),DataUtils.getCV(s,82,c),DataUtils.getCV(s,89,c),DataUtils.getCV(s,90,c)];
-                vR = [DataUtils.getCV(s,97,c),DataUtils.getCV(s,98,c),DataUtils.getCV(s,99,c),DataUtils.getCV(s,100,c)];
-                cV = DataUtils.parseH(DataUtils.getCV(s,155,c)) + DataUtils.parseH(DataUtils.getCV(s,156,c)); aV = DataUtils.getCV(s,179,c);
-            } else if (st === "화원") {
-                c = 4; hR = [DataUtils.getCV(s,81,c),DataUtils.getCV(s,82,c),DataUtils.getCV(s,89,c),DataUtils.getCV(s,90,c)];
-                vR = [DataUtils.getCV(s,97,c),DataUtils.getCV(s,98,c),DataUtils.getCV(s,99,c),DataUtils.getCV(s,100,c)];
-                cV = DataUtils.parseH(DataUtils.getCV(s,155,c)) + DataUtils.parseH(DataUtils.getCV(s,156,c)); aV = DataUtils.getCV(s,179,c);
-            } else {
-                c = CONFIG.L1_ST_LIST.indexOf(st) + 4;
-                hR = [DataUtils.getCV(s,5,c),DataUtils.getCV(s,6,c),DataUtils.getCV(s,13,c),DataUtils.getCV(s,14,c)];
-                vR = [DataUtils.getCV(s,19,c),DataUtils.getCV(s,20,c),DataUtils.getCV(s,21,c),DataUtils.getCV(s,22,c)];
-                cV = DataUtils.parseH(DataUtils.getCV(s,56,c)); aV = DataUtils.getCV(s,75,c);
-            }
+            if (st === "설화명곡") { c = 5; hR = [DataUtils.getCV(s,81,c),DataUtils.getCV(s,82,c),DataUtils.getCV(s,89,c),DataUtils.getCV(s,90,c)]; vR = [DataUtils.getCV(s,97,c),DataUtils.getCV(s,98,c),DataUtils.getCV(s,99,c),DataUtils.getCV(s,100,c)]; cV = DataUtils.parseH(DataUtils.getCV(s,155,c)) + DataUtils.parseH(DataUtils.getCV(s,156,c)); aV = DataUtils.getCV(s,179,c); }
+            else if (st === "화원") { c = 4; hR = [DataUtils.getCV(s,81,c),DataUtils.getCV(s,82,c),DataUtils.getCV(s,89,c),DataUtils.getCV(s,90,c)]; vR = [DataUtils.getCV(s,97,c),DataUtils.getCV(s,98,c),DataUtils.getCV(s,99,c),DataUtils.getCV(s,100,c)]; cV = DataUtils.parseH(DataUtils.getCV(s,155,c)) + DataUtils.parseH(DataUtils.getCV(s,156,c)); aV = DataUtils.getCV(s,179,c); }
+            else { c = CONFIG.L1_ST_LIST.indexOf(st) + 4; hR = [DataUtils.getCV(s,5,c),DataUtils.getCV(s,6,c),DataUtils.getCV(s,13,c),DataUtils.getCV(s,14,c)]; vR = [DataUtils.getCV(s,19,c),DataUtils.getCV(s,20,c),DataUtils.getCV(s,21,c),DataUtils.getCV(s,22,c)]; cV = DataUtils.parseH(DataUtils.getCV(s,56,c)); aV = DataUtils.getCV(s,75,c); }
             res.hvac.push({ name: st, raw: hR, res: hR.map((v,i) => AnalysisEngine.analyzeHVAC(v,st,i%2===0?'supply':'exhaust')), isCri: false });
             res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r => r.s==='critical');
             res.vent.push({ name: st, raw: vR, res: vR.map((v,i) => AnalysisEngine.analyzeVent(v,i>=2,st)), isCri: false });
@@ -349,47 +229,20 @@ const Extractor = {
         const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
         const rg = XLSX.utils.decode_range(s['!ref']);
         allSt.forEach(stName => {
-            if (stName === "문양") {
-                res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), isCri:false });
-                res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), unitNames:["-","-","-","-"], isCri:false });
-            }
+            if (stName === "문양") { res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), isCri:false }); res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), unitNames:["-","-","-","-"], isCri:false }); }
             const mn = stName.replace(/\s+/g,""); let fR = -1;
             for (let r = 0; r <= rg.e.r; r++) { if ((DataUtils.getCV(s,r,0)+DataUtils.getCV(s,r,1)).replace(/\s+/g,"").includes(mn)) { fR=r; break; } }
             if (fR !== -1) {
-                if (stName !== "문양") {
-                    const isSp = ["정평","임당","영대","영남대"].some(sp => stName.includes(sp));
-                    let hL=DataUtils.getCV(s,fR+5,4), hLe=DataUtils.getCV(s,fR+6,4), hR=DataUtils.getCV(s,fR+(isSp?9:8),4), hRe=DataUtils.getCV(s,fR+(isSp?10:9),4);
-                    res.hvac.push({ name:stName, raw:[hL,hLe,hR,hRe], res:[AnalysisEngine.analyzeHVAC(hL,stName,'supply'),AnalysisEngine.analyzeHVAC(hLe,stName,'exhaust'),AnalysisEngine.analyzeHVAC(hR,stName,'supply'),AnalysisEngine.analyzeHVAC(hRe,stName,'exhaust')], isCri:false });
-                    res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r=>r.s==='critical');
-                }
-                let unitsV=[], chSum=0, chFound=false;
-                if (stName==="문양") { chSum=DataUtils.parseH(DataUtils.getCV(s,5,4)); chFound=true; }
+                if (stName !== "문양") { const isSp = ["정평","임당","영대","영남대"].some(sp => stName.includes(sp)); let hL=DataUtils.getCV(s,fR+5,4), hLe=DataUtils.getCV(s,fR+6,4), hR=DataUtils.getCV(s,fR+(isSp?9:8),4), hRe=DataUtils.getCV(s,fR+(isSp?10:9),4); res.hvac.push({ name:stName, raw:[hL,hLe,hR,hRe], res:[AnalysisEngine.analyzeHVAC(hL,stName,'supply'),AnalysisEngine.analyzeHVAC(hLe,stName,'exhaust'),AnalysisEngine.analyzeHVAC(hR,stName,'supply'),AnalysisEngine.analyzeHVAC(hRe,stName,'exhaust')], isCri:false }); res.hvac[res.hvac.length-1].isCri = res.hvac[res.hvac.length-1].res.some(r=>r.s==='critical'); }
+                let unitsV=[], chSum=0, chFound=false; if (stName==="문양") { chSum=DataUtils.parseH(DataUtils.getCV(s,5,4)); chFound=true; }
                 const isBWD = stName==="반월당"; const vNameCol=isBWD?16:11, vValCol=isBWD?19:14;
-                for (let r=fR; r<fR+55&&r<=rg.e.r; r++) {
-                    if (stName!=="문양") {
-                        let vName=DataUtils.getCV(s,r,vNameCol).replace(/\s+/g,""); let vVal=DataUtils.getCV(s,r,vValCol);
-                        if (vName.includes("환기실")) unitsV.push({l:vName.replace("환기실","").trim(),v:vVal,r:AnalysisEngine.analyzeVent(vVal,(vName.includes("우")||vName.includes("종점")),stName)});
-                    }
-                    if (DataUtils.getCV(s,r,0).includes("냉동기")&&stName!=="문양") { chSum+=DataUtils.parseH(DataUtils.getCV(s,r,4)); chFound=true; }
-                }
+                for (let r=fR; r<fR+55&&r<=rg.e.r; r++) { if (stName!=="문양") { let vName=DataUtils.getCV(s,r,vNameCol).replace(/\s+/g,""); let vVal=DataUtils.getCV(s,r,vValCol); if (vName.includes("환기실")) unitsV.push({l:vName.replace("환기실","").trim(),v:vVal,r:AnalysisEngine.analyzeVent(vVal,(vName.includes("우")||vName.includes("종점")),stName)}); } if (DataUtils.getCV(s,r,0).includes("냉동기")&&stName!=="문양") { chSum+=DataUtils.parseH(DataUtils.getCV(s,r,4)); chFound=true; } }
                 if (stName!=="문양"&&unitsV.length>0) res.vent.push({name:stName,raw:unitsV.slice(0,4).map(u=>u.v),res:unitsV.slice(0,4).map(u=>u.r),unitNames:unitsV.slice(0,4).map(u=>u.l),isCri:unitsV.some(u=>u.r.s==='critical')});
-                if (chFound&&isCooling) {
-                    const sk=(stName==="반월당")?"반월당(2호선)":stName;
-                    const isC=(chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3);
-                    res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'row-critical':''}],isCri:isC});
-                }
+                if (chFound&&isCooling) { const sk=(stName==="반월당")?"반월당(2호선)":stName; const isC=(chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3); res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'row-critical':''}],isCri:isC}); }
                 if (apSheet) {
                     let rawUnits=[]; let apR=-1; const apRg=XLSX.utils.decode_range(apSheet['!ref']);
                     for(let r=0;r<=apRg.e.r;r++){if(DataUtils.getCV(apSheet,r,0).replace(/\s+/g,"").includes(mn)){apR=r;break;}}
-                    if (apR !== -1) {
-                        for(let r=apR;r<apR+50&&r<=apRg.e.r;r++){
-                            const nL=DataUtils.getCV(apSheet,r,1),vL=DataUtils.getCV(apSheet,r,4),nR=DataUtils.getCV(apSheet,r,6),vR=DataUtils.getCV(apSheet,r,9);
-                            if(nL&&nL!=="장비명"&&!nL.includes("스마트")&&vL!==""){rawUnits.push({label:nL.trim().substring(0,2)+"호기",val:vL,res:AnalysisEngine.analyzeAir(vL)});}
-                            if(nR&&nR!=="장비명"&&!nR.includes("스마트")&&vR!==""){rawUnits.push({label:nR.trim().substring(0,2)+"호기",val:vR,res:AnalysisEngine.analyzeAir(vR)});}
-                            if(r>apR+5&&!nL&&!nR)break;
-                        }
-                        rawUnits.sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true}));
-                    }
+                    if (apR !== -1) { for(let r=apR;r<apR+50&&r<=apRg.e.r;r++){ const nL=DataUtils.getCV(apSheet,r,1),vL=DataUtils.getCV(apSheet,r,4),nR=DataUtils.getCV(apSheet,r,6),vR=DataUtils.getCV(apSheet,r,9); if(nL&&nL!=="장비명"&&!nL.includes("스마트")&&vL!==""){rawUnits.push({label:nL.trim().substring(0,2)+"호기",val:vL,res:AnalysisEngine.analyzeAir(vL)});} if(nR&&nR!=="장비명"&&!nR.includes("스마트")&&vR!==""){rawUnits.push({label:nR.trim().substring(0,2)+"호기",val:vR,res:AnalysisEngine.analyzeAir(vR)});} if(r>apR+5&&!nL&&!nR)break; } rawUnits.sort((a,b)=>a.label.localeCompare(b.label,undefined,{numeric:true})); }
                     if (rawUnits.length>0) res.air.push({name:stName,units:rawUnits,isCri:rawUnits.some(a=>a.res.s==='critical')});
                 }
             }
@@ -397,9 +250,7 @@ const Extractor = {
     }
 };
 
-/**
- * [모듈 4] UI 렌더러
- */
+/* UI 렌더러 모듈 */
 const UI_Renderer = {
     buildTable: (items, labels) => {
         let h = `<table><thead><tr><th style="width:100px;text-align:left;padding-left:15px;">역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
@@ -446,13 +297,9 @@ const UI_Renderer = {
     }
 };
 
-/**
- * [모듈 5] 컨트롤러
- */
+/* 컨트롤러 모듈 */
 const AppController = {
-    init: () => {
-        document.getElementById('excelFile').addEventListener('change', AppController.handleFileUpload);
-    },
+    init: () => { document.getElementById('excelFile').addEventListener('change', AppController.handleFileUpload); },
     handleFileUpload: (e) => {
         const file = e.target.files[0]; if (!file) return;
         currentLine = file.name.includes("일보") ? 'line2' : 'line1';
@@ -483,12 +330,7 @@ const AppController = {
         `;
         document.getElementById('branchModal').classList.add('active');
     },
-    selectBranch: (side) => {
-        selectedBranch = side;
-        document.getElementById('branchModal').classList.remove('active');
-        document.querySelector('.upload-screen')?.remove();
-        AppController.render();
-    },
+    selectBranch: (side) => { selectedBranch = side; document.getElementById('branchModal').classList.remove('active'); document.querySelector('.upload-screen')?.remove(); AppController.render(); },
     render: () => {
         const br = CONFIG.BRANCHES[currentLine];
         let branches = (selectedBranch === 'both') ? [br.left, br.right] : [br[selectedBranch]];
@@ -507,26 +349,20 @@ const AppController = {
         document.getElementById('main-content').innerHTML = mainHtml;
     },
     buildBranchUI: (branch) => {
-        const cH_cnt = globalData.hvac.filter(d => branch.stations.includes(d.name) && d.isCri).length;
-        const cV_cnt = globalData.vent.filter(d => branch.stations.includes(d.name) && d.isCri).length;
-        const cC_cnt = globalData.chiller.filter(d => branch.stations.includes(d.name) && d.isCri).length;
-        const cA_cnt = globalData.air.filter(d => branch.stations.includes(d.name) && d.isCri).length;
-        
+        const data = globalData;
+        const sH = data.hvac.filter(d => branch.stations.includes(d.name)), sV = data.vent.filter(d => branch.stations.includes(d.name)), sC = data.chiller.filter(d => branch.stations.includes(d.name)), sA = data.air.filter(d => branch.stations.includes(d.name));
+        const cH_cnt = sH.filter(d=>d.isCri).length, cV_cnt = sV.filter(d=>d.isCri).length, cC_cnt = sC.filter(d=>d.isCri).length, cA_cnt = sA.filter(d=>d.isCri).length;
+
         let sumHtml = '<div class="summary-grid">';
         if (cH_cnt+cV_cnt+cC_cnt+cA_cnt === 0) sumHtml += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
         else {
-            sumHtml += UI_Renderer.buildAlertCard('승강장공조기', globalData.hvac.filter(d => branch.stations.includes(d.name) && d.isCri), 'hvac');
-            sumHtml += UI_Renderer.buildAlertCard('환기실송풍기', globalData.vent.filter(d => branch.stations.includes(d.name) && d.isCri), 'vent');
-            if (isCooling) {
-                sumHtml += UI_Renderer.buildAlertCard('냉동기', globalData.chiller.filter(d => branch.stations.includes(d.name) && d.isCri), 'chiller');
-                sumHtml += UI_Renderer.buildAlertCard('공기청정기', globalData.air.filter(d => branch.stations.includes(d.name) && d.isCri), 'air');
-            } else {
-                sumHtml += UI_Renderer.buildAlertCard('공기청정기', globalData.air.filter(d => branch.stations.includes(d.name) && d.isCri), 'air', true);
-            }
+            sumHtml += UI_Renderer.buildAlertCard('승강장공조기', sH.filter(d=>d.isCri), 'hvac');
+            sumHtml += UI_Renderer.buildAlertCard('환기실송풍기', sV.filter(d=>d.isCri), 'vent');
+            if (isCooling) { sumHtml += UI_Renderer.buildAlertCard('냉동기', sC.filter(d=>d.isCri), 'chiller'); sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
+            else { sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air', true); }
         }
         sumHtml += '</div>';
 
-        const sH = globalData.hvac.filter(d => branch.stations.includes(d.name)), sV = globalData.vent.filter(d => branch.stations.includes(d.name)), sC = globalData.chiller.filter(d => branch.stations.includes(d.name)), sA = globalData.air.filter(d => branch.stations.includes(d.name));
         let detailHtml = `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('⚙️ 공조기 상세내역', cH_cnt, UI_Renderer.buildTable(sH, ["시급","시배","종급","종배"]), 'h'+branch.name) + `</div>`;
         detailHtml += `<div>` + UI_Renderer.buildAccordion('🌪️ 송풍기 상세내역', cV_cnt, UI_Renderer.buildTable(sV, ["시급","시배","종급","종배"]), 'v'+branch.name) + `</div></div>`;
         detailHtml += `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('🌬️ 공기청정기 상세내역', cA_cnt, UI_Renderer.buildTableAir(sA), 'a'+branch.name) + `</div>`;
@@ -537,10 +373,7 @@ const AppController = {
     renderSidebar: (branches) => {
         let itemsHtml = ''; totalItems = 0; doneItems = 0;
         branches.forEach(br => {
-            const cH = globalData.hvac.filter(d => br.stations.includes(d.name) && d.isCri);
-            const cV = globalData.vent.filter(d => br.stations.includes(d.name) && d.isCri);
-            const cC = globalData.chiller.filter(d => br.stations.includes(d.name) && d.isCri);
-            const cA = globalData.air.filter(d => br.stations.includes(d.name) && d.isCri);
+            const cH = globalData.hvac.filter(d => br.stations.includes(d.name) && d.isCri), cV = globalData.vent.filter(d => br.stations.includes(d.name) && d.isCri), cC = globalData.chiller.filter(d => br.stations.includes(d.name) && d.isCri), cA = globalData.air.filter(d => br.stations.includes(d.name) && d.isCri);
             if (branches.length > 1) itemsHtml += `<div style="padding:12px 18px 5px; font-weight:900; color:var(--primary); font-size:0.8rem;">📍 ${br.name}</div>`;
             const makeG = (icon, title, items, type) => {
                 if (items.length === 0) return ''; let h = `<div class="sidebar-group"><div class="sidebar-group-title">${icon} ${title}</div>`;
@@ -550,10 +383,10 @@ const AppController = {
             itemsHtml += makeG('⚙️','공조기', cH, 'hvac') + makeG('🌪️','송풍기', cV, 'vent') + makeG('❄️','냉동기', cC, 'chiller') + makeG('🌬️','청정기', cA, 'air');
         });
         document.getElementById('sidebar').innerHTML = `<div class="sidebar-header"><div class="sidebar-title">확인 필요 리스트</div><div class="sidebar-branch-name">${branches.map(b=>b.name).join(' / ')}</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-label"><span id="prog-done">0 / ${totalItems} 완료</span><span id="prog-pct">0%</span></div></div>${totalItems === 0 ? '<div class="sidebar-all-clear">✅ 모든 장비 정상</div>' : itemsHtml}`;
-        AppController.updateProg();
+        totalCount = totalItems; AppController.updateProg();
     },
     checkItem: (el) => { el.classList.toggle('done'); doneItems = document.querySelectorAll('.checklist-item.done').length; AppController.updateProg(); },
-    updateProg: () => { const pct = totalItems === 0 ? 100 : (doneItems / totalItems * 100); if(document.getElementById('prog-fill')) document.getElementById('prog-fill').style.width = pct + '%'; if(document.getElementById('prog-done')) document.getElementById('prog-done').textContent = `${doneItems} / ${totalItems} 완료`; if(document.getElementById('prog-pct')) document.getElementById('prog-pct').textContent = Math.round(pct) + '%'; },
+    updateProg: () => { const pct = totalCount === 0 ? 100 : (doneItems / totalCount * 100); if(document.getElementById('prog-fill')) document.getElementById('prog-fill').style.width = pct + '%'; if(document.getElementById('prog-done')) document.getElementById('prog-done').textContent = `${doneItems} / ${totalCount} 완료`; if(document.getElementById('prog-pct')) document.getElementById('prog-pct').textContent = Math.round(pct) + '%'; },
     toggleAcc: (btn) => { btn.classList.toggle('active'); btn.nextElementSibling.classList.toggle('active'); },
     switchTab: (s) => { const isL = s === 'l'; document.getElementById('tab-l').classList.toggle('active', isL); document.getElementById('tab-r').classList.toggle('active', !isL); document.getElementById('panel-l').style.display = isL ? '' : 'none'; document.getElementById('panel-r').style.display = isL ? 'none' : ''; }
 };
