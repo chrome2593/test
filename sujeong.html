@@ -48,12 +48,16 @@
         .sidebar-group { padding: 12px 14px 4px; }
         .sidebar-group-title { font-size: 0.72rem; font-weight: 800; color: var(--na); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .sidebar-group-title::before { content: ''; width: 3px; height: 11px; background: var(--primary); border-radius: 2px; }
-        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #fdf4f6; margin-bottom: 5px; cursor: pointer; transition: 0.2s; }
+        .checklist-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; background: #fdf4f6; margin-bottom: 5px; cursor: pointer; transition: 0.2s; border: 1.5px solid transparent; }
         .checklist-item.done { border-color: #d1fae5; background: #f0fdf4; opacity: 0.6; }
-        .checklist-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #dba0ae; background: white; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
+        .checklist-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #dba0ae; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
         .checklist-item.done .checklist-check { background: var(--success); border-color: var(--success); color: white; }
-        .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; }
+        .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; line-height: 1.3; }
+        .checklist-item.done .checklist-label { color: var(--success); text-decoration: line-through; }
         .checklist-val { font-size: 0.72rem; font-weight: 700; color: var(--danger); background: #f5dde2; padding: 2px 7px; border-radius: 6px; }
+        .checklist-item.done .checklist-val { background: #d1fae5; color: var(--success); }
+
+        .sidebar-all-clear { margin: 12px 14px; padding: 14px 12px; border-radius: 12px; background: var(--success-light); border: 1.5px solid #a7f3d0; text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--success); }
 
         /* MAIN CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding: 24px 28px 48px; }
@@ -61,6 +65,7 @@
         .upload-screen { display: flex; align-items: center; justify-content: center; height: 100%; }
         .upload-card { background: white; border-radius: 24px; padding: 60px; box-shadow: var(--shadow-md); border: 2px dashed #c5d3e8; text-align: center; cursor: pointer; max-width: 500px; width: 100%; }
         
+        /* MODAL */
         .modal-overlay { position: fixed; inset: 0; z-index: 500; background: rgba(10, 20, 50, 0.55); backdrop-filter: blur(6px); display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-box { background: white; border-radius: 24px; padding: 36px 32px; box-shadow: var(--shadow-lg); width: 460px; }
@@ -73,6 +78,7 @@
         .alert-card.ok { border-left-color: var(--success); }
         .alert-card.full-width { grid-column: 1 / -1; }
         .alert-title { font-weight: 900; font-size: 1rem; margin-bottom: 12px; color: var(--dark); display: flex; justify-content: space-between; align-items: center; }
+        
         .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
         .badge-item { background: #fff1f2; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffe4e6; cursor: pointer; }
         .badge-item.checked { opacity: 0.4; text-decoration: line-through; background: #f1f5f9; color: var(--na); border-color: var(--border); }
@@ -100,7 +106,7 @@
         table { width: 100%; border-collapse: collapse; }
         th { background: #3460b8; color: white; padding: 9px 6px; font-size: 0.72rem; font-weight: 800; border-bottom: 1px solid var(--border); }
         td { padding: 10px 6px; text-align: center; border-bottom: 1px solid #f1f5f9; font-size: 0.86rem; font-weight: 600; }
-        .td-station { font-weight: 900; color: var(--primary); background: #f8faff !important; width: 100px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 12px; }
+        .td-station { font-weight: 900; color: var(--primary); background: #f8faff !important; width: 100px; border-right: 1px solid #f1f5f9; text-align: left; padding-left: 15px; }
         .critical-val { background: #c0364f !important; color: white !important; }
         .bad-val { background: #f5dde2 !important; color: var(--danger) !important; }
         .na-cell { background: #f8fafc !important; color: var(--na) !important; }
@@ -170,7 +176,6 @@ const CONFIG = {
         }
     },
     L1_ST_LIST: ["대곡","진천","월배","상인","월촌","송현","서부정류장","대명","안지랑","현충로","영대병원","교대","명덕","반월당","중앙로","대구역","칠성시장","신천","동대구","동구청","아양교","동촌","해안","방촌","용계","율하","신기","반야월","각산","안심"],
-    // 대합실 공조기 부재 역사 데이터
     CONC_ABSENT: {
         line1: {
             start: ["안지랑", "영대병원", "동구청", "각산", "안심"],
@@ -183,7 +188,7 @@ const CONFIG = {
 };
 
 let isCooling = false, currentLine = '', ventSeason = '', globalData = null, selectedBranch = 'both';
-let doneCount = 0, totalItems = 0;
+let doneItems = 0, totalItems = 0;
 
 /**
  * [모듈 1] 데이터 유틸리티
@@ -248,10 +253,7 @@ const AnalysisEngine = {
     analyzeConc: (val, stName, side) => {
         const h = DataUtils.parseH(val);
         const cleanSt = stName.replace(/\s+/g,"");
-        // 부재 역사 판정
-        if (CONFIG.CONC_ABSENT[currentLine] && CONFIG.CONC_ABSENT[currentLine][side] && CONFIG.CONC_ABSENT[currentLine][side].includes(cleanSt)) {
-            return { s: 'none', c: 'na-cell' };
-        }
+        if (CONFIG.CONC_ABSENT[currentLine] && CONFIG.CONC_ABSENT[currentLine][side] && CONFIG.CONC_ABSENT[currentLine][side].includes(cleanSt)) return { s: 'none', c: 'na-cell' };
         if (isCooling) {
             const chKey = (cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt;
             const target = CONFIG.CHILLER_VALS[chKey] || 9.0;
@@ -296,8 +298,14 @@ const Extractor = {
             if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'),c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
             if (DataUtils.parseH(aV) > 0) res.air.push({ name: st, units: [{label:"01호기",val:aV,res:AnalysisEngine.analyzeAir(aV)}], isCri: AnalysisEngine.analyzeAir(aV).s==='critical' });
             
-            let cRes = [AnalysisEngine.analyzeConc(concR[0],st,'start'), AnalysisEngine.analyzeConc(concR[1],st,'start'), AnalysisEngine.analyzeConc(concR[2],st,'end'), AnalysisEngine.analyzeConc(concR[3],st,'end')];
-            res.conc.push({ name: st, raw: concR, res: cRes, isCri: cRes.some(r=>r.s==='critical') });
+            // 대합실 공조기 통합 구조화 (units 배열 사용)
+            let unitsConc = [
+                { label: "시점급기", val: concR[0], res: AnalysisEngine.analyzeConc(concR[0], st, 'start') },
+                { label: "시점배기", val: concR[1], res: AnalysisEngine.analyzeConc(concR[1], st, 'start') },
+                { label: "종점급기", val: concR[2], res: AnalysisEngine.analyzeConc(concR[2], st, 'end') },
+                { label: "종점배기", val: concR[3], res: AnalysisEngine.analyzeConc(concR[3], st, 'end') }
+            ];
+            res.conc.push({ name: st, units: unitsConc, isCri: unitsConc.some(u=>u.res.s==='critical') });
         }); return res;
     },
     getLine2(s, apSheet) {
@@ -324,7 +332,7 @@ const Extractor = {
                         let side = (lblB.includes("좌") || lblB.includes("시점")) ? 'start' : 'end';
                         unitsConc.push({ label: lblB, val: valE, res: AnalysisEngine.analyzeConc(valE, stName, side) });
                     }
-                    if (getCV(s,r,0).includes("냉동기")&&stName!=="문양") { chSum+=DataUtils.parseH(DataUtils.getCV(s,r,4)); chFound=true; }
+                    if (DataUtils.getCV(s,r,0).includes("냉동기")&&stName!=="문양") { chSum+=DataUtils.parseH(DataUtils.getCV(s,r,4)); chFound=true; }
                 }
                 if (stName!=="문양"&&unitsV.length>0) res.vent.push({name:stName,raw:unitsV.slice(0,4).map(u=>u.v),res:unitsV.slice(0,4).map(u=>u.r),unitNames:unitsV.slice(0,4).map(u=>u.l),isCri:unitsV.some(u=>u.r.s==='critical')});
                 if (chFound&&isCooling) { const sk=(stName==="반월당")?"반월당(2호선)":stName; const isC=(chSum===0||Math.abs(chSum-(CONFIG.CHILLER_VALS[sk]||6.0))>=3); res.chiller.push({name:stName,raw:[chSum],res:[{s:isC?'critical':'ok',c:isC?'row-critical':''}],isCri:isC}); }
@@ -346,27 +354,32 @@ const Extractor = {
  */
 const UI_Renderer = {
     buildTable: (items, labels) => {
-        let h = `<table><thead><tr><th style="width:90px;text-align:left;padding-left:12px;">역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
+        let h = `<table><thead><tr><th style="width:100px;text-align:left;padding-left:15px;">역사</th>${labels.map(l=>`<th>${l}</th>`).join('')}<th>판정</th></tr></thead><tbody>`;
         items.forEach(d => {
             const isEx = d.res.length > 0 && d.res[0].s === 'none';
             h += `<tr class="${d.isCri?'row-critical':''}">`;
-            h += `<td class="td-station">${d.name}</td>`;
-            for (let i = 0; i < labels.length; i++) h += `<td class="${(isEx || d.res[i]?.s==='none') ? 'na-cell' : (d.res[i] ? d.res[i].c : '')}">${(isEx || d.res[i]?.s==='none') ? '-' : DataUtils.formatToHMS(d.raw[i])}</td>`;
-            h += `<td><b style="color:${isEx?'var(--na)':(d.isCri?'var(--danger)':'var(--success)')}">${isEx ? '장비없음' : (d.isCri ? '이상' : '정상')}</b></td></tr>`;
+            h += `<td class="st-name-col">${d.name}</td>`;
+            for (let i=0; i<labels.length; i++) h += `<td class="${(isEx || d.res[i]?.s==='none') ? 'na-cell' : (d.res[i] ? d.res[i].c : '')}">${(isEx || d.res[i]?.s==='none') ? '-' : DataUtils.formatToHMS(d.raw[i])}</td>`;
+            h += `<td style="font-weight:900">${isEx ? '장비 없음' : (d.isCri ? '이상' : '정상')}</td></tr>`;
         }); return h + `</tbody></table>`;
     },
     buildTableAir: (items, lbl = "장비명") => {
-        let h = `<table><thead><tr><th style="width:90px;text-align:left;padding-left:12px;">역사</th><th>${lbl}</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
+        let h = `<table><thead><tr><th style="width:100px;text-align:left;padding-left:15px;">역사</th><th>${lbl}</th><th>가동시간</th><th>판정</th></tr></thead><tbody>`;
         items.forEach(d => { d.units.forEach((u, idx) => {
             const isEx = u.res.s === 'none';
             h += `<tr class="${u.res.s==='critical'?'row-critical':''}">`;
-            if (idx === 0) h += `<td class="td-station" rowspan="${d.units.length}">${d.name}</td>`;
-            h += `<td style="color:#64748b;font-size:0.82rem;">${u.label}</td><td class="${isEx?'na-cell':u.res.c}" style="font-weight:700;">${isEx?'-':DataUtils.formatToHMS(u.val)}</td><td><b style="color:${isEx?'var(--na)':(u.res.s==='critical'?'var(--danger)':'var(--success)')}">${isEx?'장비없음':(u.res.s==='critical'?'이상':'정상')}</b></td></tr>`;
+            if (idx === 0) h += `<td class="st-name-col" rowspan="${d.units.length}">${d.name}</td>`;
+            h += `<td style="color:var(--text-sub)">${u.label}</td><td class="${isEx?'na-cell':u.res.c}" style="font-weight:700;">${isEx?'-':DataUtils.formatToHMS(u.val)}</td><td><b style="color:${isEx?'var(--na)':(u.res.s==='critical'?'var(--danger)':'var(--success)')}">${isEx?'장비 없음':(u.res.s==='critical'?'이상':'정상')}</b></td></tr>`;
         }); }); return h + `</tbody></table>`;
     },
     buildAccordion: (title, count, html, id) => {
         const badge = count > 0 ? `<span class="acc-badge">${count}건 이상</span>` : '';
-        return `<button class="accordion-btn" onclick="toggleAcc(this,'${id}')"><span>전체 역사 현황 ${badge}</span><span class="acc-arrow">▾</span></button><div class="accordion-content" id="${id}">${html}</div>`;
+        return `
+        <div class="detail-section-title">${title}</div>
+        <div class="section-card">
+            <button class="accordion-btn" onclick="AppController.toggleAcc(this,'${id}')"><span>전체 역사 현황 ${badge}</span><span class="acc-arrow">▾</span></button>
+            <div class="accordion-content" id="${id}">${html}</div>
+        </div>`;
     },
     buildAlertCard: (title, items, type, full = false) => {
         const cls = full ? 'full-width' : '';
@@ -387,7 +400,7 @@ const UI_Renderer = {
 };
 
 /**
- * [모듈 5] 컨트롤러
+ * [모듈 5] 앱 컨트롤러
  */
 const AppController = {
     init: () => { document.getElementById('excelFile').addEventListener('change', AppController.handleFileUpload); },
@@ -424,59 +437,60 @@ const AppController = {
     render: () => {
         const br = CONFIG.BRANCHES[currentLine], data = globalData;
         let branches = (selectedBranch === 'both') ? [br.left, br.right] : [br[selectedBranch]];
-        renderSidebar(branches, data);
+        AppController.renderSidebar(branches, data);
         let mainHtml = '';
         if (selectedBranch === 'both') {
-            mainHtml += `<div class="branch-tabs"><button class="branch-tab active" id="tab-l" onclick="switchTab('l')">${currentLine==='line1'?'🔴':'🏭'} ${br.left.name}</button><button class="branch-tab" id="tab-r" onclick="switchTab('r')">${currentLine==='line1'?'🔴':'🏗️'} ${br.right.name}</button></div>`;
+            mainHtml += `<div class="branch-tabs"><button class="branch-tab active" id="tab-l" onclick="AppController.switchTab('l')">${currentLine==='line1'?'🔴':'🏭'} ${br.left.name}</button><button class="branch-tab" id="tab-r" onclick="AppController.switchTab('r')">${currentLine==='line1'?'🔴':'🏗️'} ${br.right.name}</button></div>`;
         }
         branches.forEach((branch, idx) => {
             const panelId = `panel-${(selectedBranch === 'both' && idx === 1) ? 'r' : 'l'}`;
-            mainHtml += `<div id="${panelId}" style="${(selectedBranch === 'both' && idx === 1) ? 'display:none' : ''}">${AppController.buildBranchUI(branch)}</div>`;
+            mainHtml += `<div id="${panelId}" style="${(selectedBranch === 'both' && idx === 1) ? 'display:none' : ''}">${AppController.buildBranchUI(branch, idx)}</div>`;
         });
         document.getElementById('main-content').innerHTML = mainHtml;
     },
-    buildBranchUI: (branch) => {
+    buildBranchUI: (branch, branchIdx) => {
         const data = globalData;
         const sH = data.hvac.filter(d => branch.stations.includes(d.name)), sV = data.vent.filter(d => branch.stations.includes(d.name)), sC = data.chiller.filter(d => branch.stations.includes(d.name)), sA = data.air.filter(d => branch.stations.includes(d.name)), sConc = data.conc.filter(d => branch.stations.includes(d.name));
         const cntH = sH.filter(d=>d.isCri).length, cntV = sV.filter(d=>d.isCri).length, cntC = sC.filter(d=>d.isCri).length, cntA = sA.filter(d=>d.isCri).length, cntConc = sConc.filter(d=>d.isCri).length;
 
-        let sumGrid = '<div class="summary-grid">';
-        if (cntH+cntV+cntC+cntA+cntConc === 0) sumGrid += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
+        let sumHtml = '<div class="summary-grid">';
+        if (cntH+cntV+cntC+cntA+cntConc === 0) sumHtml += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
         else {
-            sumGrid += UI_Renderer.buildAlertCard('승강장공조기', sH.filter(d=>d.isCri), 'hvac');
-            sumGrid += UI_Renderer.buildAlertCard('환기실송풍기', sV.filter(d=>d.isCri), 'vent');
-            if (isCooling) { sumGrid += UI_Renderer.buildAlertCard('냉동기', sC.filter(d=>d.isCri), 'chiller'); sumGrid += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
-            else { sumGrid += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); sumGrid += UI_Renderer.buildAlertCard('대합실공조기', sConc.filter(d=>d.isCri), 'conc'); }
+            sumHtml += UI_Renderer.buildAlertCard('승강장공조기', sH.filter(d=>d.isCri), 'hvac');
+            sumHtml += UI_Renderer.buildAlertCard('환기실송풍기', sV.filter(d=>d.isCri), 'vent');
+            if (isCooling) { sumHtml += UI_Renderer.buildAlertCard('냉동기', sC.filter(d=>d.isCri), 'chiller'); sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
+            else { sumHtml += UI_Renderer.buildAlertCard('대합실공조기', sConc.filter(d=>d.isCri), 'conc'); sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
         }
-        sumGrid += '</div>';
+        sumHtml += '</div>';
 
-        let detailHtml = `<div class="detail-grid"><div><div class="detail-section-title">⚙️ 공조기 상세내역</div>${UI_Renderer.buildAccordion('승강장공조기', cntH, UI_Renderer.buildTable(sH, ["시급","시배","종급","종배"]), 'h'+idx)}</div><div><div class="detail-section-title">🌪️ 송풍기 상세내역</div>${UI_Renderer.buildAccordion('환기실송풍기', cntV, UI_Renderer.buildTable(sV, ["시급","시배","종급","종배"]), 'v'+idx)}</div></div>`;
-        detailHtml += `<div class="detail-grid"><div><div class="detail-section-title">🌬️ 공기청정기 상세내역</div>${UI_Renderer.buildAccordion('공기청정기', cntA, UI_Renderer.buildTableAir(sA), 'a'+idx)}</div><div><div class="detail-section-title">🏢 대합실공조기 상세내역</div>${UI_Renderer.buildAccordion('대합실공조기', cntConc, (currentLine === 'line1' ? UI_Renderer.buildTable(sConc, ["시급","시배","종급","종배"]) : UI_Renderer.buildTableAir(sConc, "구분")), 'conc'+idx)}</div></div>`;
-        if (isCooling) detailHtml += `<div style="margin-top:16px;"><div class="detail-section-title">❄️ 냉동기 합산내역</div>${UI_Renderer.buildAccordion('냉동기', cntC, UI_Renderer.buildTable(sC, ["가동시간"]), 'c'+idx)}</div>`;
+        let detailHtml = `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('⚙️ 승강장공조기 상세', cntH, UI_Renderer.buildTable(sH, ["시급","시배","종급","종배"]), `h_${branchIdx}`) + `</div>`;
+        detailHtml += `<div>` + UI_Renderer.buildAccordion('🌪️ 환기실송풍기 상세', cntV, UI_Renderer.buildTable(sV, ["시급","시배","종급","종배"]), `v_${branchIdx}`) + `</div></div>`;
+        detailHtml += `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('🏢 대합실공조기 상세', cntConc, UI_Renderer.buildTableAir(sConc, "구분"), `conc_${branchIdx}`) + `</div>`;
+        detailHtml += `<div>` + UI_Renderer.buildAccordion('🌬️ 공기청정기 상세', cntA, UI_Renderer.buildTableAir(sA), `air_${branchIdx}`) + `</div></div>`;
+        if (isCooling) detailHtml += `<div style="margin-top:16px;">` + UI_Renderer.buildAccordion('❄️ 냉동기 합산내역', cntC, UI_Renderer.buildTable(sC, ["가동시간"]), `c_${branchIdx}`) + `</div>`;
 
-        return sumGrid + detailHtml;
-    }
+        return sumHtml + detailHtml;
+    },
+    renderSidebar: (branches, data) => {
+        let html = ''; totalItems = 0; doneItems = 0;
+        branches.forEach(br => {
+            const cH = data.hvac.filter(d => br.stations.includes(d.name) && d.isCri), cV = data.vent.filter(d => br.stations.includes(d.name) && d.isCri), cC = data.chiller.filter(d => br.stations.includes(d.name) && d.isCri), cA = data.air.filter(d => br.stations.includes(d.name) && d.isCri), cConc = data.conc.filter(d => br.stations.includes(d.name) && d.isCri);
+            if (branches.length > 1) html += `<div style="padding:12px 18px 5px; font-weight:900; color:var(--primary); font-size:0.8rem;">📍 ${br.name}</div>`;
+            const makeG = (icon, title, items, type) => {
+                if (items.length === 0) return ''; let h = `<div class="sidebar-group"><div class="sidebar-group-title">${icon} ${title}</div>`;
+                items.forEach(d => { if (type === 'air' || type === 'conc') { d.units.forEach(u => { if(u.res.s==='critical') { totalItems++; h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${u.label}</span></div><div class="checklist-val">${DataUtils.formatToHMS(u.val)}</div></div>`; }}); } else { d.res.forEach((r, i) => { if (r.s === 'critical') { totalItems++; const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i])); h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${lbl}</span></div><div class="checklist-val">${DataUtils.formatToHMS(d.raw[i])}</div></div>`; }}); } });
+                return h + `</div>`;
+            };
+            html += makeG('⚙️','공조기', cH, 'hvac') + makeG('🌪️','송풍기', cV, 'vent') + makeG('❄️','냉동기', cC, 'chiller') + makeG('🌬️','청정기', cA, 'air') + makeG('🏢','대합실공조', cConc, 'conc');
+        });
+        document.getElementById('sidebar').innerHTML = `<div class="sidebar-header"><div class="sidebar-title">확인 필요 장비</div><div class="sidebar-branch-name">${branches.map(b=>b.name).join(' / ')}</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-label"><span id="prog-done">0 / ${totalItems} 완료</span><span id="prog-pct">0%</span></div></div>${totalItems === 0 ? '<div class="sidebar-all-clear">✅ 모든 장비 정상</div>' : html}`;
+        totalCount = totalItems; AppController.updateProg();
+    },
+    checkItem: (el) => { if (el.classList.contains('done')) { el.classList.remove('done'); el.querySelector('.checklist-check').innerHTML = ''; doneItems = Math.max(0, doneItems - 1); } else { el.classList.add('done'); el.querySelector('.checklist-check').innerHTML = '✓'; doneItems++; } AppController.updateProg(); },
+    updateProg: () => { let pct = totalCount === 0 ? 100 : Math.round((doneItems / totalCount) * 100); if (document.getElementById('prog-fill')) document.getElementById('prog-fill').style.width = pct + '%'; if (document.getElementById('prog-done')) document.getElementById('prog-done').textContent = `${doneItems} / ${totalCount} 완료`; if (document.getElementById('prog-pct')) document.getElementById('prog-pct').textContent = pct + '%'; },
+    toggleAcc: (btn, id) => { btn.classList.toggle('active'); document.getElementById(id).classList.toggle('active'); },
+    switchTab: (s) => { const isL = s === 'l'; document.getElementById('tab-l').classList.toggle('active', isL); document.getElementById('tab-r').classList.toggle('active', !isL); document.getElementById('panel-l').style.display = isL ? '' : 'none'; document.getElementById('panel-r').style.display = isL ? 'none' : ''; }
 };
-
-function renderSidebar(branches, data) {
-    let html = ''; totalItems = 0; doneItems = 0;
-    branches.forEach(br => {
-        const cH = data.hvac.filter(d => br.stations.includes(d.name) && d.isCri), cV = data.vent.filter(d => br.stations.includes(d.name) && d.isCri), cC = data.chiller.filter(d => br.stations.includes(d.name) && d.isCri), cA = data.air.filter(d => br.stations.includes(d.name) && d.isCri), cConc = data.conc.filter(d => br.stations.includes(d.name) && d.isCri);
-        if (branches.length > 1) html += `<div style="padding:12px 18px 5px; font-weight:900; color:var(--primary); font-size:0.8rem;">📍 ${br.name}</div>`;
-        const makeG = (icon, title, items, type) => {
-            if (items.length === 0) return ''; let h = `<div class="sidebar-group"><div class="sidebar-group-title">${icon} ${title}</div>`;
-            items.forEach(d => { if (type === 'air' || type === 'conc') { d.units.forEach(u => { if(u.res.s==='critical') { totalItems++; h += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${u.label}</span></div><div class="checklist-val">${DataUtils.formatToHMS(u.val)}</div></div>`; }}); } else { d.res.forEach((r, i) => { if (r.s === 'critical') { totalItems++; const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i])); h += `<div class="checklist-item" onclick="checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${lbl}</span></div><div class="checklist-val">${DataUtils.formatToHMS(d.raw[i])}</div></div>`; }}); } });
-            return h + `</div>`;
-        };
-        html += makeG('⚙️','공조기', cH, 'hvac') + makeG('🌪️','송풍기', cV, 'vent') + makeG('❄️','냉동기', cC, 'chiller') + makeG('🌬️','공기청정기', cA, 'air') + makeG('🏢','대합실공조', cConc, 'conc');
-    });
-    document.getElementById('sidebar').innerHTML = `<div class="sidebar-header"><div class="sidebar-title">확인 필요 장비</div><div class="sidebar-branch-name">${branches.map(b=>b.name).join(' / ')}</div><div class="progress-bar-wrap"><div class="progress-bar-fill" id="prog-fill" style="width:0%"></div></div><div class="progress-label"><span id="prog-done">0 / ${totalItems} 완료</span><span id="prog-pct">0%</span></div></div>${totalItems === 0 ? '<div class="sidebar-all-clear">✅ 모든 장비 정상</div>' : html}`;
-    totalCount = totalItems; updateProgress();
-}
-function checkItem(el) { if (el.classList.contains('done')) { el.classList.remove('done'); el.querySelector('.checklist-check').innerHTML = ''; doneItems = Math.max(0, doneItems - 1); } else { el.classList.add('done'); el.querySelector('.checklist-check').innerHTML = '✓'; doneItems++; } updateProgress(); }
-function updateProgress() { let pct = totalCount === 0 ? 100 : Math.round((doneItems / totalCount) * 100); if (document.getElementById('prog-fill')) document.getElementById('prog-fill').style.width = pct + '%'; if (document.getElementById('prog-done')) document.getElementById('prog-done').textContent = `${doneItems} / ${totalCount} 완료`; if (document.getElementById('prog-pct')) document.getElementById('prog-pct').textContent = pct + '%'; }
-function toggleAcc(btn, id) { btn.classList.toggle('active'); document.getElementById(id).classList.toggle('active'); }
-function switchTab(s) { const isL = s === 'l'; document.getElementById('tab-l').classList.toggle('active', isL); document.getElementById('tab-r').classList.toggle('active', !isL); document.getElementById('panel-l').style.display = isL ? '' : 'none'; document.getElementById('panel-r').style.display = isL ? 'none' : ''; }
 
 AppController.init();
 </script>
