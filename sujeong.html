@@ -37,7 +37,7 @@
         .app-shell { display: flex; margin-top: var(--header-h); height: calc(100vh - var(--header-h)); }
 
         /* SIDEBAR */
-        .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: white; border-right: 1px solid var(--border); overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; box-shadow: 2px 0 12px rgba(0,0,0,0.04); }
+        .sidebar { width: var(--sidebar-w); min-width: var(--sidebar-w); background: white; border-right: 1px solid var(--border); overflow-y: auto; display: flex; flex-direction: column; }
         .sidebar-header { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); background: white; position: sticky; top: 0; z-index: 10; }
         .sidebar-title { font-size: 0.78rem; font-weight: 800; color: var(--na); text-transform: uppercase; }
         .sidebar-branch-name { font-size: 1rem; font-weight: 900; color: var(--dark); margin-top: 2px; }
@@ -53,11 +53,8 @@
         .checklist-check { width: 18px; height: 18px; border-radius: 5px; border: 2px solid #dba0ae; background: white; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; }
         .checklist-item.done .checklist-check { background: var(--success); border-color: var(--success); color: white; }
         .checklist-label { font-size: 0.8rem; font-weight: 800; color: var(--danger); flex: 1; line-height: 1.3; }
-        .checklist-item.done .checklist-label { color: var(--success); text-decoration: line-through; }
         .checklist-val { font-size: 0.72rem; font-weight: 700; color: var(--danger); background: #f5dde2; padding: 2px 7px; border-radius: 6px; }
         .checklist-item.done .checklist-val { background: #d1fae5; color: var(--success); }
-
-        .sidebar-all-clear { margin: 12px 14px; padding: 14px 12px; border-radius: 12px; background: var(--success-light); border: 1.5px solid #a7f3d0; text-align: center; font-size: 0.85rem; font-weight: 800; color: var(--success); }
 
         /* MAIN CONTENT */
         .main-content { flex: 1; overflow-y: auto; padding: 24px 28px 48px; }
@@ -80,7 +77,7 @@
         .alert-title { font-weight: 900; font-size: 1rem; margin-bottom: 12px; color: var(--dark); display: flex; justify-content: space-between; align-items: center; }
         
         .badge-list { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .badge-item { background: #fff1f2; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffe4e6; cursor: pointer; }
+        .badge-item { background: #fff1f2; color: var(--danger); padding: 8px 12px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; border: 1px solid #ffe4e6; transition: 0.2s; cursor: pointer; }
         .badge-item.checked { opacity: 0.4; text-decoration: line-through; background: #f1f5f9; color: var(--na); border-color: var(--border); }
         .val-tag { background: white; padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; font-family: monospace; }
 
@@ -187,7 +184,7 @@ const CONFIG = {
     }
 };
 
-let isCooling = false, currentLine = '', ventSeason = '', globalData = null, selectedBranch = 'both';
+let isCooling = false, currentLine = '', currentMonth = 1, currentDay = 1, ventSeason = '', globalData = null, selectedBranch = 'both';
 let doneItems = 0, totalItems = 0;
 
 /**
@@ -250,17 +247,36 @@ const AnalysisEngine = {
         if (Math.abs(h - 17) >= 5) return { s: 'critical', c: 'critical-val' };
         return (h >= 15 && h <= 18) ? { s: 'ok', c: '' } : { s: 'warning', c: 'bad-val' };
     },
+    /* 대합실 공조기 분석 (3단계 시즌별 변경된 기준 적용) */
     analyzeConc: (val, stName, side) => {
         const h = DataUtils.parseH(val);
         const cleanSt = stName.replace(/\s+/g,"");
+        const dateScore = currentMonth * 100 + currentDay;
+
+        // 부재 역사 판정
         if (CONFIG.CONC_ABSENT[currentLine] && CONFIG.CONC_ABSENT[currentLine][side] && CONFIG.CONC_ABSENT[currentLine][side].includes(cleanSt)) return { s: 'none', c: 'na-cell' };
-        if (isCooling) {
+
+        // 1. 냉방 시즌 (7/1 ~ 9/20) - 냉동기 기준 ±4 (단, -1, +3 이상 시 이상)
+        if (dateScore >= 701 && dateScore <= 920) {
             const chKey = (cleanSt === "반월당" && currentLine === 'line2') ? "반월당(2호선)" : cleanSt;
             const target = CONFIG.CHILLER_VALS[chKey] || 9.0;
-            return (Math.abs(h - target) >= 4) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
-        } else {
-            if (side === 'start') return (h <= 5 || h >= 11) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
-            else return (h <= 6 || h >= 12) ? { s: 'critical', c: 'critical-val' } : { s: 'ok', c: '' };
+            // 요청된 -1시간 이하, +3시간 이상 기준
+            if (h <= (target - 1) || h >= (target + 3)) return { s: 'critical', c: 'critical-val' };
+            return { s: 'ok', c: '' };
+        } 
+        // 2. 하절기 (6월 전체, 9/21 ~ 9/30) - 시점(7,11), 종점(8,12)
+        else if ((currentMonth === 6) || (dateScore >= 921 && dateScore <= 930)) {
+            if (side === 'start') {
+                if (h <= 7 || h >= 11) return { s: 'critical', c: 'critical-val' };
+            } else {
+                if (h <= 8 || h >= 12) return { s: 'critical', c: 'critical-val' };
+            }
+            return { s: 'ok', c: '' };
+        }
+        // 3. 하절기 외 (1~5월, 10~12월) - 2.3 이하 또는 6 이상
+        else {
+            if (h <= 2.3 || h >= 6) return { s: 'critical', c: 'critical-val' };
+            return { s: 'ok', c: '' };
         }
     }
 };
@@ -298,7 +314,6 @@ const Extractor = {
             if (isCooling) res.chiller.push({ name: st, raw: [cV], res: [{s:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical':'ok'),c:(cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3?'critical-val':'')}], isCri: (cV===0||Math.abs(cV-(CONFIG.CHILLER_VALS[st]||6.0))>=3) });
             if (DataUtils.parseH(aV) > 0) res.air.push({ name: st, units: [{label:"01호기",val:aV,res:AnalysisEngine.analyzeAir(aV)}], isCri: AnalysisEngine.analyzeAir(aV).s==='critical' });
             
-            // 대합실 공조기 통합 구조화 (units 배열 사용)
             let unitsConc = [
                 { label: "시점급기", val: concR[0], res: AnalysisEngine.analyzeConc(concR[0], st, 'start') },
                 { label: "시점배기", val: concR[1], res: AnalysisEngine.analyzeConc(concR[1], st, 'start') },
@@ -313,7 +328,7 @@ const Extractor = {
         const allSt = CONFIG.BRANCHES.line2.left.stations.concat(CONFIG.BRANCHES.line2.right.stations);
         const rg = XLSX.utils.decode_range(s['!ref']);
         allSt.forEach(stName => {
-            if (stName === "문양") { res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), isCri:false }); res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), unitNames:["-","-","-","-"], isCri:false }); }
+            if (stName === "문양") { res.hvac.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-cell'}), isCri:false }); res.vent.push({ name:"문양", raw:["-","-","-","-"], res:Array(4).fill({s:'none',c:'na-text'}), unitNames:["-","-","-","-"], isCri:false }); }
             const mn = stName.replace(/\s+/g,""); let fR = -1;
             for (let r = 0; r <= rg.e.r; r++) { if ((DataUtils.getCV(s,r,0)+DataUtils.getCV(s,r,1)).replace(/\s+/g,"").includes(mn)) { fR=r; break; } }
             if (fR !== -1) {
@@ -359,7 +374,11 @@ const UI_Renderer = {
             const isEx = d.res.length > 0 && d.res[0].s === 'none';
             h += `<tr class="${d.isCri?'row-critical':''}">`;
             h += `<td class="st-name-col">${d.name}</td>`;
-            for (let i=0; i<labels.length; i++) h += `<td class="${(isEx || d.res[i]?.s==='none') ? 'na-cell' : (d.res[i] ? d.res[i].c : '')}">${(isEx || d.res[i]?.s==='none') ? '-' : DataUtils.formatToHMS(d.raw[i])}</td>`;
+            for (let i = 0; i < labels.length; i++) {
+                const itemRes = d.res[i];
+                const isItemEx = itemRes?.s === 'none';
+                h += `<td class="${(isEx || isItemEx) ? 'na-cell' : (itemRes ? itemRes.c : '')}">${(isEx || isItemEx) ? '-' : DataUtils.formatToHMS(d.raw[i])}</td>`;
+            }
             h += `<td style="font-weight:900">${isEx ? '장비 없음' : (d.isCri ? '이상' : '정상')}</td></tr>`;
         }); return h + `</tbody></table>`;
     },
@@ -373,13 +392,8 @@ const UI_Renderer = {
         }); }); return h + `</tbody></table>`;
     },
     buildAccordion: (title, count, html, id) => {
-        const badge = count > 0 ? `<span class="acc-badge">${count}건 이상</span>` : '';
-        return `
-        <div class="detail-section-title">${title}</div>
-        <div class="section-card">
-            <button class="accordion-btn" onclick="AppController.toggleAcc(this,'${id}')"><span>전체 역사 현황 ${badge}</span><span class="acc-arrow">▾</span></button>
-            <div class="accordion-content" id="${id}">${html}</div>
-        </div>`;
+        const badge = count > 0 ? `<span class="acc-badge">현황 ${count}건 이상</span>` : '';
+        return `<button class="accordion-btn" onclick="AppController.toggleAcc(this,'${id}')"><span>전체 역사 현황 ${badge}</span><span class="acc-arrow">▾</span></button><div class="accordion-content" id="${id}">${html}</div>`;
     },
     buildAlertCard: (title, items, type, full = false) => {
         const cls = full ? 'full-width' : '';
@@ -400,7 +414,7 @@ const UI_Renderer = {
 };
 
 /**
- * [모듈 5] 앱 컨트롤러
+ * [모듈 5] 컨트롤러
  */
 const AppController = {
     init: () => { document.getElementById('excelFile').addEventListener('change', AppController.handleFileUpload); },
@@ -412,10 +426,12 @@ const AppController = {
             try {
                 const wb = XLSX.read(evt.target.result, { type: 'binary', cellDates: false });
                 const dm = file.name.match(/\d{8}/);
-                let m = dm ? parseInt(dm[0].substring(4,6)) : 1, d = dm ? parseInt(dm[0].substring(6,8)) : 1;
-                isCooling = (m===7 || m===8 || (m===9 && d<=20));
-                ventSeason = CONFIG.VENT_SEASON.INTER.includes(m) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(m) ? '하절기' : '동절기');
-                document.getElementById('header-pills').innerHTML = `<div class="header-pill">📅 ${m}월 ${d}일</div><div class="header-pill">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div><div class="header-pill">${currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선'}</div>`;
+                currentMonth = dm ? parseInt(dm[0].substring(4,6)) : 1;
+                currentDay = dm ? parseInt(dm[0].substring(6,8)) : 1;
+                isCooling = (currentMonth===7 || currentMonth===8 || (currentMonth===9 && currentDay<=20));
+                ventSeason = CONFIG.VENT_SEASON.INTER.includes(currentMonth) ? '간절기' : (CONFIG.VENT_SEASON.SUMMER.includes(currentMonth) ? '하절기' : '동절기');
+
+                document.getElementById('header-pills').innerHTML = `<div class="header-pill">📅 ${currentMonth}월 ${currentDay}일</div><div class="header-pill">${isCooling ? '❄️ 냉방' : '☀️ 비냉방'}</div><div class="header-pill">${currentLine === 'line1' ? '🔴 1호선' : '🟢 2호선'}</div>`;
                 const findS = (names) => { for (let n of names) { let sheet = wb.SheetNames.find(sn => sn.replace(/\s+/g,"")===n); if (sheet) return wb.Sheets[sheet]; } return null; };
                 globalData = (currentLine === 'line1') ? Extractor.getLine1(findS(["가동시간"]) || wb.Sheets[wb.SheetNames[0]]) : Extractor.getLine2(findS(["장비"]), findS(["공기청정기"]));
                 AppController.openModal(); e.target.value = '';
@@ -453,23 +469,22 @@ const AppController = {
         const sH = data.hvac.filter(d => branch.stations.includes(d.name)), sV = data.vent.filter(d => branch.stations.includes(d.name)), sC = data.chiller.filter(d => branch.stations.includes(d.name)), sA = data.air.filter(d => branch.stations.includes(d.name)), sConc = data.conc.filter(d => branch.stations.includes(d.name));
         const cntH = sH.filter(d=>d.isCri).length, cntV = sV.filter(d=>d.isCri).length, cntC = sC.filter(d=>d.isCri).length, cntA = sA.filter(d=>d.isCri).length, cntConc = sConc.filter(d=>d.isCri).length;
 
-        let sumHtml = '<div class="summary-grid">';
-        if (cntH+cntV+cntC+cntA+cntConc === 0) sumHtml += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
+        let sumGrid = '<div class="summary-grid">';
+        if (cntH+cntV+cntC+cntA+cntConc === 0) sumGrid += `<div class="alert-card ok full-width" style="text-align:center; padding:40px;"><h2 style="color:var(--success)">✅ 모든 장비가 정상 가동 중입니다.</h2></div>`;
         else {
-            sumHtml += UI_Renderer.buildAlertCard('승강장공조기', sH.filter(d=>d.isCri), 'hvac');
-            sumHtml += UI_Renderer.buildAlertCard('환기실송풍기', sV.filter(d=>d.isCri), 'vent');
-            if (isCooling) { sumHtml += UI_Renderer.buildAlertCard('냉동기', sC.filter(d=>d.isCri), 'chiller'); sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
-            else { sumHtml += UI_Renderer.buildAlertCard('대합실공조기', sConc.filter(d=>d.isCri), 'conc'); sumHtml += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
+            sumGrid += UI_Renderer.buildAlertCard('승강장공조기', sH.filter(d=>d.isCri), 'hvac');
+            sumGrid += UI_Renderer.buildAlertCard('환기실송풍기', sV.filter(d=>d.isCri), 'vent');
+            sumGrid += UI_Renderer.buildAlertCard('대합실공조기', sConc.filter(d=>d.isCri), 'conc');
+            if (isCooling) { sumGrid += UI_Renderer.buildAlertCard('냉동기', sC.filter(d=>d.isCri), 'chiller'); sumGrid += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
+            else { sumGrid += UI_Renderer.buildAlertCard('공기청정기', sA.filter(d=>d.isCri), 'air'); }
         }
-        sumHtml += '</div>';
+        sumGrid += '</div>';
 
-        let detailHtml = `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('⚙️ 승강장공조기 상세', cntH, UI_Renderer.buildTable(sH, ["시급","시배","종급","종배"]), `h_${branchIdx}`) + `</div>`;
-        detailHtml += `<div>` + UI_Renderer.buildAccordion('🌪️ 환기실송풍기 상세', cntV, UI_Renderer.buildTable(sV, ["시급","시배","종급","종배"]), `v_${branchIdx}`) + `</div></div>`;
-        detailHtml += `<div class="detail-grid"><div>` + UI_Renderer.buildAccordion('🏢 대합실공조기 상세', cntConc, UI_Renderer.buildTableAir(sConc, "구분"), `conc_${branchIdx}`) + `</div>`;
-        detailHtml += `<div>` + UI_Renderer.buildAccordion('🌬️ 공기청정기 상세', cntA, UI_Renderer.buildTableAir(sA), `air_${branchIdx}`) + `</div></div>`;
-        if (isCooling) detailHtml += `<div style="margin-top:16px;">` + UI_Renderer.buildAccordion('❄️ 냉동기 합산내역', cntC, UI_Renderer.buildTable(sC, ["가동시간"]), `c_${branchIdx}`) + `</div>`;
+        let detailHtml = `<div class="detail-grid"><div><div class="detail-section-title">⚙️ 공조기 상세내역</div>${UI_Renderer.buildAccordion('승강장공조기', cntH, UI_Renderer.buildTable(sH, ["시급","시배","종급","종배"]), `h_${branchIdx}`)}</div><div><div class="detail-section-title">🌪️ 송풍기 상세내역</div>${UI_Renderer.buildAccordion('환기실송풍기', cntV, UI_Renderer.buildTable(sV, ["시급","시배","종급","종배"]), `v_${branchIdx}`)}</div></div>`;
+        detailHtml += `<div class="detail-grid"><div><div class="detail-section-title">🏢 대합실공조기 상세내역</div>${UI_Renderer.buildAccordion('대합실공조기', cntConc, (currentLine === 'line1' ? UI_Renderer.buildTable(sConc, ["시점급기","시점배기","종점급기","종점배기"]) : UI_Renderer.buildTableAir(sConc, "구분")), `conc_${branchIdx}`)}</div><div><div class="detail-section-title">🌬️ 공기청정기 상세내역</div>${UI_Renderer.buildAccordion('공기청정기', cntA, UI_Renderer.buildTableAir(sA), `air_${branchIdx}`)}</div></div>`;
+        if (isCooling) detailHtml += `<div style="margin-top:16px;"><div class="detail-section-title">❄️ 냉동기 합산내역</div>${UI_Renderer.buildAccordion('냉동기', cntC, UI_Renderer.buildTable(sC, ["가동시간"]), `c_${branchIdx}`)}</div>`;
 
-        return sumHtml + detailHtml;
+        return sumGrid + detailHtml;
     },
     renderSidebar: (branches, data) => {
         let html = ''; totalItems = 0; doneItems = 0;
@@ -478,7 +493,7 @@ const AppController = {
             if (branches.length > 1) html += `<div style="padding:12px 18px 5px; font-weight:900; color:var(--primary); font-size:0.8rem;">📍 ${br.name}</div>`;
             const makeG = (icon, title, items, type) => {
                 if (items.length === 0) return ''; let h = `<div class="sidebar-group"><div class="sidebar-group-title">${icon} ${title}</div>`;
-                items.forEach(d => { if (type === 'air' || type === 'conc') { d.units.forEach(u => { if(u.res.s==='critical') { totalItems++; h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${u.label}</span></div><div class="checklist-val">${DataUtils.formatToHMS(u.val)}</div></div>`; }}); } else { d.res.forEach((r, i) => { if (r.s === 'critical') { totalItems++; const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i])); h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${lbl}</span></div><div class="checklist-val">${DataUtils.formatToHMS(d.raw[i])}</div></div>`; }}); } });
+                items.forEach(d => { if (type === 'air' || type === 'conc') { d.units.forEach(u => { if(u.res.s==='critical') { totalItems++; h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name}<br><span style="font-size:0.72rem;">${u.label}</span></div><div class="checklist-val">${DataUtils.formatToHMS(u.val)}</div></div>`; }}); } else { d.res.forEach((r, i) => { if (r.s === 'critical') { totalItems++; const lbl = (type==='vent'&&currentLine==='line2'?(d.unitNames?d.unitNames[i]:["시급","시배","종급","종배"][i]):(type==='chiller'?"냉동기":["시급","시배","종급","종배"][i])); h += `<div class="checklist-item" onclick="AppController.checkItem(this)"><div class="checklist-check"></div><div class="checklist-label">${d.name} ${lbl}</div><div class="checklist-val">${DataUtils.formatToHMS(d.raw[i])}</div></div>`; }}); } });
                 return h + `</div>`;
             };
             html += makeG('⚙️','공조기', cH, 'hvac') + makeG('🌪️','송풍기', cV, 'vent') + makeG('❄️','냉동기', cC, 'chiller') + makeG('🌬️','청정기', cA, 'air') + makeG('🏢','대합실공조', cConc, 'conc');
